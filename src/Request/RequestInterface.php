@@ -18,6 +18,7 @@ interface RequestInterface
      * Return body.
      *
      * @return ContainerInterface
+     * @throws RequestException
      */
     public function getBody(): ContainerInterface;
 

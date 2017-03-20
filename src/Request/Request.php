@@ -52,22 +52,22 @@ class Request implements RequestInterface
     protected $query;
 
     /**
-     * @param ContainerInterface $attributes
-     * @param ContainerInterface $body
-     * @param ContainerInterface $headers
      * @param string             $method
      * @param string             $path
      * @param ContainerInterface $query
+     * @param ContainerInterface $attributes
+     * @param ContainerInterface $body
+     * @param ContainerInterface $headers
      * @throws RequestException
      */
-    public function __construct(ContainerInterface $attributes, ContainerInterface $body, ContainerInterface $headers, string $method, string $path, ContainerInterface $query)
+    public function __construct(string $method = null, string $path = null, ContainerInterface $query = null, ContainerInterface $body = null, ContainerInterface $headers = null, ContainerInterface $attributes = null)
     {
-        $this->attributes = $attributes;
-        $this->body = $body;
-        $this->headers = $headers;
         $this->method = $method;
         $this->path = $path;
         $this->query = $query;
+        $this->body = $body;
+        $this->headers = $headers;
+        $this->attributes = $attributes;
     }
 
     /**
@@ -75,6 +75,10 @@ class Request implements RequestInterface
      */
     public function getAttributes(): ContainerInterface
     {
+        if ($this->attributes === null) {
+            $this->attributes = new Container();
+        }
+
         return $this->attributes;
     }
 
@@ -83,6 +87,15 @@ class Request implements RequestInterface
      */
     public function getBody(): ContainerInterface
     {
+        if ($this->body === null) {
+            $body = json_decode(file_get_contents('php://input') ?: '[]', true);
+            if ($body === null) {
+                throw InvalidRequest::forInvalidBody(json_last_error_msg());
+            }
+
+            $this->body = new Container($body);
+        }
+
         return $this->body;
     }
 
@@ -91,6 +104,16 @@ class Request implements RequestInterface
      */
     public function getHeaders(): ContainerInterface
     {
+        if ($this->headers === null) {
+            foreach ($_SERVER as $name => $value) {
+                if (strpos($name, 'HTTP_') === 0) {
+                    $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+                }
+            }
+
+            $this->headers = new Container($headers ?? []);
+        }
+
         return $this->headers;
     }
 
@@ -99,6 +122,10 @@ class Request implements RequestInterface
      */
     public function getMethod(): string
     {
+        if ($this->method === null) {
+            $this->method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+        }
+
         return $this->method;
     }
 
@@ -107,6 +134,11 @@ class Request implements RequestInterface
      */
     public function getPath(): string
     {
+        if ($this->path === null) {
+            $uri = explode('?', $_SERVER['REQUEST_URI'] ?? '/');
+            $this->path = current($uri);
+        }
+
         return $this->path;
     }
 
@@ -115,6 +147,12 @@ class Request implements RequestInterface
      */
     public function getQuery(): ContainerInterface
     {
+        if ($this->query === null) {
+            parse_str($_SERVER['QUERY_STRING'] ?? '', $query);
+
+            $this->query = new Container($query);
+        }
+
         return $this->query;
     }
 
@@ -124,41 +162,8 @@ class Request implements RequestInterface
     public function withAttribute(string $name, $value): RequestInterface
     {
         $request = clone $this;
-        $request->attributes = $this->attributes->with($name, $value);
+        $request->attributes = $this->getAttributes()->with($name, $value);
 
         return $request;
-    }
-
-    /**
-     * @return RequestInterface
-     * @throws RequestException
-     */
-    public static function fromEnvironment(): RequestInterface
-    {
-        $contents = file_get_contents('php://input');
-        if ($contents !== '') {
-            $body = json_decode($contents, true);
-            if ($body === null) {
-                throw InvalidRequest::forInvalidBody(json_last_error_msg());
-            }
-        }
-
-        foreach ($_SERVER as $name => $value) {
-            if (strpos($name, 'HTTP_') === 0) {
-                $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
-            }
-        }
-
-        $uri = parse_url($_SERVER['REQUEST_URI']);
-        parse_str($uri['query'] ?? '', $query);
-
-        return new static(
-            new Container(),
-            new Container($body ?? []),
-            new Container($headers ?? []),
-            $_SERVER['REQUEST_METHOD'] ?? 'GET',
-            $uri['path'],
-            new Container($query)
-        );
     }
 }
