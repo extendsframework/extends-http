@@ -17,52 +17,16 @@ class RequestTest extends TestCase
      * @covers \ExtendsFramework\Http\Request\Request::getPath()
      * @covers \ExtendsFramework\Http\Request\Request::getQuery()
      */
-    public function testCanCreateNewInstance(): RequestInterface
-    {
-        $attributes = $this->createMock(ContainerInterface::class);
-
-        $body = $this->createMock(ContainerInterface::class);
-
-        $headers = $this->createMock(ContainerInterface::class);
-
-        $query = $this->createMock(ContainerInterface::class);
-
-        /**
-         * @var ContainerInterface $attributes
-         * @var ContainerInterface $body
-         * @var ContainerInterface $headers
-         * @var ContainerInterface $query
-         */
-        $request = new Request($attributes, $body, $headers, 'GET', '/foo/bar', $query);
-
-        $this->assertSame($attributes, $request->getAttributes());
-        $this->assertSame($body, $request->getBody());
-        $this->assertSame($headers, $request->getHeaders());
-        $this->assertSame('GET', $request->getMethod());
-        $this->assertSame('/foo/bar', $request->getPath());
-        $this->assertSame($query, $request->getQuery());
-
-        return $request;
-    }
-
-    /**
-     * @covers \ExtendsFramework\Http\Request\Request::fromEnvironment()
-     * @covers \ExtendsFramework\Http\Request\Request::getAttributes()
-     * @covers \ExtendsFramework\Http\Request\Request::getBody()
-     * @covers \ExtendsFramework\Http\Request\Request::getHeaders()
-     * @covers \ExtendsFramework\Http\Request\Request::getMethod()
-     * @covers \ExtendsFramework\Http\Request\Request::getPath()
-     * @covers \ExtendsFramework\Http\Request\Request::getQuery()
-     */
-    public function testCanCreateFromEnvironment()
+    public function testCanCreateNewInstance(): void
     {
         Content::setContent('{"foo":"qux"}');
 
         $_SERVER['REQUEST_METHOD'] = 'POST';
-        $_SERVER['REQUEST_URI'] = '/foo/bar?baz=qux';
+        $_SERVER['QUERY_STRING'] = 'baz=qux';
+        $_SERVER['REQUEST_URI'] = '/foo/bar';
         $_SERVER['HTTP_CONTENT_TYPE'] = 'application/json';
 
-        $request = Request::fromEnvironment();
+        $request = new Request();
 
         $this->assertInstanceOf(ContainerInterface::class, $request->getAttributes());
         $this->assertSame('qux', $request->getBody()->get('foo'));
@@ -75,32 +39,33 @@ class RequestTest extends TestCase
     }
 
     /**
-     * @covers                   \ExtendsFramework\Http\Request\Request::fromEnvironment()
+     * @covers                   \ExtendsFramework\Http\Request\Request::__construct()
+     * @covers                   \ExtendsFramework\Http\Request\Request::getBody()
      * @covers                   \ExtendsFramework\Http\Request\Exception\InvalidRequest::forInvalidBody()
      * @expectedException        \ExtendsFramework\Http\Request\Exception\InvalidRequest
      * @expectedExceptionMessage Request body MUST be valid JSON; Syntax error.
      */
-    public function testCanNotCreateFromEnvironmentWithInvalidBody()
+    public function testCanNotCreateFromEnvironmentWithInvalidBody(): void
     {
         Content::setContent('{"foo":"qux"');
 
-        Request::fromEnvironment();
+        $request = new Request();
+        $request->getBody();
 
         Content::clearContent();
     }
 
     /**
-     * @param RequestInterface $request
-     * @depends testCanCreateNewInstances
      * @covers  \ExtendsFramework\Http\Request\Request::withAttribute()
      * @covers  \ExtendsFramework\Http\Request\Request::getAttributes()
      */
-    public function testCanCreateNewInstanceWithAttribute(RequestInterface $request): void
+    public function testCanCreateNewInstanceWithAttribute(): void
     {
+        $request = new Request();
         $clone = $request->withAttribute('foo', 'bar');
 
         $this->assertNotSame($request, $clone);
-        $this->assertSame('bar', $request->getAttributes()->get('foo'));
+        $this->assertSame('bar', $clone->getAttributes()->get('foo'));
     }
 }
 
