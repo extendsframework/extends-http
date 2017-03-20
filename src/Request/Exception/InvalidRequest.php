@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace ExtendsFramework\Http\Message\Exception;
+namespace ExtendsFramework\Http\Request\Exception;
 
-use ExtendsFramework\Http\Message\RequestException;
+use ExtendsFramework\Http\Request\RequestException;
 
 class InvalidRequest extends RequestException
 {
@@ -16,7 +16,7 @@ class InvalidRequest extends RequestException
     public static function forInvalidBody(string $error): RequestException
     {
         return new static(\sprintf(
-            'Request body MUST be valid JSON, got error "%s".',
+            'Request body MUST be valid JSON; %s.',
             $error
         ));
     }
