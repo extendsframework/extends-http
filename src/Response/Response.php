@@ -28,7 +28,7 @@ class Response implements ResponseInterface
      * @param ContainerInterface $headers
      * @param int                $statusCode
      */
-    public function __construct(ContainerInterface $body, ContainerInterface $headers, int $statusCode)
+    public function __construct(ContainerInterface $body = null, ContainerInterface $headers = null, int $statusCode = null)
     {
         $this->body = $body;
         $this->headers = $headers;
@@ -40,6 +40,10 @@ class Response implements ResponseInterface
      */
     public function getBody(): ContainerInterface
     {
+        if ($this->body === null) {
+            $this->body = new Container();
+        }
+
         return $this->body;
     }
 
@@ -48,6 +52,10 @@ class Response implements ResponseInterface
      */
     public function getHeaders(): ContainerInterface
     {
+        if ($this->headers === null) {
+            $this->headers = new Container();
+        }
+
         return $this->headers;
     }
 
@@ -56,6 +64,10 @@ class Response implements ResponseInterface
      */
     public function getStatusCode(): int
     {
+        if ($this->statusCode === null) {
+            $this->statusCode = 200;
+        }
+
         return $this->statusCode;
     }
 
@@ -65,23 +77,8 @@ class Response implements ResponseInterface
     public function withHeader(string $name, string $value): ResponseInterface
     {
         $response = clone $this;
-        $response->headers = $this->headers->with($name, $value);
+        $response->headers = $this->getHeaders()->with($name, $value);
 
         return $response;
-    }
-
-    /**
-     * @param array $body
-     * @param array $headers
-     * @param int   $statusCode
-     * @return static
-     */
-    public static function forResult(array $body = null, array $headers = null, int $statusCode = null)
-    {
-        return new static(
-            new Container($body ?: []),
-            new Container($headers ?: []),
-            $statusCode ?: 200
-        );
     }
 }

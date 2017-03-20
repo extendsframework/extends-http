@@ -13,34 +13,22 @@ class ResponseTest extends TestCase
      * @covers \ExtendsFramework\Http\Response\Response::getBody()
      * @covers \ExtendsFramework\Http\Response\Response::getHeaders()
      * @covers \ExtendsFramework\Http\Response\Response::getStatusCode()
-     * @return ResponseInterface
      */
-    public function testCanCreateNewInstance(): ResponseInterface
+    public function testCanCreateNewInstance(): void
     {
-        $body = $this->createMock(ContainerInterface::class);
+        $response = new Response();
 
-        $headers = $this->createMock(ContainerInterface::class);
-
-        /**
-         * @var ContainerInterface $body
-         * @var ContainerInterface $headers
-         */
-        $response = new Response($body, $headers, 200);
-
-        $this->assertSame($body, $response->getBody());
-        $this->assertSame($headers, $response->getHeaders());
+        $this->assertInstanceOf(ContainerInterface::class, $response->getBody());
+        $this->assertInstanceOf(ContainerInterface::class, $response->getHeaders());
         $this->assertSame(200, $response->getStatusCode());
-
-        return $response;
     }
 
     /**
-     * @param ResponseInterface $response
-     * @depends testCanCreateNewInstances
      * @covers  \ExtendsFramework\Http\Response\Response::withHeader()
      */
-    public function testCanCreateNewInstanceWithHeaders(ResponseInterface $response): void
+    public function testCanCreateNewInstanceWithHeaders(): void
     {
+        $response = new Response();
         $clone = $response->withHeader('foo', 'bar');
 
         $this->assertNotSame($clone, $response);
