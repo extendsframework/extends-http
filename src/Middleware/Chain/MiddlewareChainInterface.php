@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Middleware\Chain;
 
-use ExtendsFramework\Http\Message\RequestInterface;
-use ExtendsFramework\Http\Message\ResponseInterface;
+use ExtendsFramework\Http\Request\RequestInterface;
+use ExtendsFramework\Http\Response\ResponseInterface;
 
 interface MiddlewareChainInterface
 {
