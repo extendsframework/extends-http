@@ -71,14 +71,12 @@ class Uri implements UriInterface
     {
         $uri = $this->getScheme() . '://' . $this->getAuthority() . $this->getPath();
 
-        $query = $this->getQuery()->extract();
-        if (!empty($query)) {
-            $uri .= '?' . http_build_query($query);
+        if (!$this->getQuery()->isEmpty()) {
+            $uri .= '?' . http_build_query($this->getQuery()->extract());
         }
 
-        $fragment = $this->getFragment()->extract();
-        if (!empty($fragment)) {
-            $uri .= '#' . http_build_query($fragment);
+        if (!$this->getFragment()->isEmpty()) {
+            $uri .= '#' . http_build_query($this->getFragment()->extract());
         }
 
         return $uri;
