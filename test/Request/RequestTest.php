@@ -4,20 +4,19 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Request;
 
 use ExtendsFramework\Container\ContainerInterface;
+use ExtendsFramework\Http\Request\Uri\UriInterface;
 use PHPUnit\Framework\TestCase;
 
 class RequestTest extends TestCase
 {
     /**
-     * @covers \ExtendsFramework\Http\Request\Request::__construct()
      * @covers \ExtendsFramework\Http\Request\Request::getAttributes()
      * @covers \ExtendsFramework\Http\Request\Request::getBody()
      * @covers \ExtendsFramework\Http\Request\Request::getHeaders()
      * @covers \ExtendsFramework\Http\Request\Request::getMethod()
-     * @covers \ExtendsFramework\Http\Request\Request::getPath()
-     * @covers \ExtendsFramework\Http\Request\Request::getQuery()
+     * @covers \ExtendsFramework\Http\Request\Request::getUri()
      */
-    public function testCanCreateNewInstance(): void
+    public function testCanCreateNewInstanceFromEnvironment(): void
     {
         Content::setContent('{"foo":"qux"}');
 
@@ -32,14 +31,102 @@ class RequestTest extends TestCase
         $this->assertSame('qux', $request->getBody()->get('foo'));
         $this->assertSame('application/json', $request->getHeaders()->get('Content-Type'));
         $this->assertSame('POST', $request->getMethod());
-        $this->assertSame('/foo/bar', $request->getPath());
-        $this->assertSame('qux', $request->getQuery()->get('baz'));
+        $this->assertInstanceOf(UriInterface::class, $request->getUri());
 
         Content::clearContent();
     }
 
     /**
-     * @covers                   \ExtendsFramework\Http\Request\Request::__construct()
+     * @covers  \ExtendsFramework\Http\Request\Request::withAttributes()
+     * @covers  \ExtendsFramework\Http\Request\Request::withBody()
+     * @covers  \ExtendsFramework\Http\Request\Request::withHeaders()
+     * @covers  \ExtendsFramework\Http\Request\Request::withMethod()
+     * @covers  \ExtendsFramework\Http\Request\Request::withUri()
+     * @covers  \ExtendsFramework\Http\Request\Request::getAttributes()
+     * @covers  \ExtendsFramework\Http\Request\Request::getBody()
+     * @covers  \ExtendsFramework\Http\Request\Request::getHeaders()
+     * @covers  \ExtendsFramework\Http\Request\Request::getMethod()
+     * @covers  \ExtendsFramework\Http\Request\Request::getUri()
+     */
+    public function testCanGetFromWithMethods(): void
+    {
+        $attributes = $this->createMock(ContainerInterface::class);
+
+        $body = $this->createMock(ContainerInterface::class);
+
+        $headers = $this->createMock(ContainerInterface::class);
+
+        $uri = $this->createMock(UriInterface::class);
+
+        /**
+         * @var ContainerInterface $attributes
+         * @var ContainerInterface $body
+         * @var ContainerInterface $headers
+         * @var UriInterface       $uri
+         */
+        $request = (new Request())
+            ->withAttributes($attributes)
+            ->withBody($body)
+            ->withHeaders($headers)
+            ->withMethod('POST')
+            ->withUri($uri);
+
+        $this->assertSame($attributes, $request->getAttributes());
+        $this->assertSame($body, $request->getBody());
+        $this->assertSame($headers, $request->getHeaders());
+        $this->assertSame('POST', $request->getMethod());
+        $this->assertSame($uri, $request->getUri());
+    }
+
+    /**
+     * @covers \ExtendsFramework\Http\Request\Request::withAttributes()
+     * @covers \ExtendsFramework\Http\Request\Request::andAttribute()
+     * @covers \ExtendsFramework\Http\Request\Request::getAttributes()
+     */
+    public function testCanMergeWithAttribute(): void
+    {
+        $attributes = $this->createMock(ContainerInterface::class);
+        $attributes
+            ->expects($this->once())
+            ->method('with')
+            ->with('foo', 'bar')
+            ->willReturnSelf();
+
+        /**
+         * @var ContainerInterface $attributes
+         */
+        $uri = (new Request())
+            ->withAttributes($attributes)
+            ->andAttribute('foo', 'bar');
+
+        $this->assertSame($attributes, $uri->getAttributes());
+    }
+
+    /**
+     * @covers \ExtendsFramework\Http\Request\Request::withHeaders()
+     * @covers \ExtendsFramework\Http\Request\Request::andHeader()
+     * @covers \ExtendsFramework\Http\Request\Request::getHeaders()
+     */
+    public function testCanMergeWithHeader(): void
+    {
+        $headers = $this->createMock(ContainerInterface::class);
+        $headers
+            ->expects($this->once())
+            ->method('with')
+            ->with('foo', 'bar')
+            ->willReturnSelf();
+
+        /**
+         * @var ContainerInterface $headers
+         */
+        $uri = (new Request())
+            ->withHeaders($headers)
+            ->andHeader('foo', 'bar');
+
+        $this->assertSame($headers, $uri->getHeaders());
+    }
+
+    /**
      * @covers                   \ExtendsFramework\Http\Request\Request::getBody()
      * @covers                   \ExtendsFramework\Http\Request\Exception\InvalidRequest::forInvalidBody()
      * @expectedException        \ExtendsFramework\Http\Request\Exception\InvalidRequest
@@ -54,19 +141,6 @@ class RequestTest extends TestCase
 
         Content::clearContent();
     }
-
-    /**
-     * @covers  \ExtendsFramework\Http\Request\Request::withAttribute()
-     * @covers  \ExtendsFramework\Http\Request\Request::getAttributes()
-     */
-    public function testCanCreateNewInstanceWithAttribute(): void
-    {
-        $request = new Request();
-        $clone = $request->withAttribute('foo', 'bar');
-
-        $this->assertNotSame($request, $clone);
-        $this->assertSame('bar', $clone->getAttributes()->get('foo'));
-    }
 }
 
 abstract class Content
@@ -77,20 +151,20 @@ abstract class Content
     public static $content;
 
     /**
+     * @return void
+     */
+    public static function clearContent(): void
+    {
+        self::$content = null;
+    }
+
+    /**
      * @param string $content
      * @return void
      */
     public static function setContent(string $content): void
     {
         self::$content = $content;
-    }
-
-    /**
-     * @return void
-     */
-    public static function clearContent(): void
-    {
-        self::$content = null;
     }
 }
 

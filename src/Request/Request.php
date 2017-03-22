@@ -6,6 +6,8 @@ namespace ExtendsFramework\Http\Request;
 use ExtendsFramework\Container\Container;
 use ExtendsFramework\Container\ContainerInterface;
 use ExtendsFramework\Http\Request\Exception\InvalidRequest;
+use ExtendsFramework\Http\Request\Uri\Uri;
+use ExtendsFramework\Http\Request\Uri\UriInterface;
 
 class Request implements RequestInterface
 {
@@ -40,34 +42,30 @@ class Request implements RequestInterface
     /**
      * Request URI.
      *
-     * @var string
+     * @var UriInterface
      */
-    protected $path;
+    protected $uri;
 
     /**
-     * Request query parameters.
-     *
-     * @var ContainerInterface
+     * @inheritDoc
      */
-    protected $query;
-
-    /**
-     * @param string             $method
-     * @param string             $path
-     * @param ContainerInterface $query
-     * @param ContainerInterface $attributes
-     * @param ContainerInterface $body
-     * @param ContainerInterface $headers
-     * @throws RequestException
-     */
-    public function __construct(string $method = null, string $path = null, ContainerInterface $query = null, ContainerInterface $body = null, ContainerInterface $headers = null, ContainerInterface $attributes = null)
+    public function andAttribute(string $name, string $value): RequestInterface
     {
-        $this->method = $method;
-        $this->path = $path;
-        $this->query = $query;
-        $this->body = $body;
-        $this->headers = $headers;
-        $this->attributes = $attributes;
+        $clone = clone $this;
+        $clone->attributes = $clone->getAttributes()->with($name, $value);
+
+        return $clone;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function andHeader(string $name, string $value): RequestInterface
+    {
+        $clone = clone $this;
+        $clone->headers = $clone->getHeaders()->with($name, $value);
+
+        return $clone;
     }
 
     /**
@@ -130,40 +128,69 @@ class Request implements RequestInterface
     }
 
     /**
-     * @return string
+     * @inheritDoc
      */
-    public function getPath(): string
+    public function getUri(): UriInterface
     {
-        if ($this->path === null) {
-            $uri = explode('?', $_SERVER['REQUEST_URI'] ?? '/');
-            $this->path = current($uri);
+        if ($this->uri === null) {
+            $this->uri = new Uri();
         }
 
-        return $this->path;
-    }
-
-    /**
-     * @return ContainerInterface
-     */
-    public function getQuery(): ContainerInterface
-    {
-        if ($this->query === null) {
-            parse_str($_SERVER['QUERY_STRING'] ?? '', $query);
-
-            $this->query = new Container($query);
-        }
-
-        return $this->query;
+        return $this->uri;
     }
 
     /**
      * @inheritDoc
      */
-    public function withAttribute(string $name, $value): RequestInterface
+    public function withAttributes(ContainerInterface $attributes): RequestInterface
     {
-        $request = clone $this;
-        $request->attributes = $this->getAttributes()->with($name, $value);
+        $clone = clone $this;
+        $clone->attributes = $attributes;
 
-        return $request;
+        return $clone;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function withBody(ContainerInterface $body): RequestInterface
+    {
+        $clone = clone $this;
+        $clone->body = $body;
+
+        return $clone;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function withHeaders(ContainerInterface $headers): RequestInterface
+    {
+        $clone = clone $this;
+        $clone->headers = $headers;
+
+        return $clone;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function withMethod(string $method): RequestInterface
+    {
+        $clone = clone $this;
+        $clone->method = $method;
+
+        return $clone;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function withUri(UriInterface $uri): RequestInterface
+    {
+        $clone = clone $this;
+        $clone->uri = $uri;
+
+        return $clone;
     }
 }

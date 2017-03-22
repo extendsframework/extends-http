@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
 class ResponseTest extends TestCase
 {
     /**
-     * @covers \ExtendsFramework\Http\Response\Response::__construct()
      * @covers \ExtendsFramework\Http\Response\Response::getBody()
      * @covers \ExtendsFramework\Http\Response\Response::getHeaders()
      * @covers \ExtendsFramework\Http\Response\Response::getStatusCode()
@@ -24,14 +23,54 @@ class ResponseTest extends TestCase
     }
 
     /**
-     * @covers  \ExtendsFramework\Http\Response\Response::withHeader()
+     * @covers  \ExtendsFramework\Http\Response\Response::withHeaders()
+     * @covers  \ExtendsFramework\Http\Response\Response::andHeader()
+     * @covers  \ExtendsFramework\Http\Response\Response::getHeaders()
      */
     public function testCanCreateNewInstanceWithHeaders(): void
     {
-        $response = new Response();
-        $clone = $response->withHeader('foo', 'bar');
+        $headers = $this->createMock(ContainerInterface::class);
+        $headers
+            ->expects($this->once())
+            ->method('with')
+            ->with('foo', 'bar')
+            ->willReturnSelf();
 
-        $this->assertNotSame($clone, $response);
-        $this->assertSame('bar', $response->getHeaders()->get('foo'));
+        /**
+         * @var ContainerInterface $headers
+         */
+        $response = (new Response())
+            ->withHeaders($headers)
+            ->andHeader('foo', 'bar');
+
+        $this->assertSame($headers, $response->getHeaders());
+    }
+
+    /**
+     * @covers \ExtendsFramework\Http\Response\Response::withBody()
+     * @covers \ExtendsFramework\Http\Response\Response::withHeaders()
+     * @covers \ExtendsFramework\Http\Response\Response::withStatusCode()
+     * @covers \ExtendsFramework\Http\Response\Response::getBody()
+     * @covers \ExtendsFramework\Http\Response\Response::getHeaders()
+     * @covers \ExtendsFramework\Http\Response\Response::getStatusCode()
+     */
+    public function testCanGetFromWithMethods(): void
+    {
+        $body = $this->createMock(ContainerInterface::class);
+
+        $headers = $this->createMock(ContainerInterface::class);
+
+        /**
+         * @var ContainerInterface $body
+         * @var ContainerInterface $headers
+         */
+        $response = (new Response())
+            ->withBody($body)
+            ->withHeaders($headers)
+            ->withStatusCode(201);
+
+        $this->assertSame($body, $response->getBody());
+        $this->assertSame($headers, $response->getHeaders());
+        $this->assertSame(201, $response->getStatusCode());
     }
 }

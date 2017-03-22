@@ -24,15 +24,14 @@ class Response implements ResponseInterface
     protected $statusCode;
 
     /**
-     * @param ContainerInterface $body
-     * @param ContainerInterface $headers
-     * @param int                $statusCode
+     * @inheritDoc
      */
-    public function __construct(ContainerInterface $body = null, ContainerInterface $headers = null, int $statusCode = null)
+    public function andHeader(string $name, string $value): ResponseInterface
     {
-        $this->body = $body;
-        $this->headers = $headers;
-        $this->statusCode = $statusCode;
+        $response = clone $this;
+        $response->headers = $this->getHeaders()->with($name, $value);
+
+        return $response;
     }
 
     /**
@@ -74,11 +73,33 @@ class Response implements ResponseInterface
     /**
      * @inheritDoc
      */
-    public function withHeader(string $name, string $value): ResponseInterface
+    public function withBody(ContainerInterface $body): ResponseInterface
     {
-        $response = clone $this;
-        $response->headers = $this->getHeaders()->with($name, $value);
+        $clone = clone $this;
+        $clone->body = $body;
 
-        return $response;
+        return $clone;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function withHeaders(ContainerInterface $headers): ResponseInterface
+    {
+        $clone = clone $this;
+        $clone->headers = $headers;
+
+        return $clone;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function withStatusCode(int $statusCode): ResponseInterface
+    {
+        $clone = clone $this;
+        $clone->statusCode = $statusCode;
+
+        return $clone;
     }
 }

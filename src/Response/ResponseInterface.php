@@ -8,6 +8,15 @@ use ExtendsFramework\Container\ContainerInterface;
 interface ResponseInterface
 {
     /**
+     * Merge $name and $value into existing headers and return new instance.
+     *
+     * @param string $name
+     * @param string $value
+     * @return ResponseInterface
+     */
+    public function andHeader(string $name, string $value): ResponseInterface;
+
+    /**
      * Return body.
      *
      * @return ContainerInterface
@@ -29,11 +38,26 @@ interface ResponseInterface
     public function getStatusCode(): int;
 
     /**
-     * Return new instance with header $value for $name.
+     * Return new instance with $body.
      *
-     * @param string $name
-     * @param string $value
+     * @param ContainerInterface $body
      * @return ResponseInterface
      */
-    public function withHeader(string $name, string $value): ResponseInterface;
+    public function withBody(ContainerInterface $body): ResponseInterface;
+
+    /**
+     * Return new instance with $headers.
+     *
+     * @param ContainerInterface $headers
+     * @return ResponseInterface
+     */
+    public function withHeaders(ContainerInterface $headers): ResponseInterface;
+
+    /**
+     * Return new instance with $statusCode.
+     *
+     * @param int $statusCode
+     * @return ResponseInterface
+     */
+    public function withStatusCode(int $statusCode): ResponseInterface;
 }
