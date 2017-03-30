@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Middleware\Chain;
 
+use ExtendsFramework\Http\Middleware\MiddlewareInterface;
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Response\ResponseInterface;
-use ExtendsFramework\Http\Middleware\MiddlewareInterface;
 use SplPriorityQueue;
 
 class MiddlewareChain implements MiddlewareChainInterface
@@ -16,11 +16,6 @@ class MiddlewareChain implements MiddlewareChainInterface
      * @var SplPriorityQueue
      */
     protected $queue;
-
-    /**
-     * @var bool
-     */
-    protected $first = true;
 
     /**
      * Set priority queue.
