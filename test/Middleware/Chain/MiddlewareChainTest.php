@@ -3,11 +3,10 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Middleware\Chain;
 
-use ExtendsFramework\Container\Container;
-use ExtendsFramework\Http\Message\RequestInterface;
-use ExtendsFramework\Http\Message\Response;
-use ExtendsFramework\Http\Message\ResponseInterface;
 use ExtendsFramework\Http\Middleware\MiddlewareInterface;
+use ExtendsFramework\Http\Request\RequestInterface;
+use ExtendsFramework\Http\Response\Response;
+use ExtendsFramework\Http\Response\ResponseInterface;
 use PHPUnit\Framework\TestCase;
 
 class MiddlewareChainTest extends TestCase
@@ -23,9 +22,6 @@ class MiddlewareChainTest extends TestCase
 
         $middleware1 = new class implements MiddlewareInterface
         {
-            /**
-             * @inheritDoc
-             */
             public function process(RequestInterface $request, MiddlewareChainInterface $chain): ResponseInterface
             {
                 return $chain->proceed($request);
@@ -34,18 +30,9 @@ class MiddlewareChainTest extends TestCase
 
         $middleware2 = new class implements MiddlewareInterface
         {
-            /**
-             * @inheritDoc
-             */
             public function process(RequestInterface $request, MiddlewareChainInterface $chain): ResponseInterface
             {
-                $response = new Response();
-                $response = $response->withBody(new Container([
-                    'foo' => 'bar',
-                ]));
-
-                /** @var ResponseInterface $response */
-                return $response;
+                return new Response();
             }
         };
 
