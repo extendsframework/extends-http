@@ -64,7 +64,7 @@ interface RequestInterface
 
     /**
      * Return new instance with $attributes.
-     **
+     *
      * @param ContainerInterface $attributes
      * @return RequestInterface
      */
