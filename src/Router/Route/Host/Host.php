@@ -14,16 +14,22 @@ use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 class Host implements RouteInterface
 {
     /**
+     * Host to match.
+     *
      * @var string
      */
     protected $host;
 
     /**
+     * Default parameters to return.
+     *
      * @var ContainerInterface
      */
     protected $parameters;
 
     /**
+     * Create a method route.
+     *
      * @param string             $host
      * @param ContainerInterface $parameters
      */
