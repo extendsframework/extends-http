@@ -98,7 +98,7 @@ class RouterFactoryTest extends TestCase
      * @covers                   \ExtendsFramework\Http\Router\RouterFactory::createRoute
      * @covers                   \ExtendsFramework\Http\Router\Exception\InvalidRouterConfig::forRouteType()
      * @expectedException        \ExtendsFramework\Http\Router\Exception\InvalidRouterConfig
-     * @expectedExceptionMessage Route must be instance or subclass of RouteInterface, got "array".
+     * @expectedExceptionMessage Route MUST be instance or subclass of RouteInterface, got "array".
      */
     public function testCanNotCreateRouterFromInvalidRouteType(): void
     {
