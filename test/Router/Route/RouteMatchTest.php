@@ -48,16 +48,16 @@ class RouteMatchTest extends TestCase
         /**
          * @var ContainerInterface $parameters1
          */
-        $match1 = new RouteMatch($parameters1, 15);
+        $match1 = new RouteMatch($parameters1, 10);
 
         /**
          * @var ContainerInterface $parameters2
          */
-        $match2 = new RouteMatch($parameters2, 10);
+        $match2 = new RouteMatch($parameters2, 15);
 
         $match3 = $match1->merge($match2);
 
         $this->assertSame($parameters3, $match3->getParameters());
-        $this->assertSame(25, $match3->getPathOffset());
+        $this->assertSame(15, $match3->getPathOffset());
     }
 }
