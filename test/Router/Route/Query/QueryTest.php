@@ -60,7 +60,7 @@ class QueryTest extends TestCase
         $match = $path->match($request, 4);
 
         $this->assertInstanceOf(RouteMatchInterface::class, $match);
-        $this->assertSame(4, $match->getPathOffset());
+        $this->assertSame(0, $match->getPathOffset());
         $this->assertSame([
             'offset' => '0',
             'limit' => '20',

@@ -46,7 +46,7 @@ class PathTest extends TestCase
         $match = $path->match($request, 4);
 
         $this->assertInstanceOf(RouteMatchInterface::class, $match);
-        $this->assertSame(15, $match->getPathOffset());
+        $this->assertSame(11, $match->getPathOffset());
         $this->assertSame([
             'foo' => 'bar',
             'id' => '33',

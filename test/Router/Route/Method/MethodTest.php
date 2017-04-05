@@ -34,7 +34,7 @@ class MethodTest extends TestCase
         $match = $method->match($request, 5);
 
         $this->assertInstanceOf(RouteMatchInterface::class, $match);
-        $this->assertSame(5, $match->getPathOffset());
+        $this->assertSame(0, $match->getPathOffset());
         $this->assertSame([
             'foo' => 'bar',
         ], $match->getParameters()->extract());

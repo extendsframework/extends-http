@@ -60,7 +60,7 @@ class Host implements RouteInterface
     public function match(RequestInterface $request, int $pathOffset): ?RouteMatchInterface
     {
         if ($request->getUri()->getHost() === $this->host) {
-            return new RouteMatch($this->parameters, $pathOffset);
+            return new RouteMatch($this->parameters);
         }
 
         return null;

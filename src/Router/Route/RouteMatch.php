@@ -27,10 +27,10 @@ class RouteMatch implements RouteMatchInterface
      * @param ContainerInterface $parameters
      * @param int                $pathOffset
      */
-    public function __construct(ContainerInterface $parameters, ?int $pathOffset)
+    public function __construct(ContainerInterface $parameters, int $pathOffset = null)
     {
         $this->parameters = $parameters;
-        $this->pathOffset = $pathOffset;
+        $this->pathOffset = $pathOffset ?: 0;
     }
 
     /**
@@ -56,7 +56,7 @@ class RouteMatch implements RouteMatchInterface
     {
         $merged = clone $this;
         $merged->parameters = $this->getParameters()->merge($routeMatch->getParameters());
-        $merged->pathOffset = $routeMatch->getPathOffset();
+        $merged->pathOffset += $routeMatch->getPathOffset();
 
         return $merged;
     }

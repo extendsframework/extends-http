@@ -58,6 +58,6 @@ class RouteMatchTest extends TestCase
         $match3 = $match1->merge($match2);
 
         $this->assertSame($parameters3, $match3->getParameters());
-        $this->assertSame(15, $match3->getPathOffset());
+        $this->assertSame(25, $match3->getPathOffset());
     }
 }

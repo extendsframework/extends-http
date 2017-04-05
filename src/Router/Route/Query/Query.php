@@ -69,10 +69,7 @@ class Query implements RouteInterface
             }
         }
 
-        return new RouteMatch(
-            $this->getParameters($matched ?? []),
-            $pathOffset
-        );
+        return new RouteMatch($this->getParameters($matched ?? []));
     }
 
     /**

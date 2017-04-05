@@ -81,7 +81,7 @@ class Path implements RouteInterface
         if (preg_match($this->getPattern(), $request->getUri()->getPath(), $matches, PREG_OFFSET_CAPTURE, $pathOffset)) {
             return new RouteMatch(
                 $this->getParameters($matches),
-                $pathOffset + end($matches)[1]
+                end($matches)[1]
             );
         }
 
