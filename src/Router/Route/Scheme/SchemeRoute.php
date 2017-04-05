@@ -1,41 +1,41 @@
 <?php
 declare(strict_types=1);
 
-namespace ExtendsFramework\Http\Router\Route\Host;
+namespace ExtendsFramework\Http\Router\Route\Scheme;
 
 use ExtendsFramework\Container\Container;
 use ExtendsFramework\Container\ContainerInterface;
 use ExtendsFramework\Http\Request\RequestInterface;
-use ExtendsFramework\Http\Router\Route\Host\Exception\InvalidOptions;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatch;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
+use ExtendsFramework\Http\Router\Route\Scheme\Exception\InvalidOptions;
 
-class Host implements RouteInterface
+class SchemeRoute implements RouteInterface
 {
     /**
-     * Host to match.
-     *
-     * @var string
-     */
-    protected $host;
-
-    /**
-     * Default parameters to return.
+     * Parameters to return when route is matched.
      *
      * @var ContainerInterface
      */
     protected $parameters;
 
     /**
-     * Create a method route.
+     * Scheme to match.
      *
-     * @param string             $host
+     * @var string
+     */
+    protected $scheme;
+
+    /**
+     * Create a new scheme route.
+     *
+     * @param string             $scheme
      * @param ContainerInterface $parameters
      */
-    public function __construct(string $host, ContainerInterface $parameters = null)
+    public function __construct(string $scheme, ContainerInterface $parameters = null)
     {
-        $this->host = $host;
+        $this->scheme = strtoupper(trim($scheme));
         $this->parameters = $parameters ?? new Container();
     }
 
@@ -44,12 +44,12 @@ class Host implements RouteInterface
      */
     public static function factory(array $options): RouteInterface
     {
-        if (!isset($options['host'])) {
-            throw InvalidOptions::forMissingHost();
+        if (!isset($options['scheme'])) {
+            throw InvalidOptions::forMissingScheme();
         }
 
         return new static(
-            $options['host'],
+            $options['scheme'],
             new Container($options['parameters'] ?? [])
         );
     }
@@ -59,7 +59,7 @@ class Host implements RouteInterface
      */
     public function match(RequestInterface $request, int $pathOffset): ?RouteMatchInterface
     {
-        if ($request->getUri()->getHost() === $this->host) {
+        if (strtoupper($request->getUri()->getScheme()) === $this->scheme) {
             return new RouteMatch($this->parameters);
         }
 

@@ -9,14 +9,14 @@ use ExtendsFramework\Http\Request\Uri\UriInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use PHPUnit\Framework\TestCase;
 
-class QueryTest extends TestCase
+class QueryRouteTest extends TestCase
 {
     /**
-     * @covers \ExtendsFramework\Http\Router\Route\Query\Query::factory()
-     * @covers \ExtendsFramework\Http\Router\Route\Query\Query::__construct()
-     * @covers \ExtendsFramework\Http\Router\Route\Query\Query::match()
-     * @covers \ExtendsFramework\Http\Router\Route\Query\Query::getPattern()
-     * @covers \ExtendsFramework\Http\Router\Route\Query\Query::getParameters()
+     * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::factory()
+     * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::match()
+     * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::getPattern()
+     * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::getParameters()
      */
     public function testCanMatchQuery(): void
     {
@@ -48,7 +48,7 @@ class QueryTest extends TestCase
         /**
          * @var RequestInterface $request
          */
-        $path = Query::factory([
+        $path = QueryRoute::factory([
             'constraints' => [
                 'limit' => '\d+',
                 'offset' => '\d+',
@@ -68,10 +68,10 @@ class QueryTest extends TestCase
     }
 
     /**
-     * @covers \ExtendsFramework\Http\Router\Route\Query\Query::factory()
-     * @covers \ExtendsFramework\Http\Router\Route\Query\Query::__construct()
-     * @covers \ExtendsFramework\Http\Router\Route\Query\Query::match()
-     * @covers \ExtendsFramework\Http\Router\Route\Query\Query::getPattern()
+     * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::factory()
+     * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::match()
+     * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::getPattern()
      */
     public function testCanNotMatchQuery(): void
     {
@@ -103,7 +103,7 @@ class QueryTest extends TestCase
         /**
          * @var RequestInterface $request
          */
-        $path = Query::factory([
+        $path = QueryRoute::factory([
             'path' => '/:id/bar',
             'constraints' => [
                 'limit' => '\d+',
@@ -115,13 +115,13 @@ class QueryTest extends TestCase
     }
 
     /**
-     * @covers                   \ExtendsFramework\Http\Router\Route\Query\Query::factory()
+     * @covers                   \ExtendsFramework\Http\Router\Route\Query\QueryRoute::factory()
      * @covers                   \ExtendsFramework\Http\Router\Route\Query\Exception\InvalidOptions::forMissingConstraints()
      * @expectedException        \ExtendsFramework\Http\Router\Route\Query\Exception\InvalidOptions
      * @expectedExceptionMessage Constraints are required and MUST be set in options.
      */
     public function testCanNotCreateWithoutQuery(): void
     {
-        Query::factory([]);
+        QueryRoute::factory([]);
     }
 }

@@ -8,7 +8,7 @@ use ExtendsFramework\Http\Router\Route\Group\Exception\InvalidOptions;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 
-class Group implements RouteInterface
+class GroupRoute implements RouteInterface
 {
     /**
      * If this can be matched.
@@ -96,9 +96,9 @@ class Group implements RouteInterface
      * Add a child route.
      *
      * @param RouteInterface $route
-     * @return Group
+     * @return GroupRoute
      */
-    protected function addChild(RouteInterface $route): Group
+    protected function addChild(RouteInterface $route): GroupRoute
     {
         $this->children[] = $route;
 

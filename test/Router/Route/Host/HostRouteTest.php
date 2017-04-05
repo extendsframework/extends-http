@@ -8,12 +8,12 @@ use ExtendsFramework\Http\Request\Uri\UriInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use PHPUnit\Framework\TestCase;
 
-class HostTest extends TestCase
+class HostRouteTest extends TestCase
 {
     /**
-     * @covers \ExtendsFramework\Http\Router\Route\Host\Host::factory()
-     * @covers \ExtendsFramework\Http\Router\Route\Host\Host::__construct()
-     * @covers \ExtendsFramework\Http\Router\Route\Host\Host::match()
+     * @covers \ExtendsFramework\Http\Router\Route\Host\HostRoute::factory()
+     * @covers \ExtendsFramework\Http\Router\Route\Host\HostRoute::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Host\HostRoute::match()
      */
     public function testCanMatchSegment(): void
     {
@@ -32,7 +32,7 @@ class HostTest extends TestCase
         /**
          * @var RequestInterface $request
          */
-        $host = Host::factory([
+        $host = HostRoute::factory([
             'host' => 'www.example.com',
             'parameters' => [
                 'foo' => 'bar',
@@ -48,9 +48,9 @@ class HostTest extends TestCase
     }
 
     /**
-     * @covers \ExtendsFramework\Http\Router\Route\Host\Host::factory()
-     * @covers \ExtendsFramework\Http\Router\Route\Host\Host::__construct()
-     * @covers \ExtendsFramework\Http\Router\Route\Host\Host::match()
+     * @covers \ExtendsFramework\Http\Router\Route\Host\HostRoute::factory()
+     * @covers \ExtendsFramework\Http\Router\Route\Host\HostRoute::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Host\HostRoute::match()
      */
     public function testCanNotMatchSegment(): void
     {
@@ -69,7 +69,7 @@ class HostTest extends TestCase
         /**
          * @var RequestInterface $request
          */
-        $host = Host::factory([
+        $host = HostRoute::factory([
             'host' => 'www.example.net',
         ]);
         $match = $host->match($request, 5);
@@ -78,13 +78,13 @@ class HostTest extends TestCase
     }
 
     /**
-     * @covers                   \ExtendsFramework\Http\Router\Route\Host\Host::factory()
+     * @covers                   \ExtendsFramework\Http\Router\Route\Host\HostRoute::factory()
      * @covers                   \ExtendsFramework\Http\Router\Route\Host\Exception\InvalidOptions::forMissingHost()
      * @expectedException        \ExtendsFramework\Http\Router\Route\Host\Exception\InvalidOptions
      * @expectedExceptionMessage Host is required and MUST be set in options.
      */
     public function testCanNotCreateWithoutHost(): void
     {
-        Host::factory([]);
+        HostRoute::factory([]);
     }
 }

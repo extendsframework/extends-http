@@ -8,14 +8,14 @@ use ExtendsFramework\Http\Request\Uri\UriInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use PHPUnit\Framework\TestCase;
 
-class PathTest extends TestCase
+class PathRouteTest extends TestCase
 {
     /**
-     * @covers \ExtendsFramework\Http\Router\Route\Path\Path::factory()
-     * @covers \ExtendsFramework\Http\Router\Route\Path\Path::__construct()
-     * @covers \ExtendsFramework\Http\Router\Route\Path\Path::match()
-     * @covers \ExtendsFramework\Http\Router\Route\Path\Path::getPattern()
-     * @covers \ExtendsFramework\Http\Router\Route\Path\Path::getParameters()
+     * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::factory()
+     * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::match()
+     * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::getPattern()
+     * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::getParameters()
      */
     public function testCanMatchPath(): void
     {
@@ -34,7 +34,7 @@ class PathTest extends TestCase
         /**
          * @var RequestInterface $request
          */
-        $path = Path::factory([
+        $path = PathRoute::factory([
             'path' => '/:id/bar',
             'constraints' => [
                 'id' => '\d+',
@@ -54,10 +54,10 @@ class PathTest extends TestCase
     }
 
     /**
-     * @covers \ExtendsFramework\Http\Router\Route\Path\Path::factory()
-     * @covers \ExtendsFramework\Http\Router\Route\Path\Path::__construct()
-     * @covers \ExtendsFramework\Http\Router\Route\Path\Path::match()
-     * @covers \ExtendsFramework\Http\Router\Route\Path\Path::getPattern()
+     * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::factory()
+     * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::match()
+     * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::getPattern()
      */
     public function testCanNotMatchPath(): void
     {
@@ -76,7 +76,7 @@ class PathTest extends TestCase
         /**
          * @var RequestInterface $request
          */
-        $path = Path::factory([
+        $path = PathRoute::factory([
             'path' => '/:id/bar',
             'constraints' => [
                 'id' => '\d+',
@@ -88,13 +88,13 @@ class PathTest extends TestCase
     }
 
     /**
-     * @covers                   \ExtendsFramework\Http\Router\Route\Path\Path::factory()
+     * @covers                   \ExtendsFramework\Http\Router\Route\Path\PathRoute::factory()
      * @covers                   \ExtendsFramework\Http\Router\Route\Path\Exception\InvalidOptions::forMissingPath()
      * @expectedException        \ExtendsFramework\Http\Router\Route\Path\Exception\InvalidOptions
      * @expectedExceptionMessage Path is required and MUST be set in options.
      */
     public function testCanNotCreateWithoutPath(): void
     {
-        Path::factory([]);
+        PathRoute::factory([]);
     }
 }

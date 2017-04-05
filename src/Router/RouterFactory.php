@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Router;
 
 use ExtendsFramework\Http\Router\Exception\InvalidRouterConfig;
-use ExtendsFramework\Http\Router\Route\Group\Group;
-use ExtendsFramework\Http\Router\Route\Path\Path;
+use ExtendsFramework\Http\Router\Route\Group\GroupRoute;
+use ExtendsFramework\Http\Router\Route\Path\PathRoute;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 
 class RouterFactory implements RouterFactoryInterface
@@ -34,7 +34,7 @@ class RouterFactory implements RouterFactoryInterface
      */
     protected function createRoute(array $config): RouteInterface
     {
-        $route = $config['type'] ?? Path::class;
+        $route = $config['type'] ?? PathRoute::class;
         if (is_subclass_of($route, RouteInterface::class, true)) {
             $route = $route::factory($config['options'] ?? []);
         }
@@ -45,7 +45,7 @@ class RouterFactory implements RouterFactoryInterface
 
         $children = $config['children'] ?? [];
         if (!empty($children)) {
-            $route = new Group(
+            $route = new GroupRoute(
                 $route,
                 array_map([$this, 'createRoute'], $children),
                 $config['abstract'] ?? false

@@ -1,41 +1,41 @@
 <?php
 declare(strict_types=1);
 
-namespace ExtendsFramework\Http\Router\Route\Scheme;
+namespace ExtendsFramework\Http\Router\Route\Method;
 
 use ExtendsFramework\Container\Container;
 use ExtendsFramework\Container\ContainerInterface;
 use ExtendsFramework\Http\Request\RequestInterface;
+use ExtendsFramework\Http\Router\Route\Method\Exception\InvalidOptions;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatch;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
-use ExtendsFramework\Http\Router\Route\Scheme\Exception\InvalidOptions;
 
-class Scheme implements RouteInterface
+class MethodRoute implements RouteInterface
 {
     /**
-     * Parameters to return when route is matched.
+     * Method to match.
+     *
+     * @var string
+     */
+    protected $method;
+
+    /**
+     * Default parameters to return.
      *
      * @var ContainerInterface
      */
     protected $parameters;
 
     /**
-     * Scheme to match.
+     * Create a method route.
      *
-     * @var string
-     */
-    protected $scheme;
-
-    /**
-     * Create a new scheme route.
-     *
-     * @param string             $scheme
+     * @param string             $method
      * @param ContainerInterface $parameters
      */
-    public function __construct(string $scheme, ContainerInterface $parameters = null)
+    public function __construct(string $method, ContainerInterface $parameters = null)
     {
-        $this->scheme = strtoupper(trim($scheme));
+        $this->method = strtoupper(trim($method));
         $this->parameters = $parameters ?? new Container();
     }
 
@@ -44,12 +44,12 @@ class Scheme implements RouteInterface
      */
     public static function factory(array $options): RouteInterface
     {
-        if (!isset($options['scheme'])) {
-            throw InvalidOptions::forMissingScheme();
+        if (!isset($options['method'])) {
+            throw InvalidOptions::forMissingMethod();
         }
 
         return new static(
-            $options['scheme'],
+            $options['method'],
             new Container($options['parameters'] ?? [])
         );
     }
@@ -59,7 +59,7 @@ class Scheme implements RouteInterface
      */
     public function match(RequestInterface $request, int $pathOffset): ?RouteMatchInterface
     {
-        if (strtoupper($request->getUri()->getScheme()) === $this->scheme) {
+        if (strtoupper($request->getMethod()) === $this->method) {
             return new RouteMatch($this->parameters);
         }
 

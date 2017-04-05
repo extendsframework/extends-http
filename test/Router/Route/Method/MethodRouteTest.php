@@ -7,12 +7,12 @@ use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use PHPUnit\Framework\TestCase;
 
-class MethodTest extends TestCase
+class MethodRouteTest extends TestCase
 {
     /**
-     * @covers \ExtendsFramework\Http\Router\Route\Method\Method::factory()
-     * @covers \ExtendsFramework\Http\Router\Route\Method\Method::__construct()
-     * @covers \ExtendsFramework\Http\Router\Route\Method\Method::match()
+     * @covers \ExtendsFramework\Http\Router\Route\Method\MethodRoute::factory()
+     * @covers \ExtendsFramework\Http\Router\Route\Method\MethodRoute::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Method\MethodRoute::match()
      */
     public function testCanMatchSegment(): void
     {
@@ -25,7 +25,7 @@ class MethodTest extends TestCase
         /**
          * @var RequestInterface $request
          */
-        $method = Method::factory([
+        $method = MethodRoute::factory([
             'method' => 'POST',
             'parameters' => [
                 'foo' => 'bar',
@@ -41,9 +41,9 @@ class MethodTest extends TestCase
     }
 
     /**
-     * @covers \ExtendsFramework\Http\Router\Route\Method\Method::factory()
-     * @covers \ExtendsFramework\Http\Router\Route\Method\Method::__construct()
-     * @covers \ExtendsFramework\Http\Router\Route\Method\Method::match()
+     * @covers \ExtendsFramework\Http\Router\Route\Method\MethodRoute::factory()
+     * @covers \ExtendsFramework\Http\Router\Route\Method\MethodRoute::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Method\MethodRoute::match()
      */
     public function testCanNotMatchSegment(): void
     {
@@ -56,7 +56,7 @@ class MethodTest extends TestCase
         /**
          * @var RequestInterface $request
          */
-        $method = Method::factory([
+        $method = MethodRoute::factory([
             'method' => 'POST',
         ]);
         $match = $method->match($request, 5);
@@ -65,13 +65,13 @@ class MethodTest extends TestCase
     }
 
     /**
-     * @covers                   \ExtendsFramework\Http\Router\Route\Method\Method::factory()
+     * @covers                   \ExtendsFramework\Http\Router\Route\Method\MethodRoute::factory()
      * @covers                   \ExtendsFramework\Http\Router\Route\Method\Exception\InvalidOptions::forMissingMethod()
      * @expectedException        \ExtendsFramework\Http\Router\Route\Method\Exception\InvalidOptions
      * @expectedExceptionMessage Method is required and MUST be set in options.
      */
     public function testCanNotCreateWithoutMethod(): void
     {
-        Method::factory([]);
+        MethodRoute::factory([]);
     }
 }

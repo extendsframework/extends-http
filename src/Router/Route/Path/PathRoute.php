@@ -11,7 +11,7 @@ use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatch;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 
-class Path implements RouteInterface
+class PathRoute implements RouteInterface
 {
     /**
      * Constraints for matching the URI variables.

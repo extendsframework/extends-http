@@ -8,12 +8,12 @@ use ExtendsFramework\Http\Request\Uri\UriInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use PHPUnit\Framework\TestCase;
 
-class SchemeTest extends TestCase
+class SchemeRouteTest extends TestCase
 {
     /**
-     * @covers \ExtendsFramework\Http\Router\Route\Scheme\Scheme::factory()
-     * @covers \ExtendsFramework\Http\Router\Route\Scheme\Scheme::__construct()
-     * @covers \ExtendsFramework\Http\Router\Route\Scheme\Scheme::match()
+     * @covers \ExtendsFramework\Http\Router\Route\Scheme\SchemeRoute::factory()
+     * @covers \ExtendsFramework\Http\Router\Route\Scheme\SchemeRoute::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Scheme\SchemeRoute::match()
      */
     public function testCanMatchSegment(): void
     {
@@ -32,7 +32,7 @@ class SchemeTest extends TestCase
         /**
          * @var RequestInterface $request
          */
-        $scheme = Scheme::factory([
+        $scheme = SchemeRoute::factory([
             'scheme' => 'https',
             'parameters' => [
                 'foo' => 'bar',
@@ -48,9 +48,9 @@ class SchemeTest extends TestCase
     }
 
     /**
-     * @covers \ExtendsFramework\Http\Router\Route\Scheme\Scheme::factory()
-     * @covers \ExtendsFramework\Http\Router\Route\Scheme\Scheme::__construct()
-     * @covers \ExtendsFramework\Http\Router\Route\Scheme\Scheme::match()
+     * @covers \ExtendsFramework\Http\Router\Route\Scheme\SchemeRoute::factory()
+     * @covers \ExtendsFramework\Http\Router\Route\Scheme\SchemeRoute::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Scheme\SchemeRoute::match()
      */
     public function testCanNotMatchSegment(): void
     {
@@ -69,7 +69,7 @@ class SchemeTest extends TestCase
         /**
          * @var RequestInterface $request
          */
-        $scheme = Scheme::factory([
+        $scheme = SchemeRoute::factory([
             'scheme' => 'https',
         ]);
         $match = $scheme->match($request, 5);
@@ -78,13 +78,13 @@ class SchemeTest extends TestCase
     }
 
     /**
-     * @covers                   \ExtendsFramework\Http\Router\Route\Scheme\Scheme::factory()
+     * @covers                   \ExtendsFramework\Http\Router\Route\Scheme\SchemeRoute::factory()
      * @covers                   \ExtendsFramework\Http\Router\Route\Scheme\Exception\InvalidOptions::forMissingScheme()
      * @expectedException        \ExtendsFramework\Http\Router\Route\Scheme\Exception\InvalidOptions
      * @expectedExceptionMessage Scheme is required and MUST be set in options.
      */
     public function testCanNotCreateWithoutScheme(): void
     {
-        Scheme::factory([]);
+        SchemeRoute::factory([]);
     }
 }

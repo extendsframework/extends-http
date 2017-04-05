@@ -11,7 +11,7 @@ use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatch;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 
-class Query implements RouteInterface
+class QueryRoute implements RouteInterface
 {
     /**
      * Constraints for matching the query parameters.

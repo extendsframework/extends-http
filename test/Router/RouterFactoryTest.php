@@ -6,10 +6,10 @@ namespace ExtendsFramework\Http\Router;
 use ExtendsFramework\Container\ContainerInterface;
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Request\Uri\UriInterface;
-use ExtendsFramework\Http\Router\Route\Method\Method;
-use ExtendsFramework\Http\Router\Route\Path\Path;
-use ExtendsFramework\Http\Router\Route\Query\Query;
-use ExtendsFramework\Http\Router\Route\Scheme\Scheme;
+use ExtendsFramework\Http\Router\Route\Method\MethodRoute;
+use ExtendsFramework\Http\Router\Route\Path\PathRoute;
+use ExtendsFramework\Http\Router\Route\Query\QueryRoute;
+use ExtendsFramework\Http\Router\Route\Scheme\SchemeRoute;
 use PHPUnit\Framework\TestCase;
 
 class RouterFactoryTest extends TestCase
@@ -66,7 +66,7 @@ class RouterFactoryTest extends TestCase
         $factory = new RouterFactory();
         $router = $factory->create([
             'scheme' => [
-                'type' => Scheme::class,
+                'type' => SchemeRoute::class,
                 'options' => [
                     'scheme' => 'https',
                     'parameters' => [
@@ -76,7 +76,7 @@ class RouterFactoryTest extends TestCase
                 'abstract' => true,
                 'children' => [
                     'foo' => [
-                        'type' => Method::class,
+                        'type' => MethodRoute::class,
                         'options' => [
                             'method' => 'GET',
                             'parameters' => [
@@ -86,7 +86,7 @@ class RouterFactoryTest extends TestCase
                         'abstract' => true,
                         'children' => [
                             'bar' => [
-                                'type' => Path::class,
+                                'type' => PathRoute::class,
                                 'options' => [
                                     'path' => '/bar/:id',
                                     'constraints' => [
@@ -98,7 +98,7 @@ class RouterFactoryTest extends TestCase
                                 ],
                                 'children' => [
                                     'query' => [
-                                        'type' => Query::class,
+                                        'type' => QueryRoute::class,
                                         'options' => [
                                             'constraints' => [
                                                 'limit' => '\d+',
