@@ -11,7 +11,7 @@ interface RouterInterface
     /**
      * Route $request to corresponding controller.
      *
-     * When $request can not be matched, an exception will be thrown.
+     * When $request can not be matched, null will be returned.
      *
      * @param RequestInterface $request
      * @return RouteMatchInterface
