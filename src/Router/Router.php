@@ -32,7 +32,7 @@ class Router implements RouterInterface
      */
     public function route(RequestInterface $request): ?RouteMatchInterface
     {
-        foreach ($this->routes as $route) {
+        foreach (clone $this->routes as $route) {
             if ($route instanceof RouteInterface) {
                 $match = $route->match($request, 0);
                 if ($match) {
