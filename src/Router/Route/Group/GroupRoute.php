@@ -41,7 +41,7 @@ class GroupRoute implements RouteInterface
     public function __construct(RouteInterface $route, iterable $children, bool $abstract = null)
     {
         $this->route = $route;
-        $this->abstract = $abstract ?? false;
+        $this->abstract = $abstract ?? true;
 
         foreach ($children as $child) {
             $this->addChild($child);

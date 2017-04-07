@@ -48,7 +48,7 @@ class RouterFactory implements RouterFactoryInterface
             $route = new GroupRoute(
                 $route,
                 array_map([$this, 'createRoute'], $children),
-                $config['abstract'] ?? false
+                $config['abstract'] ?? true
             );
         }
 
