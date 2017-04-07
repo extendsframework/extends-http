@@ -4,56 +4,13 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Router\Route\Group;
 
 use ExtendsFramework\Http\Request\RequestInterface;
+use ExtendsFramework\Http\Request\Uri\UriInterface;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use PHPUnit\Framework\TestCase;
 
 class GroupRouteTest extends TestCase
 {
-    /**
-     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::factory()
-     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
-     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::match()
-     */
-    public function testCanMatchNonAbstractRoute(): void
-    {
-        $request = $this->createMock(RequestInterface::class);
-
-        $match1 = $this->createMock(RouteMatchInterface::class);
-        $match1
-            ->expects($this->once())
-            ->method('getPathOffset')
-            ->willReturn(5);
-
-        $route1 = $this->createMock(RouteInterface::class);
-        $route1
-            ->expects($this->once())
-            ->method('match')
-            ->with($request, 0)
-            ->willReturn($match1);
-
-        $route2 = $this->createMock(RouteInterface::class);
-        $route2
-            ->expects($this->once())
-            ->method('match')
-            ->with($request, 5)
-            ->willReturn(null);
-
-        /**
-         * @var RequestInterface $request
-         */
-        $group = GroupRoute::factory([
-            'route' => $route1,
-            'children' => [
-                $route2
-            ],
-            'abstract' => false,
-        ]);
-        $match = $group->match($request, 0);
-
-        $this->assertSame($match1, $match);
-    }
-
     /**
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::factory()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
@@ -103,53 +60,132 @@ class GroupRouteTest extends TestCase
                 $route2
             ],
         ]);
-        $match = $group->match($request, 5);
+        $matched = $group->match($request, 5);
 
-        $this->assertInstanceOf(RouteMatchInterface::class, $match);
+        $this->assertInstanceOf(RouteMatchInterface::class, $matched);
     }
 
     /**
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::factory()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::match()
+     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::isEndOfPath()
      */
-    public function testCanNotMatchAbstractRoute(): void
+    public function testCanMatchNonAbstractRoute(): void
     {
-        $request = $this->createMock(RequestInterface::class);
+        $uri = $this->createMock(UriInterface::class);
+        $uri
+            ->expects($this->once())
+            ->method('getPath')
+            ->willReturn('/quux');
 
-        $match1 = $this->createMock(RouteMatchInterface::class);
-        $match1
+        $request = $this->createMock(RequestInterface::class);
+        $request
+            ->expects($this->once())
+            ->method('getUri')
+            ->willReturn($uri);
+
+        $match = $this->createMock(RouteMatchInterface::class);
+        $match
             ->expects($this->once())
             ->method('getPathOffset')
             ->willReturn(5);
 
-        $route1 = $this->createMock(RouteInterface::class);
-        $route1
+        $route = $this->createMock(RouteInterface::class);
+        $route
             ->expects($this->once())
             ->method('match')
             ->with($request, 0)
-            ->willReturn($match1);
-
-        $route2 = $this->createMock(RouteInterface::class);
-        $route2
-            ->expects($this->once())
-            ->method('match')
-            ->with($request, 5)
-            ->willReturn(null);
+            ->willReturn($match);
 
         /**
          * @var RequestInterface $request
          */
         $group = GroupRoute::factory([
-            'route' => $route1,
-            'children' => [
-                $route2
-            ],
-            'abstract' => true,
+            'route' => $route,
+            'children' => [],
+            'abstract' => false,
         ]);
-        $match = $group->match($request, 0);
+        $matched = $group->match($request, 0);
 
-        $this->assertNull($match);
+        $this->assertSame($match, $matched);
+    }
+
+    /**
+     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::factory()
+     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::match()
+     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::isEndOfPath()
+     */
+    public function testCanNotMatchNonAbstractRouteWithLongerPath()
+    {
+        $uri = $this->createMock(UriInterface::class);
+        $uri
+            ->expects($this->once())
+            ->method('getPath')
+            ->willReturn('/quux/foo');
+
+        $request = $this->createMock(RequestInterface::class);
+        $request
+            ->expects($this->once())
+            ->method('getUri')
+            ->willReturn($uri);
+
+        $match = $this->createMock(RouteMatchInterface::class);
+        $match
+            ->expects($this->once())
+            ->method('getPathOffset')
+            ->willReturn(5);
+
+        $route = $this->createMock(RouteInterface::class);
+        $route
+            ->expects($this->once())
+            ->method('match')
+            ->with($request, 0)
+            ->willReturn($match);
+
+        /**
+         * @var RequestInterface $request
+         */
+        $group = GroupRoute::factory([
+            'route' => $route,
+            'children' => [],
+            'abstract' => false,
+        ]);
+        $matched = $group->match($request, 0);
+
+        $this->assertNull($matched);
+    }
+
+    /**
+     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::factory()
+     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::match()
+     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::isEndOfPath()
+     */
+    public function testCanNotMatchAbstractRoute(): void
+    {
+        $request = $this->createMock(RequestInterface::class);
+
+        $match = $this->createMock(RouteMatchInterface::class);
+
+        $route = $this->createMock(RouteInterface::class);
+        $route
+            ->expects($this->once())
+            ->method('match')
+            ->with($request, 0)
+            ->willReturn($match);
+
+        /**
+         * @var RequestInterface $request
+         */
+        $group = GroupRoute::factory([
+            'route' => $route,
+            'children' => []
+        ]);
+        $matched = $group->match($request, 0);
+
+        $this->assertNull($matched);
     }
 
     /**
@@ -176,9 +212,9 @@ class GroupRouteTest extends TestCase
             'route' => $route,
             'children' => [],
         ]);
-        $match = $group->match($request, 0);
+        $matched = $group->match($request, 0);
 
-        $this->assertNull($match);
+        $this->assertNull($matched);
     }
 
     /**

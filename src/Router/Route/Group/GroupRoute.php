@@ -22,7 +22,7 @@ class GroupRoute implements RouteInterface
      *
      * @var RouteInterface[]
      */
-    protected $children;
+    protected $children = [];
 
     /**
      * Route to match.
@@ -85,7 +85,7 @@ class GroupRoute implements RouteInterface
             }
         }
 
-        if (!$this->abstract && $match) {
+        if (!$this->abstract && $match && $this->isEndOfPath($request, $match)) {
             return $match;
         }
 
@@ -103,5 +103,19 @@ class GroupRoute implements RouteInterface
         $this->children[] = $route;
 
         return $this;
+    }
+
+    /**
+     * Return if whole path is matched.
+     *
+     * When path offset is end of request path, a non-abstract route will be matched.
+     *
+     * @param RequestInterface    $request
+     * @param RouteMatchInterface $match
+     * @return bool
+     */
+    protected function isEndOfPath(RequestInterface $request, RouteMatchInterface $match): bool
+    {
+        return strlen($request->getUri()->getPath()) === $match->getPathOffset();
     }
 }
