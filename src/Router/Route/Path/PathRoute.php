@@ -123,7 +123,7 @@ class PathRoute implements RouteInterface
         }, $this->path);
 
         return sprintf(
-            '~%s(/|\z)~',
+            '~\G%s(/|\z)~',
             $path
         );
     }
