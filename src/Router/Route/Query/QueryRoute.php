@@ -59,6 +59,7 @@ class QueryRoute implements RouteInterface
     {
         $query = $request->getUri()->getQuery();
 
+        $matched = [];
         foreach ($this->constraints as $path => $constraint) {
             if ($query->has($path)) {
                 if (preg_match($this->getPattern($constraint), $query->get($path), $matches)) {
@@ -69,7 +70,7 @@ class QueryRoute implements RouteInterface
             }
         }
 
-        return new RouteMatch($this->getParameters($matched ?? []));
+        return new RouteMatch($this->getParameters($matched));
     }
 
     /**

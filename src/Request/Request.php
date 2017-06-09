@@ -102,6 +102,7 @@ class Request implements RequestInterface
      */
     public function getHeaders(): ContainerInterface
     {
+        $headers = [];
         if ($this->headers === null) {
             foreach ($_SERVER as $name => $value) {
                 if (strpos($name, 'HTTP_') === 0) {
@@ -109,7 +110,7 @@ class Request implements RequestInterface
                 }
             }
 
-            $this->headers = new Container($headers ?? []);
+            $this->headers = new Container($headers);
         }
 
         return $this->headers;

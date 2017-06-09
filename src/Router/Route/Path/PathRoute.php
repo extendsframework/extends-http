@@ -98,13 +98,14 @@ class PathRoute implements RouteInterface
      */
     protected function getParameters(array $matches): ContainerInterface
     {
+        $parameters = [];
         foreach ($matches as $key => $match) {
             if (is_string($key)) {
                 $parameters[$key] = $match[0];
             }
         }
 
-        return $this->parameters->merge(new Container($parameters ?? []));
+        return $this->parameters->merge(new Container($parameters));
     }
 
     /**

@@ -223,6 +223,7 @@ class Uri implements UriInterface
      */
     public function getUserInfo(): ?string
     {
+        $userInfo = null;
         if ($this->getUser()) {
             $userInfo = $this->getUser();
 
@@ -231,7 +232,7 @@ class Uri implements UriInterface
             }
         }
 
-        return $userInfo ?? null;
+        return $userInfo;
     }
 
     /**
