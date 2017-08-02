@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Controller;
 
-use ExtendsFramework\Http\Controller\Exception\MethodNotFound;
+use ExtendsFramework\Container\ContainerException;
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Response\ResponseInterface;
 
@@ -41,7 +41,7 @@ abstract class AbstractController implements ControllerInterface
         $action = $this->getAction($request);
         $method = $action . $this->postfix;
         if (!\method_exists($this, $method)) {
-            throw MethodNotFound::forAction($action);
+            throw ControllerException::forMethodNotFound($action);
         }
 
         return [$this, $method];
@@ -52,10 +52,16 @@ abstract class AbstractController implements ControllerInterface
      *
      * @param RequestInterface $request
      * @return string
+     * @throws ControllerException
      */
     protected function getAction(RequestInterface $request): string
     {
-        $action = $request->getAttributes()->get('action');
+        try {
+            $action = $request->getAttributes()->get('action');
+        } catch (ContainerException $exception) {
+            throw ControllerException::forActionNotFound($exception);
+        }
+
         $action = str_replace(['_', '-', '.'], ' ', strtolower($action));
         $action = ucwords($action);
 
