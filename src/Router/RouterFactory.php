@@ -3,13 +3,27 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Router;
 
-use ExtendsFramework\Http\Router\Exception\InvalidRouterConfig;
-use ExtendsFramework\Http\Router\Route\Group\GroupRoute;
-use ExtendsFramework\Http\Router\Route\Path\PathRoute;
-use ExtendsFramework\Http\Router\Route\RouteInterface;
+use ExtendsFramework\Http\Router\Route\RouteFactoryInterface;
 
 class RouterFactory implements RouterFactoryInterface
 {
+    /**
+     * Factory to create a route.
+     *
+     * @var RouteFactoryInterface
+     */
+    protected $factory;
+
+    /**
+     * Create new instance with $factory.
+     *
+     * @param RouteFactoryInterface $factory
+     */
+    public function __construct(RouteFactoryInterface $factory)
+    {
+        $this->factory = $factory;
+    }
+
     /**
      * @inheritDoc
      */
@@ -17,41 +31,11 @@ class RouterFactory implements RouterFactoryInterface
     {
         $router = new Router();
 
-        foreach ($routes as $key => $config) {
-            $route = $this->createRoute($config);
+        foreach ($routes as $config) {
+            $route = $this->factory->create($config);
             $router->addRoute($route, $config['priority'] ?? 1);
         }
 
         return $router;
-    }
-
-    /**
-     * Get route from $config.
-     *
-     * @param array $config
-     * @return RouteInterface
-     * @throws RouterException
-     */
-    protected function createRoute(array $config): RouteInterface
-    {
-        $route = $config['type'] ?? PathRoute::class;
-        if (is_subclass_of($route, RouteInterface::class, true)) {
-            $route = $route::factory($config['options'] ?? []);
-        }
-
-        if (!$route instanceof RouteInterface) {
-            throw InvalidRouterConfig::forRouteType($route);
-        }
-
-        $children = $config['children'] ?? [];
-        if (!empty($children)) {
-            $route = new GroupRoute(
-                $route,
-                array_map([$this, 'createRoute'], $children),
-                $config['abstract'] ?? true
-            );
-        }
-
-        return $route;
     }
 }

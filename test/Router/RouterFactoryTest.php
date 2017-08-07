@@ -9,14 +9,15 @@ use ExtendsFramework\Http\Request\Uri\UriInterface;
 use ExtendsFramework\Http\Router\Route\Method\MethodRoute;
 use ExtendsFramework\Http\Router\Route\Path\PathRoute;
 use ExtendsFramework\Http\Router\Route\Query\QueryRoute;
+use ExtendsFramework\Http\Router\Route\RouteFactory;
 use ExtendsFramework\Http\Router\Route\Scheme\SchemeRoute;
 use PHPUnit\Framework\TestCase;
 
 class RouterFactoryTest extends TestCase
 {
     /**
+     * @covers \ExtendsFramework\Http\Router\RouterFactory::__construct()
      * @covers \ExtendsFramework\Http\Router\RouterFactory::create()
-     * @covers \ExtendsFramework\Http\Router\RouterFactory::createRoute
      */
     public function testCanCreateRouterFromRoutes(): void
     {
@@ -63,7 +64,7 @@ class RouterFactoryTest extends TestCase
         /**
          * @var RequestInterface $request
          */
-        $factory = new RouterFactory();
+        $factory = new RouterFactory(new RouteFactory());
         $router = $factory->create([
             'scheme' => [
                 'type' => SchemeRoute::class,
@@ -106,7 +107,7 @@ class RouterFactoryTest extends TestCase
                                             ],
                                             'parameters' => [
                                                 'limit' => 20,
-                                                'offset' => 0
+                                                'offset' => 0,
                                             ],
                                         ],
                                     ],
@@ -128,22 +129,5 @@ class RouterFactoryTest extends TestCase
             'offset' => 0,
         ], $match->getParameters()->extract());
         $this->assertSame(7, $match->getPathOffset());
-    }
-
-    /**
-     * @covers                   \ExtendsFramework\Http\Router\RouterFactory::create()
-     * @covers                   \ExtendsFramework\Http\Router\RouterFactory::createRoute
-     * @covers                   \ExtendsFramework\Http\Router\Exception\InvalidRouterConfig::forRouteType()
-     * @expectedException        \ExtendsFramework\Http\Router\Exception\InvalidRouterConfig
-     * @expectedExceptionMessage Route MUST be instance or subclass of RouteInterface, got "array".
-     */
-    public function testCanNotCreateRouterFromInvalidRouteType(): void
-    {
-        $factory = new RouterFactory();
-        $factory->create([
-            'scheme' => [
-                'type' => [],
-            ],
-        ]);
     }
 }
