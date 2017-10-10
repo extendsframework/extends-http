@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Request;
 
-use ExtendsFramework\Container\ContainerInterface;
 use ExtendsFramework\Http\Request\Uri\UriInterface;
 
 interface RequestInterface
@@ -29,24 +28,24 @@ interface RequestInterface
     /**
      * Return custom attributes.
      *
-     * @return ContainerInterface
+     * @return array
      */
-    public function getAttributes(): ContainerInterface;
+    public function getAttributes(): array;
 
     /**
      * Return body.
      *
-     * @return ContainerInterface
+     * @return array
      * @throws RequestException
      */
-    public function getBody(): ContainerInterface;
+    public function getBody(): array;
 
     /**
      * Return headers.
      *
-     * @return ContainerInterface
+     * @return array
      */
-    public function getHeaders(): ContainerInterface;
+    public function getHeaders(): array;
 
     /**
      * Return method.
@@ -65,26 +64,26 @@ interface RequestInterface
     /**
      * Return new instance with $attributes.
      *
-     * @param ContainerInterface $attributes
+     * @param array $attributes
      * @return RequestInterface
      */
-    public function withAttributes(ContainerInterface $attributes): RequestInterface;
+    public function withAttributes(array $attributes): RequestInterface;
 
     /**
      * Return new instance with $body.
      *
-     * @param ContainerInterface $body
+     * @param array $body
      * @return RequestInterface
      */
-    public function withBody(ContainerInterface $body): RequestInterface;
+    public function withBody(array $body): RequestInterface;
 
     /**
      * Return new instance with $headers.
      *
-     * @param ContainerInterface $headers
+     * @param array $headers
      * @return RequestInterface
      */
-    public function withHeaders(ContainerInterface $headers): RequestInterface;
+    public function withHeaders(array $headers): RequestInterface;
 
     /**
      * Return new instance with $method.

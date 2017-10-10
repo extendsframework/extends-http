@@ -3,20 +3,18 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Router\Route\Scheme;
 
-use ExtendsFramework\Container\Container;
-use ExtendsFramework\Container\ContainerInterface;
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatch;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
-use ExtendsFramework\Http\Router\Route\Scheme\Exception\InvalidOptions;
+use ExtendsFramework\Http\Router\Route\Scheme\Exception\MissingScheme;
 
 class SchemeRoute implements RouteInterface
 {
     /**
      * Parameters to return when route is matched.
      *
-     * @var ContainerInterface
+     * @var array
      */
     protected $parameters;
 
@@ -30,13 +28,13 @@ class SchemeRoute implements RouteInterface
     /**
      * Create a new scheme route.
      *
-     * @param string             $scheme
-     * @param ContainerInterface $parameters
+     * @param string $scheme
+     * @param array  $parameters
      */
-    public function __construct(string $scheme, ContainerInterface $parameters = null)
+    public function __construct(string $scheme, array $parameters = null)
     {
         $this->scheme = strtoupper(trim($scheme));
-        $this->parameters = $parameters ?? new Container();
+        $this->parameters = $parameters ?? [];
     }
 
     /**
@@ -44,14 +42,11 @@ class SchemeRoute implements RouteInterface
      */
     public static function factory(array $options): RouteInterface
     {
-        if (!isset($options['scheme'])) {
-            throw InvalidOptions::forMissingScheme();
+        if (array_key_exists('scheme', $options) === false) {
+            throw new MissingScheme();
         }
 
-        return new static(
-            $options['scheme'],
-            new Container($options['parameters'] ?? [])
-        );
+        return new static($options['scheme'], $options['parameters'] ?? []);
     }
 
     /**

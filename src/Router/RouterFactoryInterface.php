@@ -8,9 +8,9 @@ interface RouterFactoryInterface
     /**
      * Create new router from $routes.
      *
-     * @param iterable $routes
+     * @param array $routes
      * @return RouterInterface
      * @throws RouterException
      */
-    public function create(iterable $routes): RouterInterface;
+    public function create(array $routes): RouterInterface;
 }

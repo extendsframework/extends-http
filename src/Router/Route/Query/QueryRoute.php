@@ -3,10 +3,8 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Router\Route\Query;
 
-use ExtendsFramework\Container\Container;
-use ExtendsFramework\Container\ContainerInterface;
 use ExtendsFramework\Http\Request\RequestInterface;
-use ExtendsFramework\Http\Router\Route\Query\Exception\InvalidOptions;
+use ExtendsFramework\Http\Router\Route\Query\Exception\MissingConstraints;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatch;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
@@ -16,25 +14,25 @@ class QueryRoute implements RouteInterface
     /**
      * Constraints for matching the query parameters.
      *
-     * @var ContainerInterface
+     * @var array
      */
     protected $constraints;
 
     /**
      * Default parameters to return when route is matched.
      *
-     * @var ContainerInterface
+     * @var array
      */
     protected $parameters;
 
     /**
-     * @param ContainerInterface $constraints
-     * @param ContainerInterface $parameters
+     * @param array $constraints
+     * @param array $parameters
      */
-    public function __construct(ContainerInterface $constraints, ContainerInterface $parameters = null)
+    public function __construct(array $constraints, array $parameters = null)
     {
         $this->constraints = $constraints;
-        $this->parameters = $parameters ?? new Container();
+        $this->parameters = $parameters ?? [];
     }
 
     /**
@@ -42,14 +40,11 @@ class QueryRoute implements RouteInterface
      */
     public static function factory(array $options): RouteInterface
     {
-        if (!isset($options['constraints'])) {
-            throw InvalidOptions::forMissingConstraints();
+        if (array_key_exists('constraints', $options) === false) {
+            throw new MissingConstraints();
         }
 
-        return new static(
-            new Container($options['constraints']),
-            new Container($options['parameters'] ?? [])
-        );
+        return new static($options['constraints'], $options['parameters'] ?? []);
     }
 
     /**
@@ -61,8 +56,8 @@ class QueryRoute implements RouteInterface
 
         $matched = [];
         foreach ($this->constraints as $path => $constraint) {
-            if ($query->has($path)) {
-                if (preg_match($this->getPattern($constraint), $query->get($path), $matches)) {
+            if (array_key_exists($path, $query)) {
+                if ((bool)preg_match($this->getPattern($constraint), $query[$path], $matches) === true) {
                     $matched[$path] = current($matches);
                 } else {
                     return null;
@@ -77,11 +72,11 @@ class QueryRoute implements RouteInterface
      * Get the parameters when the route is matches.
      *
      * @param array $matches
-     * @return ContainerInterface
+     * @return array
      */
-    protected function getParameters(array $matches): ContainerInterface
+    protected function getParameters(array $matches): array
     {
-        return $this->parameters->merge(new Container($matches));
+        return array_replace_recursive($this->parameters, $matches);
     }
 
     /**
@@ -92,9 +87,6 @@ class QueryRoute implements RouteInterface
      */
     protected function getPattern(string $constraint): string
     {
-        return sprintf(
-            '~^%s$~',
-            $constraint
-        );
+        return sprintf('~^%s$~', $constraint);
     }
 }

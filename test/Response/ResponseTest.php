@@ -3,50 +3,54 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Response;
 
-use ExtendsFramework\Container\ContainerInterface;
 use PHPUnit\Framework\TestCase;
 
 class ResponseTest extends TestCase
 {
     /**
+     * Get parameters.
+     *
+     * Test that get parameters will return default values.
+     *
      * @covers \ExtendsFramework\Http\Response\Response::getBody()
      * @covers \ExtendsFramework\Http\Response\Response::getHeaders()
      * @covers \ExtendsFramework\Http\Response\Response::getStatusCode()
      */
-    public function testCanCreateNewInstance(): void
+    public function testGetMethods(): void
     {
         $response = new Response();
 
-        $this->assertInstanceOf(ContainerInterface::class, $response->getBody());
-        $this->assertInstanceOf(ContainerInterface::class, $response->getHeaders());
+        $this->assertSame([], $response->getBody());
+        $this->assertSame([], $response->getHeaders());
         $this->assertSame(200, $response->getStatusCode());
     }
 
     /**
-     * @covers  \ExtendsFramework\Http\Response\Response::withHeaders()
-     * @covers  \ExtendsFramework\Http\Response\Response::andHeader()
-     * @covers  \ExtendsFramework\Http\Response\Response::getHeaders()
+     * And methods.
+     *
+     * Test that new responses will be returned with the correct values.
+     *
+     * @covers \ExtendsFramework\Http\Response\Response::withHeaders()
+     * @covers \ExtendsFramework\Http\Response\Response::andHeader()
+     * @covers \ExtendsFramework\Http\Response\Response::getHeaders()
      */
-    public function testCanCreateNewInstanceWithHeaders(): void
+    public function testAndMethods(): void
     {
-        $headers = $this->createMock(ContainerInterface::class);
-        $headers
-            ->expects($this->once())
-            ->method('with')
-            ->with('foo', 'bar')
-            ->willReturnSelf();
-
-        /**
-         * @var ContainerInterface $headers
-         */
         $response = (new Response())
-            ->withHeaders($headers)
+            ->andHeader('baz', 'qux')
             ->andHeader('foo', 'bar');
 
-        $this->assertSame($headers, $response->getHeaders());
+        $this->assertSame([
+            'baz' => 'qux',
+            'foo' => 'bar',
+        ], $response->getHeaders());
     }
 
     /**
+     * With methods.
+     *
+     * Test that with methods can set value and return copy of response.
+     *
      * @covers \ExtendsFramework\Http\Response\Response::withBody()
      * @covers \ExtendsFramework\Http\Response\Response::withHeaders()
      * @covers \ExtendsFramework\Http\Response\Response::withStatusCode()
@@ -54,23 +58,15 @@ class ResponseTest extends TestCase
      * @covers \ExtendsFramework\Http\Response\Response::getHeaders()
      * @covers \ExtendsFramework\Http\Response\Response::getStatusCode()
      */
-    public function testCanGetFromWithMethods(): void
+    public function testWithMethods(): void
     {
-        $body = $this->createMock(ContainerInterface::class);
-
-        $headers = $this->createMock(ContainerInterface::class);
-
-        /**
-         * @var ContainerInterface $body
-         * @var ContainerInterface $headers
-         */
         $response = (new Response())
-            ->withBody($body)
-            ->withHeaders($headers)
+            ->withBody(['foo' => 'bar'])
+            ->withHeaders(['baz' => 'qux'])
             ->withStatusCode(201);
 
-        $this->assertSame($body, $response->getBody());
-        $this->assertSame($headers, $response->getHeaders());
+        $this->assertSame(['foo' => 'bar'], $response->getBody());
+        $this->assertSame(['baz' => 'qux'], $response->getHeaders());
         $this->assertSame(201, $response->getStatusCode());
     }
 }

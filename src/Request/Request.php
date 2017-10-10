@@ -3,9 +3,7 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Request;
 
-use ExtendsFramework\Container\Container;
-use ExtendsFramework\Container\ContainerInterface;
-use ExtendsFramework\Http\Request\Exception\InvalidRequest;
+use ExtendsFramework\Http\Request\Exception\InvalidRequestBody;
 use ExtendsFramework\Http\Request\Uri\Uri;
 use ExtendsFramework\Http\Request\Uri\UriInterface;
 
@@ -14,21 +12,21 @@ class Request implements RequestInterface
     /**
      * Custom request attributes.
      *
-     * @var ContainerInterface
+     * @var array
      */
-    protected $attributes;
+    protected $attributes = [];
 
     /**
      * Post data.
      *
-     * @var ContainerInterface
+     * @var array
      */
     protected $body;
 
     /**
      * Request headers.
      *
-     * @var ContainerInterface
+     * @var array
      */
     protected $headers;
 
@@ -52,7 +50,7 @@ class Request implements RequestInterface
     public function andAttribute(string $name, string $value): RequestInterface
     {
         $clone = clone $this;
-        $clone->attributes = $clone->getAttributes()->with($name, $value);
+        $clone->attributes[$name] = $value;
 
         return $clone;
     }
@@ -63,35 +61,29 @@ class Request implements RequestInterface
     public function andHeader(string $name, string $value): RequestInterface
     {
         $clone = clone $this;
-        $clone->headers = $clone->getHeaders()->with($name, $value);
+        $clone->headers[$name] = $value;
 
         return $clone;
     }
 
     /**
-     * @return ContainerInterface
+     * @return array
      */
-    public function getAttributes(): ContainerInterface
+    public function getAttributes(): array
     {
-        if ($this->attributes === null) {
-            $this->attributes = new Container();
-        }
-
         return $this->attributes;
     }
 
     /**
      * @inheritDoc
      */
-    public function getBody(): ContainerInterface
+    public function getBody(): array
     {
         if ($this->body === null) {
-            $body = json_decode(file_get_contents('php://input') ?: '[]', true);
-            if ($body === null) {
-                throw InvalidRequest::forInvalidBody(json_last_error_msg());
+            $this->body = json_decode(file_get_contents('php://input') ?: '[]', true);
+            if ($this->body === null) {
+                throw new InvalidRequestBody(json_last_error_msg());
             }
-
-            $this->body = new Container($body);
         }
 
         return $this->body;
@@ -100,17 +92,20 @@ class Request implements RequestInterface
     /**
      * @inheritDoc
      */
-    public function getHeaders(): ContainerInterface
+    public function getHeaders(): array
     {
-        $headers = [];
         if ($this->headers === null) {
             foreach ($_SERVER as $name => $value) {
                 if (strpos($name, 'HTTP_') === 0) {
-                    $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+                    $name = substr($name, 5);
+                    $name = str_replace('_', ' ', $name);
+                    $name = strtolower($name);
+                    $name = ucwords($name);
+                    $name = str_replace(' ', '-', $name);
+
+                    $this->headers[$name] = $value;
                 }
             }
-
-            $this->headers = new Container($headers);
         }
 
         return $this->headers;
@@ -143,7 +138,7 @@ class Request implements RequestInterface
     /**
      * @inheritDoc
      */
-    public function withAttributes(ContainerInterface $attributes): RequestInterface
+    public function withAttributes(array $attributes): RequestInterface
     {
         $clone = clone $this;
         $clone->attributes = $attributes;
@@ -154,7 +149,7 @@ class Request implements RequestInterface
     /**
      * @inheritDoc
      */
-    public function withBody(ContainerInterface $body): RequestInterface
+    public function withBody(array $body): RequestInterface
     {
         $clone = clone $this;
         $clone->body = $body;
@@ -165,7 +160,7 @@ class Request implements RequestInterface
     /**
      * @inheritDoc
      */
-    public function withHeaders(ContainerInterface $headers): RequestInterface
+    public function withHeaders(array $headers): RequestInterface
     {
         $clone = clone $this;
         $clone->headers = $headers;

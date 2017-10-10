@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Controller;
 
-use ExtendsFramework\Container\ContainerException;
-use ExtendsFramework\Container\ContainerInterface;
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Response\Response;
 use ExtendsFramework\Http\Response\ResponseInterface;
@@ -13,96 +11,92 @@ use PHPUnit\Framework\TestCase;
 class AbstractControllerTest extends TestCase
 {
     /**
+     * Dispatch.
+     *
+     * Test that $request can be dispatched to $controller and $response will be returned.
+     *
      * @covers \ExtendsFramework\Http\Controller\AbstractController::dispatch()
      * @covers \ExtendsFramework\Http\Controller\AbstractController::getMethod()
      * @covers \ExtendsFramework\Http\Controller\AbstractController::getAction()
+     * @covers \ExtendsFramework\Http\Controller\AbstractController::normalizeAction()
      */
-    public function testCanGetMethodForAction(): void
+    public function testDispatch(): void
     {
-        $attributes = $this->createMock(ContainerInterface::class);
-        $attributes
-            ->expects($this->once())
-            ->method('get')
-            ->with('action')
-            ->willReturn('foo.not-found');
-
         $request = $this->createMock(RequestInterface::class);
         $request
             ->expects($this->once())
             ->method('getAttributes')
-            ->willReturn($attributes);
+            ->willReturn([
+                'action' => 'foo.not-found'
+            ]);
 
         /**
          * @var RequestInterface $request
          */
-        $controller = new FooController();
+        $controller = new ControllerStub();
         $response = $controller->dispatch($request);
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
     }
 
     /**
+     * Action not found.
+     *
+     * Test that action attribute can not be found in $request and an exception will be thrown.
+     *
      * @covers                   \ExtendsFramework\Http\Controller\AbstractController::dispatch()
      * @covers                   \ExtendsFramework\Http\Controller\AbstractController::getMethod()
      * @covers                   \ExtendsFramework\Http\Controller\AbstractController::getAction()
-     * @covers                   \ExtendsFramework\Http\Controller\ControllerException::forMethodNotFound()
-     * @expectedException        \ExtendsFramework\Http\Controller\ControllerException
-     * @expectedExceptionMessage No controller action method can be found for action "bar".
+     * @covers                   \ExtendsFramework\Http\Controller\Exception\ActionNotFound::__construct()
+     * @expectedException        \ExtendsFramework\Http\Controller\Exception\ActionNotFound
+     * @expectedExceptionMessage No controller action was found in request.
      */
-    public function testCanNotGetMethodForAction(): void
+    public function testActionNotFound(): void
     {
-        $attributes = $this->createMock(ContainerInterface::class);
-        $attributes
-            ->expects($this->once())
-            ->method('get')
-            ->with('action')
-            ->willReturn('bar');
-
         $request = $this->createMock(RequestInterface::class);
         $request
             ->expects($this->once())
             ->method('getAttributes')
-            ->willReturn($attributes);
+            ->willReturn([]);
 
         /**
          * @var RequestInterface $request
          */
-        $controller = new FooController();
+        $controller = new ControllerStub();
         $controller->dispatch($request);
     }
 
     /**
+     * Method not found.
+     *
+     * Test that controller method for action can not be found and an exception will be thrown.
+     *
      * @covers                   \ExtendsFramework\Http\Controller\AbstractController::dispatch()
      * @covers                   \ExtendsFramework\Http\Controller\AbstractController::getMethod()
      * @covers                   \ExtendsFramework\Http\Controller\AbstractController::getAction()
-     * @covers                   \ExtendsFramework\Http\Controller\ControllerException::forActionNotFound()
-     * @expectedException        \ExtendsFramework\Http\Controller\ControllerException
-     * @expectedExceptionMessage No controller action was found in request.
+     * @covers                   \ExtendsFramework\Http\Controller\Exception\MethodNotFound::__construct()
+     * @expectedException        \ExtendsFramework\Http\Controller\Exception\MethodNotFound
+     * @expectedExceptionMessage No controller method can be found for action "bar".
      */
-    public function testCanNotGetActionFromRequest(): void
+    public function testMethodNotFound(): void
     {
-        $attributes = $this->createMock(ContainerInterface::class);
-        $attributes
-            ->expects($this->once())
-            ->method('get')
-            ->willThrowException(new ContainerException());
-
         $request = $this->createMock(RequestInterface::class);
         $request
             ->expects($this->once())
             ->method('getAttributes')
-            ->willReturn($attributes);
+            ->willReturn([
+                'action' => 'bar',
+            ]);
 
         /**
          * @var RequestInterface $request
          */
-        $controller = new FooController();
+        $controller = new ControllerStub();
         $controller->dispatch($request);
-
     }
 }
 
-class FooController extends AbstractController
+class ControllerStub extends AbstractController
 {
     /**
      * @return ResponseInterface

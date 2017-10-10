@@ -3,7 +3,8 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Controller;
 
-use ExtendsFramework\Container\ContainerException;
+use ExtendsFramework\Http\Controller\Exception\ActionNotFound;
+use ExtendsFramework\Http\Controller\Exception\MethodNotFound;
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Response\ResponseInterface;
 
@@ -40,8 +41,8 @@ abstract class AbstractController implements ControllerInterface
     {
         $action = $this->getAction($request);
         $method = $action . $this->postfix;
-        if (!\method_exists($this, $method)) {
-            throw ControllerException::forMethodNotFound($action);
+        if (method_exists($this, $method) === false) {
+            throw new MethodNotFound($action);
         }
 
         return [$this, $method];
@@ -56,15 +57,28 @@ abstract class AbstractController implements ControllerInterface
      */
     protected function getAction(RequestInterface $request): string
     {
-        try {
-            $action = $request->getAttributes()->get('action');
-        } catch (ContainerException $exception) {
-            throw ControllerException::forActionNotFound($exception);
+        $attributes = $request->getAttributes();
+        if (array_key_exists('action', $attributes) === false) {
+            throw new ActionNotFound();
         }
 
-        $action = str_replace(['_', '-', '.'], ' ', strtolower($action));
-        $action = ucwords($action);
+        return $this->normalizeAction($attributes['action']);
+    }
 
-        return lcfirst(str_replace(' ', '', $action));
+    /**
+     * Normalize action string.
+     *
+     * @param string $action
+     * @return string
+     */
+    protected function normalizeAction(string $action): string
+    {
+        $action = strtolower($action);
+        $action = str_replace(['_', '-', '.'], ' ', $action);
+        $action = ucwords($action);
+        $action = str_replace(' ', '', $action);
+        $action = lcfirst($action);
+
+        return $action;
     }
 }

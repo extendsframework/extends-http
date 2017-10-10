@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Response;
 
-use ExtendsFramework\Container\ContainerInterface;
-
 interface ResponseInterface
 {
     /**
@@ -19,16 +17,16 @@ interface ResponseInterface
     /**
      * Return body.
      *
-     * @return ContainerInterface
+     * @return array
      */
-    public function getBody(): ContainerInterface;
+    public function getBody(): array;
 
     /**
      * Return headers.
      *
-     * @return ContainerInterface
+     * @return array
      */
-    public function getHeaders(): ContainerInterface;
+    public function getHeaders(): array;
 
     /**
      * Return status code.
@@ -40,18 +38,18 @@ interface ResponseInterface
     /**
      * Return new instance with $body.
      *
-     * @param ContainerInterface $body
+     * @param array $body
      * @return ResponseInterface
      */
-    public function withBody(ContainerInterface $body): ResponseInterface;
+    public function withBody(array $body): ResponseInterface;
 
     /**
      * Return new instance with $headers.
      *
-     * @param ContainerInterface $headers
+     * @param array $headers
      * @return ResponseInterface
      */
-    public function withHeaders(ContainerInterface $headers): ResponseInterface;
+    public function withHeaders(array $headers): ResponseInterface;
 
     /**
      * Return new instance with $statusCode.

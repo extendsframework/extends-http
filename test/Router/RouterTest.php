@@ -11,11 +11,15 @@ use PHPUnit\Framework\TestCase;
 class RouterTest extends TestCase
 {
     /**
+     * Match.
+     *
+     * Test that router can match route and return RouteMatchInterface.
+     *
      * @covers \ExtendsFramework\Http\Router\Router::__construct()
      * @covers \ExtendsFramework\Http\Router\Router::addRoute()
      * @covers \ExtendsFramework\Http\Router\Router::route()
      */
-    public function testCanMatchRequest(): void
+    public function testMatch(): void
     {
         $request = $this->createMock(RequestInterface::class);
 
@@ -41,11 +45,15 @@ class RouterTest extends TestCase
     }
 
     /**
+     * Higher priority.
+     *
+     * Test that router can match route with higher priority and return RouteMatchInterface.
+     *
      * @covers \ExtendsFramework\Http\Router\Router::__construct()
      * @covers \ExtendsFramework\Http\Router\Router::addRoute()
      * @covers \ExtendsFramework\Http\Router\Router::route()
      */
-    public function testWillMatchRouteWithHigherPriority(): void
+    public function testHigherPriority(): void
     {
         $request = $this->createMock(RequestInterface::class);
 
@@ -78,10 +86,14 @@ class RouterTest extends TestCase
     }
 
     /**
+     * No match.
+     *
+     * Test that router can not match route and will return null.
+     *
      * @covers \ExtendsFramework\Http\Router\Router::__construct()
      * @covers \ExtendsFramework\Http\Router\Router::route()
      */
-    public function testCanNotMatchRequest(): void
+    public function testNoMatch(): void
     {
         $request = $this->createMock(RequestInterface::class);
 

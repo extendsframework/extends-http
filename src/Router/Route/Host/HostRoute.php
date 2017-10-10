@@ -3,10 +3,8 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Router\Route\Host;
 
-use ExtendsFramework\Container\Container;
-use ExtendsFramework\Container\ContainerInterface;
 use ExtendsFramework\Http\Request\RequestInterface;
-use ExtendsFramework\Http\Router\Route\Host\Exception\InvalidOptions;
+use ExtendsFramework\Http\Router\Route\Host\Exception\MissingHost;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatch;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
@@ -23,20 +21,20 @@ class HostRoute implements RouteInterface
     /**
      * Default parameters to return.
      *
-     * @var ContainerInterface
+     * @var array
      */
     protected $parameters;
 
     /**
      * Create a method route.
      *
-     * @param string             $host
-     * @param ContainerInterface $parameters
+     * @param string $host
+     * @param array  $parameters
      */
-    public function __construct(string $host, ContainerInterface $parameters = null)
+    public function __construct(string $host, array $parameters = null)
     {
         $this->host = $host;
-        $this->parameters = $parameters ?? new Container();
+        $this->parameters = $parameters ?? [];
     }
 
     /**
@@ -44,14 +42,11 @@ class HostRoute implements RouteInterface
      */
     public static function factory(array $options): RouteInterface
     {
-        if (!isset($options['host'])) {
-            throw InvalidOptions::forMissingHost();
+        if (array_key_exists('host', $options) === false) {
+            throw new MissingHost();
         }
 
-        return new static(
-            $options['host'],
-            new Container($options['parameters'] ?? [])
-        );
+        return new static($options['host'], $options['parameters'] ?? []);
     }
 
     /**

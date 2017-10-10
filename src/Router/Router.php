@@ -35,7 +35,7 @@ class Router implements RouterInterface
         foreach (clone $this->routes as $route) {
             if ($route instanceof RouteInterface) {
                 $match = $route->match($request, 0);
-                if ($match) {
+                if ($match instanceof RouteMatchInterface) {
                     return $match;
                 }
             }

@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Middleware;
 
-use Exception;
+use Throwable;
 
-class MiddlewareException extends Exception
+interface MiddlewareException extends Throwable
 {
 }

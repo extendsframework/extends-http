@@ -33,7 +33,6 @@ class MiddlewareChain implements MiddlewareChainInterface
     public function proceed(RequestInterface $request): ResponseInterface
     {
         $response = null;
-
         $middleware = $this->queue->current();
         if ($middleware instanceof MiddlewareInterface) {
             $this->queue->next();

@@ -3,10 +3,8 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Router\Route\Method;
 
-use ExtendsFramework\Container\Container;
-use ExtendsFramework\Container\ContainerInterface;
 use ExtendsFramework\Http\Request\RequestInterface;
-use ExtendsFramework\Http\Router\Route\Method\Exception\InvalidOptions;
+use ExtendsFramework\Http\Router\Route\Method\Exception\MissingMethod;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatch;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
@@ -23,20 +21,20 @@ class MethodRoute implements RouteInterface
     /**
      * Default parameters to return.
      *
-     * @var ContainerInterface
+     * @var array
      */
     protected $parameters;
 
     /**
      * Create a method route.
      *
-     * @param string             $method
-     * @param ContainerInterface $parameters
+     * @param string $method
+     * @param array  $parameters
      */
-    public function __construct(string $method, ContainerInterface $parameters = null)
+    public function __construct(string $method, array $parameters = null)
     {
         $this->method = strtoupper(trim($method));
-        $this->parameters = $parameters ?? new Container();
+        $this->parameters = $parameters ?? [];
     }
 
     /**
@@ -44,14 +42,11 @@ class MethodRoute implements RouteInterface
      */
     public static function factory(array $options): RouteInterface
     {
-        if (!isset($options['method'])) {
-            throw InvalidOptions::forMissingMethod();
+        if (array_key_exists('method', $options) === false) {
+            throw new MissingMethod();
         }
 
-        return new static(
-            $options['method'],
-            new Container($options['parameters'] ?? [])
-        );
+        return new static($options['method'], $options['parameters'] ?? []);
     }
 
     /**

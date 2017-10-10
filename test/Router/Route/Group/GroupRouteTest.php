@@ -12,12 +12,16 @@ use PHPUnit\Framework\TestCase;
 class GroupRouteTest extends TestCase
 {
     /**
+     * Child route.
+     *
+     * Test that group route will match child route for request and return RouteMatchInterface.
+     *
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::factory()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::addChild()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::match()
      */
-    public function testCanMatchRouteAndChildRoute(): void
+    public function testChildRoute(): void
     {
         $request = $this->createMock(RequestInterface::class);
 
@@ -66,12 +70,16 @@ class GroupRouteTest extends TestCase
     }
 
     /**
+     * Non abstract route.
+     *
+     * Test that group route will match non abstract route for request and return RouteMatchInterface.
+     *
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::factory()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::match()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::isEndOfPath()
      */
-    public function testCanMatchNonAbstractRoute(): void
+    public function testNonAbstractRoute(): void
     {
         $uri = $this->createMock(UriInterface::class);
         $uri
@@ -112,12 +120,16 @@ class GroupRouteTest extends TestCase
     }
 
     /**
+     * End of path.
+     *
+     * Test that group route can not match end of path and will return null.
+     *
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::factory()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::match()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::isEndOfPath()
      */
-    public function testCanNotMatchNonAbstractRouteWithLongerPath()
+    public function testEndOfPath()
     {
         $uri = $this->createMock(UriInterface::class);
         $uri
@@ -158,12 +170,16 @@ class GroupRouteTest extends TestCase
     }
 
     /**
+     * Abstract route.
+     *
+     * Test that group route will not match abstract self and return null.
+     *
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::factory()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::match()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::isEndOfPath()
      */
-    public function testCanNotMatchAbstractRoute(): void
+    public function testAbstractRoute(): void
     {
         $request = $this->createMock(RequestInterface::class);
 
@@ -189,11 +205,15 @@ class GroupRouteTest extends TestCase
     }
 
     /**
+     * No route match.
+     *
+     * Test that inner route will not match and return null.
+     *
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::factory()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::match()
      */
-    public function testCanNotMatchRoute(): void
+    public function testNoRouteMatch(): void
     {
         $request = $this->createMock(RequestInterface::class);
 
@@ -218,23 +238,31 @@ class GroupRouteTest extends TestCase
     }
 
     /**
+     * Missing route.
+     *
+     * Test that factory will throw an exception for missing route in options.
+     *
      * @covers                   \ExtendsFramework\Http\Router\Route\Group\GroupRoute::factory()
-     * @covers                   \ExtendsFramework\Http\Router\Route\Group\Exception\InvalidOptions::forMissingRoute()
-     * @expectedException        \ExtendsFramework\Http\Router\Route\Group\Exception\InvalidOptions
-     * @expectedExceptionMessage Route is required and MUST be set in options.
+     * @covers                   \ExtendsFramework\Http\Router\Route\Group\Exception\MissingRoute::__construct()
+     * @expectedException        \ExtendsFramework\Http\Router\Route\Group\Exception\MissingRoute
+     * @expectedExceptionMessage Route is required and must be set in options.
      */
-    public function testCanNotCreateWithoutRoute(): void
+    public function testMissingRoute(): void
     {
         GroupRoute::factory([]);
     }
 
     /**
+     * Missing children.
+     *
+     * Test that factory will throw an exception for missing children in options.
+     *
      * @covers                   \ExtendsFramework\Http\Router\Route\Group\GroupRoute::factory()
-     * @covers                   \ExtendsFramework\Http\Router\Route\Group\Exception\InvalidOptions::forMissingChildren()
-     * @expectedException        \ExtendsFramework\Http\Router\Route\Group\Exception\InvalidOptions
-     * @expectedExceptionMessage Children are required and MUST be set in options.
+     * @covers                   \ExtendsFramework\Http\Router\Route\Group\Exception\MissingChildren::__construct()
+     * @expectedException        \ExtendsFramework\Http\Router\Route\Group\Exception\MissingChildren
+     * @expectedExceptionMessage Children are required and must be set in options.
      */
-    public function testCanNotCreateWithoutChildren(): void
+    public function testMissingChildren(): void
     {
         $route = $this->createMock(RouteInterface::class);
 

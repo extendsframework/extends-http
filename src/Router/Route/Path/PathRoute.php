@@ -3,10 +3,8 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Router\Route\Path;
 
-use ExtendsFramework\Container\Container;
-use ExtendsFramework\Container\ContainerInterface;
 use ExtendsFramework\Http\Request\RequestInterface;
-use ExtendsFramework\Http\Router\Route\Path\Exception\InvalidOptions;
+use ExtendsFramework\Http\Router\Route\Path\Exception\MissingPath;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatch;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
@@ -16,14 +14,14 @@ class PathRoute implements RouteInterface
     /**
      * Constraints for matching the URI variables.
      *
-     * @var ContainerInterface
+     * @var array
      */
     protected $constraints;
 
     /**
      * Default parameters to return when route is matched.
      *
-     * @var ContainerInterface
+     * @var array
      */
     protected $parameters;
 
@@ -46,15 +44,15 @@ class PathRoute implements RouteInterface
      *
      * For example: /foo/:bar/:baz/qux
      *
-     * @param string             $path
-     * @param ContainerInterface $constraints
-     * @param ContainerInterface $parameters
+     * @param string $path
+     * @param array  $constraints
+     * @param array  $parameters
      */
-    public function __construct(string $path, ContainerInterface $constraints = null, ContainerInterface $parameters = null)
+    public function __construct(string $path, array $constraints = null, array $parameters = null)
     {
         $this->path = $path;
-        $this->constraints = $constraints ?? new Container();
-        $this->parameters = $parameters ?? new Container();
+        $this->constraints = $constraints ?? [];
+        $this->parameters = $parameters ?? [];
     }
 
     /**
@@ -62,15 +60,11 @@ class PathRoute implements RouteInterface
      */
     public static function factory(array $options): RouteInterface
     {
-        if (!isset($options['path'])) {
-            throw InvalidOptions::forMissingPath();
+        if (array_key_exists('path', $options) === false) {
+            throw new MissingPath();
         }
 
-        return new static(
-            $options['path'],
-            new Container($options['constraints'] ?? []),
-            new Container($options['parameters'] ?? [])
-        );
+        return new static($options['path'], $options['constraints'] ?? [], $options['parameters'] ?? []);
     }
 
     /**
@@ -78,11 +72,8 @@ class PathRoute implements RouteInterface
      */
     public function match(RequestInterface $request, int $pathOffset): ?RouteMatchInterface
     {
-        if (preg_match($this->getPattern(), $request->getUri()->getPath(), $matches, PREG_OFFSET_CAPTURE, $pathOffset)) {
-            return new RouteMatch(
-                $this->getParameters($matches),
-                end($matches)[1]
-            );
+        if ((bool)preg_match($this->getPattern(), $request->getUri()->getPath(), $matches, PREG_OFFSET_CAPTURE, $pathOffset) === true) {
+            return new RouteMatch($this->getParameters($matches), end($matches)[1]);
         }
 
         return null;
@@ -94,9 +85,9 @@ class PathRoute implements RouteInterface
      * The $matches will be filtered for integer keys and merged into the default parameters.
      *
      * @param array $matches
-     * @return ContainerInterface
+     * @return array
      */
-    protected function getParameters(array $matches): ContainerInterface
+    protected function getParameters(array $matches): array
     {
         $parameters = [];
         foreach ($matches as $key => $match) {
@@ -105,7 +96,7 @@ class PathRoute implements RouteInterface
             }
         }
 
-        return $this->parameters->merge(new Container($parameters));
+        return array_replace_recursive($this->parameters, $parameters);
     }
 
     /**
@@ -116,16 +107,9 @@ class PathRoute implements RouteInterface
     protected function getPattern(): string
     {
         $path = preg_replace_callback('~:([a-z][a-z0-9]+)~i', function ($match) {
-            return sprintf(
-                '(?<%s>%s)',
-                $match[1],
-                $this->constraints->find($match[1], '\w+')
-            );
+            return sprintf('(?<%s>%s)', $match[1], $this->constraints[$match[1]] ?? '\w+');
         }, $this->path);
 
-        return sprintf(
-            '~\G%s(/|\z)~',
-            $path
-        );
+        return sprintf('~\G%s(/|\z)~', $path);
     }
 }

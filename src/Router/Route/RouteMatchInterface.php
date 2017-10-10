@@ -3,16 +3,14 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Router\Route;
 
-use ExtendsFramework\Container\ContainerInterface;
-
 interface RouteMatchInterface
 {
     /**
      * Get merged parameters from route.
      *
-     * @return ContainerInterface
+     * @return array
      */
-    public function getParameters(): ContainerInterface;
+    public function getParameters(): array;
 
     /**
      * Get request URI path offset.

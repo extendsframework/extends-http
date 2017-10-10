@@ -12,10 +12,14 @@ use stdClass;
 class RouteFactoryTest extends TestCase
 {
     /**
+     * Create.
+     *
+     * Test that factory can create an instance of GroupRoute and return it.
+     *
      * @covers \ExtendsFramework\Http\Router\Route\RouteFactory::create()
      * @covers \ExtendsFramework\Http\Router\Route\RouteFactory::createGroupRoute()
      */
-    public function testCanCreateRouteFromConfig(): void
+    public function testCreate(): void
     {
         $factory = new RouteFactory();
         $route = $factory->create([
@@ -44,13 +48,17 @@ class RouteFactoryTest extends TestCase
     }
 
     /**
+     * Invalid type.
+     *
+     * Test that factory can not create route for invalid type.
+     *
      * @covers                   \ExtendsFramework\Http\Router\Route\RouteFactory::create()
      * @covers                   \ExtendsFramework\Http\Router\Route\RouteFactory::create()
-     * @covers                   \ExtendsFramework\Http\Router\Route\RouteException::forInvalidRouteType()
-     * @expectedException        \ExtendsFramework\Http\Router\Route\RouteException
-     * @expectedExceptionMessage Route MUST be instance or subclass of RouteInterface, got "string".
+     * @covers                   \ExtendsFramework\Http\Router\Route\Exception\InvalidRouteType::__construct()
+     * @expectedException        \ExtendsFramework\Http\Router\Route\Exception\InvalidRouteType
+     * @expectedExceptionMessage Route must be instance or subclass of RouteInterface, got "string".
      */
-    public function testCanNotCreateRouteFromConfigForInvalidType(): void
+    public function testInvalidType(): void
     {
         $factory = new RouteFactory();
         $factory->create([

@@ -4,7 +4,8 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Router\Route\Group;
 
 use ExtendsFramework\Http\Request\RequestInterface;
-use ExtendsFramework\Http\Router\Route\Group\Exception\InvalidOptions;
+use ExtendsFramework\Http\Router\Route\Group\Exception\MissingChildren;
+use ExtendsFramework\Http\Router\Route\Group\Exception\MissingRoute;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 
@@ -35,17 +36,12 @@ class GroupRoute implements RouteInterface
      * Create a group route.
      *
      * @param RouteInterface $route
-     * @param iterable       $children
      * @param bool           $abstract
      */
-    public function __construct(RouteInterface $route, iterable $children, bool $abstract = null)
+    public function __construct(RouteInterface $route, bool $abstract = null)
     {
         $this->route = $route;
         $this->abstract = $abstract ?? true;
-
-        foreach ($children as $child) {
-            $this->addChild($child);
-        }
     }
 
     /**
@@ -53,19 +49,20 @@ class GroupRoute implements RouteInterface
      */
     public static function factory(array $options): RouteInterface
     {
-        if (!isset($options['route'])) {
-            throw InvalidOptions::forMissingRoute();
+        if (array_key_exists('route', $options) === false) {
+            throw new MissingRoute();
         }
 
-        if (!isset($options['children'])) {
-            throw InvalidOptions::forMissingChildren();
+        if (array_key_exists('children', $options) === false) {
+            throw new MissingChildren();
         }
 
-        return new static(
-            $options['route'],
-            $options['children'],
-            $options['abstract'] ?? null
-        );
+        $route = new static($options['route'], $options['abstract'] ?? null);
+        foreach ($options['children'] as $child) {
+            $route->addChild($child);
+        }
+
+        return $route;
     }
 
     /**
@@ -85,7 +82,7 @@ class GroupRoute implements RouteInterface
             }
         }
 
-        if (!$this->abstract && $match && $this->isEndOfPath($request, $match)) {
+        if ($this->abstract === false && $this->isEndOfPath($request, $match) === true) {
             return $match;
         }
 
@@ -98,7 +95,7 @@ class GroupRoute implements RouteInterface
      * @param RouteInterface $route
      * @return GroupRoute
      */
-    protected function addChild(RouteInterface $route): GroupRoute
+    public function addChild(RouteInterface $route): GroupRoute
     {
         $this->children[] = $route;
 

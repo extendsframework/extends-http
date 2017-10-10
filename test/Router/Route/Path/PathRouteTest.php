@@ -11,13 +11,17 @@ use PHPUnit\Framework\TestCase;
 class PathRouteTest extends TestCase
 {
     /**
+     * Match.
+     *
+     * Test that path '/foo/33/bar/baz' will match '/:id/bar' and return an instance of RouteMatchInterface.
+     *
      * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::factory()
      * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::match()
      * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::getPattern()
      * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::getParameters()
      */
-    public function testCanMatchPath(): void
+    public function testMatch(): void
     {
         $uri = $this->createMock(UriInterface::class);
         $uri
@@ -46,20 +50,26 @@ class PathRouteTest extends TestCase
         $match = $path->match($request, 4);
 
         $this->assertInstanceOf(RouteMatchInterface::class, $match);
-        $this->assertSame(11, $match->getPathOffset());
-        $this->assertSame([
-            'foo' => 'bar',
-            'id' => '33',
-        ], $match->getParameters()->extract());
+        if ($match instanceof RouteMatchInterface) {
+            $this->assertSame(11, $match->getPathOffset());
+            $this->assertSame([
+                'foo' => 'bar',
+                'id' => '33',
+            ], $match->getParameters());
+        }
     }
 
     /**
+     * No match.
+     *
+     * Test that '/foo/bar/baz' will not match '/:id/bar' and return null.
+     *
      * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::factory()
      * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::match()
      * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::getPattern()
      */
-    public function testCanNotMatchPath(): void
+    public function testNoMatch(): void
     {
         $uri = $this->createMock(UriInterface::class);
         $uri
@@ -88,12 +98,16 @@ class PathRouteTest extends TestCase
     }
 
     /**
+     * Missing path.
+     *
+     * Test that factory will throw an exception for missing path in options.
+     *
      * @covers                   \ExtendsFramework\Http\Router\Route\Path\PathRoute::factory()
-     * @covers                   \ExtendsFramework\Http\Router\Route\Path\Exception\InvalidOptions::forMissingPath()
-     * @expectedException        \ExtendsFramework\Http\Router\Route\Path\Exception\InvalidOptions
-     * @expectedExceptionMessage Path is required and MUST be set in options.
+     * @covers                   \ExtendsFramework\Http\Router\Route\Path\Exception\MissingPath::__construct()
+     * @expectedException        \ExtendsFramework\Http\Router\Route\Path\Exception\MissingPath
+     * @expectedExceptionMessage Path is required and must be set in options.
      */
-    public function testCanNotCreateWithoutPath(): void
+    public function testMissingPath(): void
     {
         PathRoute::factory([]);
     }

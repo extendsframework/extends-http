@@ -8,17 +8,6 @@ use ExtendsFramework\Http\Request\RequestInterface;
 interface RouteInterface
 {
     /**
-     * Create new route with given $options.
-     *
-     * When factory fails, an exception will be thrown.
-     *
-     * @param array $options
-     * @return RouteInterface
-     * @throws RouteException
-     */
-    public static function factory(array $options): RouteInterface;
-
-    /**
      * Match route against $request.
      *
      * Parameter $pathOffset is used to pass the request uri path offset to other routes.
@@ -28,4 +17,15 @@ interface RouteInterface
      * @return RouteMatchInterface
      */
     public function match(RequestInterface $request, int $pathOffset): ?RouteMatchInterface;
+
+    /**
+     * Create new route with given $options.
+     *
+     * When factory fails, an exception will be thrown.
+     *
+     * @param array $options
+     * @return RouteInterface
+     * @throws RouteException
+     */
+    public static function factory(array $options): RouteInterface;
 }

@@ -3,14 +3,12 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Router\Route;
 
-use ExtendsFramework\Container\ContainerInterface;
-
 class RouteMatch implements RouteMatchInterface
 {
     /**
      * Matched parameters.
      *
-     * @var ContainerInterface
+     * @var array
      */
     protected $parameters;
 
@@ -24,10 +22,10 @@ class RouteMatch implements RouteMatchInterface
     /**
      * Create a route match.
      *
-     * @param ContainerInterface $parameters
-     * @param int                $pathOffset
+     * @param array $parameters
+     * @param int   $pathOffset
      */
-    public function __construct(ContainerInterface $parameters, int $pathOffset = null)
+    public function __construct(array $parameters, int $pathOffset = null)
     {
         $this->parameters = $parameters;
         $this->pathOffset = $pathOffset ?: 0;
@@ -44,7 +42,7 @@ class RouteMatch implements RouteMatchInterface
     /**
      * @inheritDoc
      */
-    public function getParameters(): ContainerInterface
+    public function getParameters(): array
     {
         return $this->parameters;
     }
@@ -55,7 +53,7 @@ class RouteMatch implements RouteMatchInterface
     public function merge(RouteMatchInterface $routeMatch): RouteMatchInterface
     {
         $merged = clone $this;
-        $merged->parameters = $this->getParameters()->merge($routeMatch->getParameters());
+        $merged->parameters = array_replace_recursive($this->getParameters(), $routeMatch->getParameters());
         $merged->pathOffset += $routeMatch->getPathOffset();
 
         return $merged;

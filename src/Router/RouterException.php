@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Router;
 
-use Exception;
+use Throwable;
 
-class RouterException extends Exception
+interface RouterException extends Throwable
 {
 }

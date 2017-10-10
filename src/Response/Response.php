@@ -3,25 +3,22 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Response;
 
-use ExtendsFramework\Container\Container;
-use ExtendsFramework\Container\ContainerInterface;
-
 class Response implements ResponseInterface
 {
     /**
-     * @var ContainerInterface
+     * @var array
      */
-    protected $body;
+    protected $body = [];
 
     /**
-     * @var ContainerInterface
+     * @var array
      */
-    protected $headers;
+    protected $headers = [];
 
     /**
      * @var int
      */
-    protected $statusCode;
+    protected $statusCode = 200;
 
     /**
      * @inheritDoc
@@ -29,7 +26,7 @@ class Response implements ResponseInterface
     public function andHeader(string $name, string $value): ResponseInterface
     {
         $response = clone $this;
-        $response->headers = $this->getHeaders()->with($name, $value);
+        $response->headers[$name] = $value;
 
         return $response;
     }
@@ -37,24 +34,16 @@ class Response implements ResponseInterface
     /**
      * @inheritDoc
      */
-    public function getBody(): ContainerInterface
+    public function getBody(): array
     {
-        if ($this->body === null) {
-            $this->body = new Container();
-        }
-
         return $this->body;
     }
 
     /**
      * @inheritDoc
      */
-    public function getHeaders(): ContainerInterface
+    public function getHeaders(): array
     {
-        if ($this->headers === null) {
-            $this->headers = new Container();
-        }
-
         return $this->headers;
     }
 
@@ -63,17 +52,13 @@ class Response implements ResponseInterface
      */
     public function getStatusCode(): int
     {
-        if ($this->statusCode === null) {
-            $this->statusCode = 200;
-        }
-
         return $this->statusCode;
     }
 
     /**
      * @inheritDoc
      */
-    public function withBody(ContainerInterface $body): ResponseInterface
+    public function withBody(array $body): ResponseInterface
     {
         $clone = clone $this;
         $clone->body = $body;
@@ -84,7 +69,7 @@ class Response implements ResponseInterface
     /**
      * @inheritDoc
      */
-    public function withHeaders(ContainerInterface $headers): ResponseInterface
+    public function withHeaders(array $headers): ResponseInterface
     {
         $clone = clone $this;
         $clone->headers = $headers;

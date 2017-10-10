@@ -3,9 +3,6 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Request\Uri;
 
-use ExtendsFramework\Container\Container;
-use ExtendsFramework\Container\ContainerInterface;
-
 class Uri implements UriInterface
 {
     /**
@@ -53,16 +50,16 @@ class Uri implements UriInterface
     /**
      * Query or the URI.
      *
-     * @var ContainerInterface
+     * @var array
      */
     protected $query;
 
     /**
      * Fragment of the URI.
      *
-     * @var ContainerInterface
+     * @var array
      */
-    protected $fragment;
+    protected $fragment = [];
 
     /**
      * @inheritDoc
@@ -71,12 +68,14 @@ class Uri implements UriInterface
     {
         $uri = $this->getScheme() . '://' . $this->getAuthority() . $this->getPath();
 
-        if (!$this->getQuery()->isEmpty()) {
-            $uri .= '?' . http_build_query($this->getQuery()->extract());
+        $query = $this->getQuery();
+        if (empty($query) === false) {
+            $uri .= '?' . http_build_query($query);
         }
 
-        if (!$this->getFragment()->isEmpty()) {
-            $uri .= '#' . http_build_query($this->getFragment()->extract());
+        $fragment = $this->getFragment();
+        if (empty($fragment) === false) {
+            $uri .= '#' . http_build_query($fragment);
         }
 
         return $uri;
@@ -88,7 +87,7 @@ class Uri implements UriInterface
     public function andFragment(string $name, string $value): UriInterface
     {
         $clone = clone $this;
-        $clone->fragment = $clone->fragment->with($name, $value);
+        $clone->fragment[$name] = $value;
 
         return $clone;
     }
@@ -99,7 +98,7 @@ class Uri implements UriInterface
     public function andQuery(string $name, string $value): UriInterface
     {
         $clone = clone $this;
-        $clone->query = $clone->query->with($name, $value);
+        $clone->query[$name] = $value;
 
         return $clone;
     }
@@ -110,11 +109,14 @@ class Uri implements UriInterface
     public function getAuthority(): string
     {
         $authority = $this->getHost();
-        if ($this->getUserInfo()) {
-            $authority = $this->getUserInfo() . '@' . $authority;
+
+        $userInfo = $this->getUserInfo();
+        if ($userInfo !== null) {
+            $authority = $userInfo . '@' . $authority;
         }
 
-        if ($this->getPort()) {
+        $port = $this->getPort();
+        if ($port !== null) {
             $authority .= ':' . $this->getPort();
         }
 
@@ -124,12 +126,8 @@ class Uri implements UriInterface
     /**
      * @inheritDoc
      */
-    public function getFragment(): ContainerInterface
+    public function getFragment(): array
     {
-        if ($this->fragment === null) {
-            $this->fragment = new Container();
-        }
-
         return $this->fragment;
     }
 
@@ -172,7 +170,7 @@ class Uri implements UriInterface
     /**
      * @inheritDoc
      */
-    public function getPort(): int
+    public function getPort(): ?int
     {
         if ($this->port === null) {
             $this->port = $_SERVER['SERVER_PORT'];
@@ -184,11 +182,10 @@ class Uri implements UriInterface
     /**
      * @inheritDoc
      */
-    public function getQuery(): ContainerInterface
+    public function getQuery(): array
     {
         if ($this->query === null) {
-            parse_str($_SERVER['QUERY_STRING'], $query);
-            $this->query = new Container($query);
+            parse_str($_SERVER['QUERY_STRING'], $this->query);
         }
 
         return $this->query;
@@ -252,7 +249,7 @@ class Uri implements UriInterface
     /**
      * @inheritDoc
      */
-    public function withFragment(ContainerInterface $fragment): UriInterface
+    public function withFragment(array $fragment): UriInterface
     {
         $uri = clone $this;
         $uri->fragment = $fragment;
@@ -307,7 +304,7 @@ class Uri implements UriInterface
     /**
      * @inheritDoc
      */
-    public function withQuery(ContainerInterface $query): UriInterface
+    public function withQuery(array $query): UriInterface
     {
         $uri = clone $this;
         $uri->query = $query;

@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Request;
 
-use Exception;
+use Throwable;
 
-class RequestException extends Exception
+interface RequestException extends Throwable
 {
 }

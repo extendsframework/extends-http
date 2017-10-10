@@ -27,10 +27,9 @@ class RouterFactory implements RouterFactoryInterface
     /**
      * @inheritDoc
      */
-    public function create(iterable $routes): RouterInterface
+    public function create(array $routes): RouterInterface
     {
         $router = new Router();
-
         foreach ($routes as $config) {
             $route = $this->factory->create($config);
             $router->addRoute($route, $config['priority'] ?? 1);

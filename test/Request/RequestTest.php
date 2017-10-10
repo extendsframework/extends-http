@@ -3,13 +3,16 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Request;
 
-use ExtendsFramework\Container\ContainerInterface;
 use ExtendsFramework\Http\Request\Uri\UriInterface;
 use PHPUnit\Framework\TestCase;
 
 class RequestTest extends TestCase
 {
     /**
+     * Get methods.
+     *
+     * Test that get methods will return the correct php://input abd $_SERVER values.
+     *
      * @covers \ExtendsFramework\Http\Request\Request::getAttributes()
      * @covers \ExtendsFramework\Http\Request\Request::getBody()
      * @covers \ExtendsFramework\Http\Request\Request::getHeaders()
@@ -18,7 +21,7 @@ class RequestTest extends TestCase
      */
     public function testCanCreateNewInstanceFromEnvironment(): void
     {
-        Content::setContent('{"foo":"qux"}');
+        Buffer::set('{"foo":"qux"}');
 
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $_SERVER['QUERY_STRING'] = 'baz=qux';
@@ -27,16 +30,20 @@ class RequestTest extends TestCase
 
         $request = new Request();
 
-        $this->assertInstanceOf(ContainerInterface::class, $request->getAttributes());
-        $this->assertSame('qux', $request->getBody()->get('foo'));
-        $this->assertSame('application/json', $request->getHeaders()->get('Content-Type'));
+        $this->assertSame([], $request->getAttributes());
+        $this->assertSame(['foo' => 'qux',], $request->getBody());
+        $this->assertSame(['Content-Type' => 'application/json'], $request->getHeaders());
         $this->assertSame('POST', $request->getMethod());
         $this->assertInstanceOf(UriInterface::class, $request->getUri());
 
-        Content::clearContent();
+        Buffer::reset();
     }
 
     /**
+     * With methods.
+     *
+     * Test that with methods will set the correct value.
+     *
      * @covers  \ExtendsFramework\Http\Request\Request::withAttributes()
      * @covers  \ExtendsFramework\Http\Request\Request::withBody()
      * @covers  \ExtendsFramework\Http\Request\Request::withHeaders()
@@ -48,127 +55,109 @@ class RequestTest extends TestCase
      * @covers  \ExtendsFramework\Http\Request\Request::getMethod()
      * @covers  \ExtendsFramework\Http\Request\Request::getUri()
      */
-    public function testCanGetFromWithMethods(): void
+    public function testWithMethods(): void
     {
-        $attributes = $this->createMock(ContainerInterface::class);
-
-        $body = $this->createMock(ContainerInterface::class);
-
-        $headers = $this->createMock(ContainerInterface::class);
-
         $uri = $this->createMock(UriInterface::class);
 
         /**
-         * @var ContainerInterface $attributes
-         * @var ContainerInterface $body
-         * @var ContainerInterface $headers
-         * @var UriInterface       $uri
+         * @var UriInterface $uri
          */
         $request = (new Request())
-            ->withAttributes($attributes)
-            ->withBody($body)
-            ->withHeaders($headers)
+            ->withAttributes(['foo' => 'bar'])
+            ->withBody(['baz' => 'qux'])
+            ->withHeaders(['qux' => 'quux'])
             ->withMethod('POST')
             ->withUri($uri);
 
-        $this->assertSame($attributes, $request->getAttributes());
-        $this->assertSame($body, $request->getBody());
-        $this->assertSame($headers, $request->getHeaders());
+        $this->assertSame(['foo' => 'bar'], $request->getAttributes());
+        $this->assertSame(['baz' => 'qux'], $request->getBody());
+        $this->assertSame(['qux' => 'quux'], $request->getHeaders());
         $this->assertSame('POST', $request->getMethod());
         $this->assertSame($uri, $request->getUri());
     }
 
     /**
-     * @covers \ExtendsFramework\Http\Request\Request::withAttributes()
+     * And attribute.
+     *
+     * Test that a single attribute parameter can be set.
+     *
      * @covers \ExtendsFramework\Http\Request\Request::andAttribute()
      * @covers \ExtendsFramework\Http\Request\Request::getAttributes()
      */
     public function testCanMergeWithAttribute(): void
     {
-        $attributes = $this->createMock(ContainerInterface::class);
-        $attributes
-            ->expects($this->once())
-            ->method('with')
-            ->with('foo', 'bar')
-            ->willReturnSelf();
-
-        /**
-         * @var ContainerInterface $attributes
-         */
         $uri = (new Request())
-            ->withAttributes($attributes)
-            ->andAttribute('foo', 'bar');
+            ->andAttribute('foo', 'bar')
+            ->andAttribute('qux', 'quux');
 
-        $this->assertSame($attributes, $uri->getAttributes());
+        $this->assertSame([
+            'foo' => 'bar',
+            'qux' => 'quux',
+        ], $uri->getAttributes());
     }
 
     /**
-     * @covers \ExtendsFramework\Http\Request\Request::withHeaders()
+     * And header.
+     *
+     * Test that a single header parameter can be set.
+     *
      * @covers \ExtendsFramework\Http\Request\Request::andHeader()
      * @covers \ExtendsFramework\Http\Request\Request::getHeaders()
      */
-    public function testCanMergeWithHeader(): void
+    public function testAndHeader(): void
     {
-        $headers = $this->createMock(ContainerInterface::class);
-        $headers
-            ->expects($this->once())
-            ->method('with')
-            ->with('foo', 'bar')
-            ->willReturnSelf();
-
-        /**
-         * @var ContainerInterface $headers
-         */
         $uri = (new Request())
-            ->withHeaders($headers)
-            ->andHeader('foo', 'bar');
+            ->andHeader('foo', 'bar')
+            ->andHeader('qux', 'quux');
 
-        $this->assertSame($headers, $uri->getHeaders());
+        $this->assertSame([
+            'foo' => 'bar',
+            'qux' => 'quux',
+        ], $uri->getHeaders());
     }
 
     /**
+     * Invalid body.
+     *
+     * Test that invalid body can not be parsed and a exception will be thrown.
+     *
      * @covers                   \ExtendsFramework\Http\Request\Request::getBody()
-     * @covers                   \ExtendsFramework\Http\Request\Exception\InvalidRequest::forInvalidBody()
-     * @expectedException        \ExtendsFramework\Http\Request\Exception\InvalidRequest
-     * @expectedExceptionMessage Request body MUST be valid JSON; Syntax error.
+     * @covers                   \ExtendsFramework\Http\Request\Exception\InvalidRequestBody::__construct()
+     * @expectedException        \ExtendsFramework\Http\Request\Exception\InvalidRequestBody
+     * @expectedExceptionMessage Invalid JSON for request body, got parse error "Syntax error".
      */
-    public function testCanNotCreateFromEnvironmentWithInvalidBody(): void
+    public function testInvalidBody(): void
     {
-        Content::setContent('{"foo":"qux"');
+        Buffer::set('{"foo":"qux"');
 
         $request = new Request();
         $request->getBody();
 
-        Content::clearContent();
+        Buffer::reset();
     }
 }
 
-abstract class Content
+class Buffer
 {
-    /**
-     * @var string
-     */
-    public static $content;
+    protected static $value;
 
-    /**
-     * @return void
-     */
-    public static function clearContent(): void
+    public static function get(): string
     {
-        self::$content = null;
+        return static::$value;
     }
 
-    /**
-     * @param string $content
-     * @return void
-     */
-    public static function setContent(string $content): void
+    public static function set(string $value): void
     {
-        self::$content = $content;
+        static::$value = $value;
+    }
+
+    public static function reset(): void
+    {
+        static::$value = null;
     }
 }
 
 function file_get_contents()
 {
-    return Content::$content;
+    return Buffer::get();
 }

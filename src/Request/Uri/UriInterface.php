@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Request\Uri;
 
-use ExtendsFramework\Container\ContainerInterface;
-
 interface UriInterface
 {
     /**
@@ -42,9 +40,9 @@ interface UriInterface
     /**
      * Get fragment from URI.
      *
-     * @return ContainerInterface
+     * @return array
      */
-    public function getFragment(): ContainerInterface;
+    public function getFragment(): array;
 
     /**
      * Get host from URI.
@@ -72,14 +70,14 @@ interface UriInterface
      *
      * @return int
      */
-    public function getPort(): int;
+    public function getPort(): ?int;
 
     /**
      * Get query from URI.
      *
-     * @return ContainerInterface
+     * @return array
      */
-    public function getQuery(): ContainerInterface;
+    public function getQuery(): array;
 
     /**
      * Get scheme from URI.
@@ -116,10 +114,10 @@ interface UriInterface
     /**
      * Return new instance with $fragment.
      *
-     * @param ContainerInterface $fragment
+     * @param array $fragment
      * @return UriInterface
      */
-    public function withFragment(ContainerInterface $fragment): UriInterface;
+    public function withFragment(array $fragment): UriInterface;
 
     /**
      * Return new instance with $host.
@@ -156,10 +154,10 @@ interface UriInterface
     /**
      * Return new instance with $query.
      *
-     * @param ContainerInterface $query
+     * @param array $query
      * @return UriInterface
      */
-    public function withQuery(ContainerInterface $query): UriInterface;
+    public function withQuery(array $query): UriInterface;
 
     /**
      * Return new instance with $scheme.

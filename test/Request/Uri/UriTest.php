@@ -3,15 +3,18 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Request\Uri;
 
-use ExtendsFramework\Container\ContainerInterface;
 use PHPUnit\Framework\TestCase;
 
 class UriTest extends TestCase
 {
     /**
+     * To string.
+     *
+     * Test that URI can cast to string with the correct $_SERVER values.
+     *
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::__toString()
      */
-    public function testCanCreateString(): void
+    public function testToString(): void
     {
         $_SERVER['HTTPS'] = 'on';
         $_SERVER['HTTP_HOST'] = 'www.extends.nl';
@@ -21,23 +24,18 @@ class UriTest extends TestCase
         $_SERVER['QUERY_STRING'] = 'baz=qux+quux';
         $_SERVER['SERVER_PORT'] = 443;
 
-        $fragment = $this->createMock(ContainerInterface::class);
-        $fragment
-            ->expects($this->once())
-            ->method('extract')
-            ->willReturn([
-                'bar' => 'baz',
-            ]);
-
-        /**
-         * @var ContainerInterface $fragment
-         */
-        $uri = (new Uri())->withFragment($fragment);
+        $uri = (new Uri())->withFragment([
+            'bar' => 'baz'
+        ]);
 
         $this->assertSame('https://extends:framework@www.extends.nl:443/foo/bar?baz=qux+quux#bar=baz', (string)$uri);
     }
 
     /**
+     * Get methods.
+     *
+     * Test that get methods will return the correct $_SERVER values.
+     *
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::getAuthority()
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::getFragment()
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::getHost()
@@ -49,7 +47,7 @@ class UriTest extends TestCase
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::getUser()
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::getUserInfo()
      */
-    public function testCanGetFromEnvironmentVariables(): void
+    public function testGetMethods(): void
     {
         $_SERVER['HTTPS'] = 'on';
         $_SERVER['HTTP_HOST'] = 'www.extends.nl';
@@ -62,18 +60,22 @@ class UriTest extends TestCase
         $uri = new Uri();
 
         $this->assertSame('extends:framework@www.extends.nl:443', $uri->getAuthority());
-        $this->assertInstanceOf(ContainerInterface::class, $uri->getFragment());
+        $this->assertSame([], $uri->getFragment());
         $this->assertSame('www.extends.nl', $uri->getHost());
         $this->assertSame('framework', $uri->getPass());
         $this->assertSame('/foo/bar', $uri->getPath());
         $this->assertSame(443, $uri->getPort());
-        $this->assertSame('qux quux', $uri->getQuery()->get('baz'));
+        $this->assertSame(['baz' => 'qux quux'], $uri->getQuery());
         $this->assertSame('https', $uri->getScheme());
         $this->assertSame('extends', $uri->getUser());
         $this->assertSame('extends:framework', $uri->getUserInfo());
     }
 
     /**
+     * With methods.
+     *
+     * Test that with methods will set the correct value.
+     *
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::withFragment()
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::withHost()
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::withPass()
@@ -91,43 +93,39 @@ class UriTest extends TestCase
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::getScheme()
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::getUser()
      */
-    public function testCanGetFromWithMethods(): void
+    public function testWithMethods(): void
     {
-        $fragment = $this->createMock(ContainerInterface::class);
-
-        $query = $this->createMock(ContainerInterface::class);
-
-        /**
-         * @var ContainerInterface $fragment
-         * @var ContainerInterface $query
-         */
         $uri = (new Uri())
-            ->withFragment($fragment)
+            ->withFragment(['foo' => 'bar'])
             ->withHost('www.extends.nl')
             ->withPass('framework')
             ->withPath('/foo/bar')
             ->withPort(443)
-            ->withQuery($query)
+            ->withQuery(['qux' => 'quux'])
             ->withScheme('https')
             ->withUser('extends');
 
-        $this->assertSame($fragment, $uri->getFragment());
+        $this->assertSame(['foo' => 'bar'], $uri->getFragment());
         $this->assertSame('www.extends.nl', $uri->getHost());
         $this->assertSame('framework', $uri->getPass());
         $this->assertSame('/foo/bar', $uri->getPath());
         $this->assertSame(443, $uri->getPort());
-        $this->assertSame($query, $uri->getQuery());
+        $this->assertSame(['qux' => 'quux'], $uri->getQuery());
         $this->assertSame('https', $uri->getScheme());
         $this->assertSame('extends', $uri->getUser());
     }
 
     /**
+     * With Authority.
+     *
+     * Test that whole authority will be set.
+     *
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::withAuthority()
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::getHost()
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::getPass()
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::getUser()
      */
-    public function testCanGetWithAuthority(): void
+    public function testWithAuthority(): void
     {
         $uri = (new Uri())->withAuthority('www.extends.nl', 'extends', 'framework', 80);
 
@@ -138,11 +136,15 @@ class UriTest extends TestCase
     }
 
     /**
+     * With user info.
+     *
+     * Test that whole user info will be set.
+     *
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::withUserInfo()
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::getPass()
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::getUser()
      */
-    public function testCanGetWithUserInfo(): void
+    public function testWithUserInfo(): void
     {
         $uri = (new Uri())->withUserInfo('extends', 'framework');
 
@@ -151,50 +153,44 @@ class UriTest extends TestCase
     }
 
     /**
+     * And fragment.
+     *
+     * Test that a single fragment parameter can be set.
+     *
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::withFragment()
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::andFragment()
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::getFragment()
      */
-    public function testCanMergeWithFragment(): void
+    public function testAndFragment(): void
     {
-        $fragment = $this->createMock(ContainerInterface::class);
-        $fragment
-            ->expects($this->once())
-            ->method('with')
-            ->with('foo', 'bar')
-            ->willReturnSelf();
-
-        /**
-         * @var ContainerInterface $fragment
-         */
         $uri = (new Uri())
-            ->withFragment($fragment)
-            ->andFragment('foo', 'bar');
+            ->andFragment('foo', 'bar')
+            ->andFragment('qux', 'quux');
 
-        $this->assertSame($fragment, $uri->getFragment());
+        $this->assertSame([
+            'foo' => 'bar',
+            'qux' => 'quux',
+        ], $uri->getFragment());
     }
 
     /**
+     * And query.
+     *
+     * Test that a single query parameter can be set.
+     *
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::withQuery()
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::andQuery()
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::getQuery()
      */
-    public function testCanMergeWithQuery(): void
+    public function testAndQuery(): void
     {
-        $query = $this->createMock(ContainerInterface::class);
-        $query
-            ->expects($this->once())
-            ->method('with')
-            ->with('foo', 'bar')
-            ->willReturnSelf();
-
-        /**
-         * @var ContainerInterface $query
-         */
         $uri = (new Uri())
-            ->withQuery($query)
-            ->andQuery('foo', 'bar');
+            ->andQuery('foo', 'bar')
+            ->andQuery('qux', 'quux');
 
-        $this->assertSame($query, $uri->getQuery());
+        $this->assertSame([
+            'foo' => 'bar',
+            'qux' => 'quux',
+        ], $uri->getQuery());
     }
 }

@@ -3,15 +3,19 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Middleware\Router;
 
+use ExtendsFramework\Http\Controller\ControllerException;
 use ExtendsFramework\Http\Controller\ControllerInterface;
 use ExtendsFramework\Http\Middleware\Chain\MiddlewareChainInterface;
-use ExtendsFramework\Http\Middleware\Exception\ExecutionFailed;
 use ExtendsFramework\Http\Middleware\MiddlewareInterface;
+use ExtendsFramework\Http\Middleware\Router\Exception\ControllerDispatchFailed;
+use ExtendsFramework\Http\Middleware\Router\Exception\ControllerNotFound;
+use ExtendsFramework\Http\Middleware\Router\Exception\ControllerParameterMissing;
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Response\ResponseInterface;
+use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use ExtendsFramework\Http\Router\RouterInterface;
+use ExtendsFramework\ServiceLocator\ServiceLocatorException;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
-use Throwable;
 
 class RouterMiddleware implements MiddlewareInterface
 {
@@ -46,16 +50,24 @@ class RouterMiddleware implements MiddlewareInterface
      */
     public function process(RequestInterface $request, MiddlewareChainInterface $chain): ResponseInterface
     {
-        try {
-            $match = $this->router->route($request);
-            if ($match) {
-                $key = $match->getParameters()->get('controller');
-                $controller = $this->getController($key);
-
-                return $controller->dispatch($request);
+        $match = $this->router->route($request);
+        if ($match instanceof RouteMatchInterface) {
+            $parameters = $match->getParameters();
+            if (array_key_exists('controller', $parameters) === false) {
+                throw new ControllerParameterMissing();
             }
-        } catch (Throwable $exception) {
-            throw ExecutionFailed::fromThrowable($exception);
+
+            try {
+                $controller = $this->getController($parameters['controller']);
+            } catch (ServiceLocatorException $exception) {
+                throw new ControllerNotFound($parameters['controller'], $exception);
+            }
+
+            try {
+                return $controller->dispatch($request);
+            } catch (ControllerException $exception) {
+                throw new ControllerDispatchFailed($exception);
+            }
         }
 
         return $chain->proceed($request);
@@ -66,9 +78,10 @@ class RouterMiddleware implements MiddlewareInterface
      *
      * @param string $key
      * @return ControllerInterface
+     * @throws ServiceLocatorException
      */
     protected function getController(string $key): ControllerInterface
     {
-        return $this->serviceLocator->get($key);
+        return $this->serviceLocator->getService($key);
     }
 }

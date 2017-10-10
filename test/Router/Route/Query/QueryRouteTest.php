@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Router\Route\Query;
 
-use ExtendsFramework\Container\ContainerInterface;
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Request\Uri\UriInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
@@ -12,32 +11,26 @@ use PHPUnit\Framework\TestCase;
 class QueryRouteTest extends TestCase
 {
     /**
+     * Match.
+     *
+     * Test that route will match '?limit=20&offset=0' and return an instance of RouteMatchInterface
+     *
      * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::factory()
      * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::match()
      * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::getPattern()
      * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::getParameters()
      */
-    public function testCanMatchQuery(): void
+    public function testMatch(): void
     {
-        $query = $this->createMock(ContainerInterface::class);
-        $query
-            ->expects($this->exactly(2))
-            ->method('has')
-            ->withConsecutive(['limit'], ['offset'])
-            ->willReturnOnConsecutiveCalls(true, false);
-
-        $query
-            ->expects($this->once())
-            ->method('get')
-            ->with('limit')
-            ->willReturn('20');
-
         $uri = $this->createMock(UriInterface::class);
         $uri
             ->expects($this->once())
             ->method('getQuery')
-            ->willReturn($query);
+            ->willReturn([
+                'offset' => '0',
+                'limit' => '20',
+            ]);
 
         $request = $this->createMock(RequestInterface::class);
         $request
@@ -60,39 +53,35 @@ class QueryRouteTest extends TestCase
         $match = $path->match($request, 4);
 
         $this->assertInstanceOf(RouteMatchInterface::class, $match);
-        $this->assertSame(0, $match->getPathOffset());
-        $this->assertSame([
-            'offset' => '0',
-            'limit' => '20',
-        ], $match->getParameters()->extract());
+        if ($match instanceof RouteMatchInterface) {
+            $this->assertSame(0, $match->getPathOffset());
+            $this->assertSame([
+                'offset' => '0',
+                'limit' => '20',
+            ], $match->getParameters());
+
+        }
     }
 
     /**
+     * No match.
+     *
+     * Test that route will not match empty query and return null.
+     *
      * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::factory()
      * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::match()
      * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::getPattern()
      */
-    public function testCanNotMatchQuery(): void
+    public function testNoMatch(): void
     {
-        $query = $this->createMock(ContainerInterface::class);
-        $query
-            ->expects($this->once())
-            ->method('has')
-            ->with('limit')
-            ->willReturn(true);
-
-        $query
-            ->expects($this->once())
-            ->method('get')
-            ->with('limit')
-            ->willReturn('foo');
-
         $uri = $this->createMock(UriInterface::class);
         $uri
             ->expects($this->once())
             ->method('getQuery')
-            ->willReturn($query);
+            ->willReturn([
+                'limit' => 'foo',
+            ]);
 
         $request = $this->createMock(RequestInterface::class);
         $request
@@ -115,12 +104,16 @@ class QueryRouteTest extends TestCase
     }
 
     /**
+     * Missing constraints.
+     *
+     * Test that factory will throw an exception for constraints in options.
+     *
      * @covers                   \ExtendsFramework\Http\Router\Route\Query\QueryRoute::factory()
-     * @covers                   \ExtendsFramework\Http\Router\Route\Query\Exception\InvalidOptions::forMissingConstraints()
-     * @expectedException        \ExtendsFramework\Http\Router\Route\Query\Exception\InvalidOptions
-     * @expectedExceptionMessage Constraints are required and MUST be set in options.
+     * @covers                   \ExtendsFramework\Http\Router\Route\Query\Exception\MissingConstraints::__construct()
+     * @expectedException        \ExtendsFramework\Http\Router\Route\Query\Exception\MissingConstraints
+     * @expectedExceptionMessage Constraints are required and must be set in options.
      */
-    public function testCanNotCreateWithoutQuery(): void
+    public function testMissingQuery(): void
     {
         QueryRoute::factory([]);
     }

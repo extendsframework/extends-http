@@ -3,37 +3,28 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Router;
 
-use ExtendsFramework\Container\ContainerInterface;
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Request\Uri\UriInterface;
 use ExtendsFramework\Http\Router\Route\Method\MethodRoute;
 use ExtendsFramework\Http\Router\Route\Path\PathRoute;
 use ExtendsFramework\Http\Router\Route\Query\QueryRoute;
 use ExtendsFramework\Http\Router\Route\RouteFactory;
+use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use ExtendsFramework\Http\Router\Route\Scheme\SchemeRoute;
 use PHPUnit\Framework\TestCase;
 
 class RouterFactoryTest extends TestCase
 {
     /**
+     * Match.
+     *
+     * Test that RouterInterface can be created from routes, match request and return RouteMatchInterface.
+     *
      * @covers \ExtendsFramework\Http\Router\RouterFactory::__construct()
      * @covers \ExtendsFramework\Http\Router\RouterFactory::create()
      */
-    public function testCanCreateRouterFromRoutes(): void
+    public function testMatch(): void
     {
-        $query = $this->createMock(ContainerInterface::class);
-        $query
-            ->expects($this->exactly(2))
-            ->method('has')
-            ->withConsecutive(['limit'], ['offset'])
-            ->willReturnOnConsecutiveCalls(true, false);
-
-        $query
-            ->expects($this->once())
-            ->method('get')
-            ->with('limit')
-            ->willReturn('25');
-
         $uri = $this->createMock(UriInterface::class);
         $uri
             ->expects($this->once())
@@ -48,7 +39,10 @@ class RouterFactoryTest extends TestCase
         $uri
             ->expects($this->once())
             ->method('getQuery')
-            ->willReturn($query);
+            ->willReturn([
+                'limit' => '20',
+                'offset' => '0',
+            ]);
 
         $request = $this->createMock(RequestInterface::class);
         $request
@@ -120,14 +114,17 @@ class RouterFactoryTest extends TestCase
         ]);
         $match = $router->route($request);
 
-        $this->assertSame([
-            'foo' => 'bar',
-            'bar' => 'baz',
-            'baz' => 'qux',
-            'id' => '45',
-            'limit' => '25',
-            'offset' => 0,
-        ], $match->getParameters()->extract());
-        $this->assertSame(7, $match->getPathOffset());
+        $this->assertInstanceOf(RouteMatchInterface::class, $match);
+        if ($match instanceof RouteMatchInterface) {
+            $this->assertSame([
+                'foo' => 'bar',
+                'bar' => 'baz',
+                'baz' => 'qux',
+                'id' => '45',
+                'limit' => '20',
+                'offset' => '0',
+            ], $match->getParameters());
+            $this->assertSame(7, $match->getPathOffset());
+        }
     }
 }

@@ -11,9 +11,13 @@ use PHPUnit\Framework\TestCase;
 class NotFoundMiddlewareTest extends TestCase
 {
     /**
+     * Process.
+     *
+     * Test that and response will be returned with a 404 status code.
+     *
      * @covers \ExtendsFramework\Http\Middleware\NotFound\NotFoundMiddleware::process()
      */
-    public function testWillReturnResponseWith404StatusCode(): void
+    public function testProcess(): void
     {
         $request = $this->createMock(RequestInterface::class);
 
