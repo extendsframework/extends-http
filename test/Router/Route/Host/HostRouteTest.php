@@ -97,7 +97,7 @@ class HostRouteTest extends TestCase
      * @expectedException        \ExtendsFramework\Http\Router\Route\Host\Exception\MissingHost
      * @expectedExceptionMessage Host is required and must be set in options.
      */
-    public function tesMissingHost(): void
+    public function testMissingHost(): void
     {
         HostRoute::factory([]);
     }

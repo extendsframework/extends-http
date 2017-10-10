@@ -13,6 +13,6 @@ class MissingHost extends Exception implements HostRouteException
      */
     public function __construct()
     {
-        parent::__construct('Host is required and MUST be set in options.');
+        parent::__construct('Host is required and must be set in options.');
     }
 }
