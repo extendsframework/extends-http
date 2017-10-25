@@ -4,12 +4,13 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Router\Route\Query;
 
 use ExtendsFramework\Http\Request\RequestInterface;
-use ExtendsFramework\Http\Router\Route\Query\Exception\MissingConstraints;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatch;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
+use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryInterface;
+use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 
-class QueryRoute implements RouteInterface
+class QueryRoute implements RouteInterface, StaticFactoryInterface
 {
     /**
      * Constraints for matching the query parameters.
@@ -38,18 +39,6 @@ class QueryRoute implements RouteInterface
     /**
      * @inheritDoc
      */
-    public static function factory(array $options): RouteInterface
-    {
-        if (array_key_exists('constraints', $options) === false) {
-            throw new MissingConstraints();
-        }
-
-        return new static($options['constraints'], $options['parameters'] ?? []);
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function match(RequestInterface $request, int $pathOffset): ?RouteMatchInterface
     {
         $query = $request->getUri()->getQuery();
@@ -66,6 +55,14 @@ class QueryRoute implements RouteInterface
         }
 
         return new RouteMatch($this->getParameters($matched));
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): RouteInterface
+    {
+        return new static($extra['constraints'], $extra['parameters'] ?? []);
     }
 
     /**

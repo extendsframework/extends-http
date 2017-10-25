@@ -7,6 +7,7 @@ use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Request\Uri\UriInterface;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
+use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 use PHPUnit\Framework\TestCase;
 
 class GroupRouteTest extends TestCase
@@ -16,7 +17,6 @@ class GroupRouteTest extends TestCase
      *
      * Test that group route will match child route for request and return RouteMatchInterface.
      *
-     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::factory()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::addChild()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::match()
@@ -56,15 +56,14 @@ class GroupRouteTest extends TestCase
             ->willReturn($match1);
 
         /**
+         * @var RouteInterface   $route1
+         * @var RouteInterface   $route2
          * @var RequestInterface $request
          */
-        $group = GroupRoute::factory([
-            'route' => $route1,
-            'children' => [
-                $route2
-            ],
-        ]);
-        $matched = $group->match($request, 5);
+        $group = new GroupRoute($route1);
+        $matched = $group
+            ->addChild($route2)
+            ->match($request, 5);
 
         $this->assertInstanceOf(RouteMatchInterface::class, $matched);
     }
@@ -74,7 +73,6 @@ class GroupRouteTest extends TestCase
      *
      * Test that group route will match non abstract route for request and return RouteMatchInterface.
      *
-     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::factory()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::match()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::isEndOfPath()
@@ -107,13 +105,10 @@ class GroupRouteTest extends TestCase
             ->willReturn($match);
 
         /**
+         * @var RouteInterface   $route
          * @var RequestInterface $request
          */
-        $group = GroupRoute::factory([
-            'route' => $route,
-            'children' => [],
-            'abstract' => false,
-        ]);
+        $group = new GroupRoute($route, false);
         $matched = $group->match($request, 0);
 
         $this->assertSame($match, $matched);
@@ -124,7 +119,6 @@ class GroupRouteTest extends TestCase
      *
      * Test that group route can not match end of path and will return null.
      *
-     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::factory()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::match()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::isEndOfPath()
@@ -157,13 +151,10 @@ class GroupRouteTest extends TestCase
             ->willReturn($match);
 
         /**
+         * @var RouteInterface   $route
          * @var RequestInterface $request
          */
-        $group = GroupRoute::factory([
-            'route' => $route,
-            'children' => [],
-            'abstract' => false,
-        ]);
+        $group = new GroupRoute($route, false);
         $matched = $group->match($request, 0);
 
         $this->assertNull($matched);
@@ -174,7 +165,6 @@ class GroupRouteTest extends TestCase
      *
      * Test that group route will not match abstract self and return null.
      *
-     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::factory()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::match()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::isEndOfPath()
@@ -193,12 +183,10 @@ class GroupRouteTest extends TestCase
             ->willReturn($match);
 
         /**
+         * @var RouteInterface   $route
          * @var RequestInterface $request
          */
-        $group = GroupRoute::factory([
-            'route' => $route,
-            'children' => []
-        ]);
+        $group = new GroupRoute($route);
         $matched = $group->match($request, 0);
 
         $this->assertNull($matched);
@@ -209,7 +197,6 @@ class GroupRouteTest extends TestCase
      *
      * Test that inner route will not match and return null.
      *
-     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::factory()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::match()
      */
@@ -228,46 +215,44 @@ class GroupRouteTest extends TestCase
          * @var RouteInterface   $route
          * @var RequestInterface $request
          */
-        $group = GroupRoute::factory([
-            'route' => $route,
-            'children' => [],
-        ]);
+        $group = new GroupRoute($route);
         $matched = $group->match($request, 0);
 
         $this->assertNull($matched);
     }
 
     /**
-     * Missing route.
+     * Factory.
      *
-     * Test that factory will throw an exception for missing route in options.
+     * Test that factory will return an instance of RouteInterface.
      *
-     * @covers                   \ExtendsFramework\Http\Router\Route\Group\GroupRoute::factory()
-     * @covers                   \ExtendsFramework\Http\Router\Route\Group\Exception\MissingRoute::__construct()
-     * @expectedException        \ExtendsFramework\Http\Router\Route\Group\Exception\MissingRoute
-     * @expectedExceptionMessage Route is required and must be set in options.
+     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::factory()
+     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
      */
-    public function testMissingRoute(): void
+    public function testFactory(): void
     {
-        GroupRoute::factory([]);
-    }
+        $serviceLocator = $this->createMock(ServiceLocatorInterface::class);
+        $serviceLocator
+            ->expects($this->once())
+            ->method('getService')
+            ->with(RouteInterface::class, ['foo' => 'bar'])
+            ->willReturn($this->createMock(RouteInterface::class));
 
-    /**
-     * Missing children.
-     *
-     * Test that factory will throw an exception for missing children in options.
-     *
-     * @covers                   \ExtendsFramework\Http\Router\Route\Group\GroupRoute::factory()
-     * @covers                   \ExtendsFramework\Http\Router\Route\Group\Exception\MissingChildren::__construct()
-     * @expectedException        \ExtendsFramework\Http\Router\Route\Group\Exception\MissingChildren
-     * @expectedExceptionMessage Children are required and must be set in options.
-     */
-    public function testMissingChildren(): void
-    {
-        $route = $this->createMock(RouteInterface::class);
-
-        GroupRoute::factory([
-            'route' => $route,
+        /**
+         * @var ServiceLocatorInterface $serviceLocator
+         */
+        $route = GroupRoute::factory(GroupRoute::class, $serviceLocator, [
+            'route' => $this->createMock(RouteInterface::class),
+            'children' => [
+                [
+                    'name' => RouteInterface::class,
+                    'options' => [
+                        'foo' => 'bar'
+                    ],
+                ],
+            ],
         ]);
+
+        $this->assertInstanceOf(RouteInterface::class, $route);
     }
 }

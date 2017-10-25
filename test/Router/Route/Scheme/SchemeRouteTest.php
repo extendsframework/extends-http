@@ -5,7 +5,9 @@ namespace ExtendsFramework\Http\Router\Route\Scheme;
 
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Request\Uri\UriInterface;
+use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
+use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 use PHPUnit\Framework\TestCase;
 
 class SchemeRouteTest extends TestCase
@@ -36,11 +38,8 @@ class SchemeRouteTest extends TestCase
         /**
          * @var RequestInterface $request
          */
-        $scheme = SchemeRoute::factory([
-            'scheme' => 'https',
-            'parameters' => [
-                'foo' => 'bar',
-            ],
+        $scheme = new SchemeRoute('https', [
+            'foo' => 'bar',
         ]);
         $match = $scheme->match($request, 5);
 
@@ -79,26 +78,34 @@ class SchemeRouteTest extends TestCase
         /**
          * @var RequestInterface $request
          */
-        $scheme = SchemeRoute::factory([
-            'scheme' => 'https',
-        ]);
+        $scheme = new SchemeRoute('https');
         $match = $scheme->match($request, 5);
 
         $this->assertNull($match);
     }
 
     /**
-     * Missing scheme.
+     * Factory.
      *
-     * Test that factory will throw an exception for missing scheme in options.
+     * Test that factory will return an instance of RouteInterface.
      *
-     * @covers                   \ExtendsFramework\Http\Router\Route\Scheme\SchemeRoute::factory()
-     * @covers                   \ExtendsFramework\Http\Router\Route\Scheme\Exception\MissingScheme::__construct()
-     * @expectedException        \ExtendsFramework\Http\Router\Route\Scheme\Exception\MissingScheme
-     * @expectedExceptionMessage Scheme is required and must be set in options.
+     * @covers \ExtendsFramework\Http\Router\Route\Scheme\SchemeRoute::factory()
+     * @covers \ExtendsFramework\Http\Router\Route\Scheme\SchemeRoute::__construct()
      */
-    public function testMissingScheme(): void
+    public function testFactory(): void
     {
-        SchemeRoute::factory([]);
+        $serviceLocator = $this->createMock(ServiceLocatorInterface::class);
+
+        /**
+         * @var ServiceLocatorInterface $serviceLocator
+         */
+        $route = SchemeRoute::factory(SchemeRoute::class, $serviceLocator, [
+            'scheme' => 'https',
+            'parameters' => [
+                'foo' => 'bar',
+            ],
+        ]);
+
+        $this->assertInstanceOf(RouteInterface::class, $route);
     }
 }

@@ -5,7 +5,9 @@ namespace ExtendsFramework\Http\Router\Route\Query;
 
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Request\Uri\UriInterface;
+use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
+use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 use PHPUnit\Framework\TestCase;
 
 class QueryRouteTest extends TestCase
@@ -15,7 +17,6 @@ class QueryRouteTest extends TestCase
      *
      * Test that route will match '?limit=20&offset=0' and return an instance of RouteMatchInterface
      *
-     * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::factory()
      * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::match()
      * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::getPattern()
@@ -41,14 +42,11 @@ class QueryRouteTest extends TestCase
         /**
          * @var RequestInterface $request
          */
-        $path = QueryRoute::factory([
-            'constraints' => [
-                'limit' => '\d+',
-                'offset' => '\d+',
-            ],
-            'parameters' => [
-                'offset' => '0',
-            ]
+        $path = new QueryRoute([
+            'limit' => '\d+',
+            'offset' => '\d+',
+        ], [
+            'offset' => '0',
         ]);
         $match = $path->match($request, 4);
 
@@ -68,7 +66,6 @@ class QueryRouteTest extends TestCase
      *
      * Test that route will not match empty query and return null.
      *
-     * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::factory()
      * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::match()
      * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::getPattern()
@@ -92,11 +89,8 @@ class QueryRouteTest extends TestCase
         /**
          * @var RequestInterface $request
          */
-        $path = QueryRoute::factory([
-            'path' => '/:id/bar',
-            'constraints' => [
-                'limit' => '\d+',
-            ]
+        $path = new QueryRoute([
+            'limit' => '\d+',
         ]);
         $match = $path->match($request, 4);
 
@@ -104,17 +98,31 @@ class QueryRouteTest extends TestCase
     }
 
     /**
-     * Missing constraints.
+     * Factory.
      *
-     * Test that factory will throw an exception for constraints in options.
+     * Test that factory will return an instance of RouteInterface.
      *
-     * @covers                   \ExtendsFramework\Http\Router\Route\Query\QueryRoute::factory()
-     * @covers                   \ExtendsFramework\Http\Router\Route\Query\Exception\MissingConstraints::__construct()
-     * @expectedException        \ExtendsFramework\Http\Router\Route\Query\Exception\MissingConstraints
-     * @expectedExceptionMessage Constraints are required and must be set in options.
+     * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::factory()
+     * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::__construct()
      */
-    public function testMissingQuery(): void
+    public function testFactory(): void
     {
-        QueryRoute::factory([]);
+        $serviceLocator = $this->createMock(ServiceLocatorInterface::class);
+
+        /**
+         * @var ServiceLocatorInterface $serviceLocator
+         */
+        $route = QueryRoute::factory(QueryRoute::class, $serviceLocator, [
+            'path' => '/:id/bar',
+            'constraints' => [
+                'limit' => '\d+',
+                'offset' => '\d+',
+            ],
+            'parameters' => [
+                'offset' => '0',
+            ]
+        ]);
+
+        $this->assertInstanceOf(RouteInterface::class, $route);
     }
 }

@@ -5,7 +5,9 @@ namespace ExtendsFramework\Http\Router\Route\Path;
 
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Request\Uri\UriInterface;
+use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
+use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 use PHPUnit\Framework\TestCase;
 
 class PathRouteTest extends TestCase
@@ -15,7 +17,6 @@ class PathRouteTest extends TestCase
      *
      * Test that path '/foo/33/bar/baz' will match '/:id/bar' and return an instance of RouteMatchInterface.
      *
-     * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::factory()
      * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::match()
      * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::getPattern()
@@ -38,14 +39,10 @@ class PathRouteTest extends TestCase
         /**
          * @var RequestInterface $request
          */
-        $path = PathRoute::factory([
-            'path' => '/:id/bar',
-            'constraints' => [
-                'id' => '\d+',
-            ],
-            'parameters' => [
-                'foo' => 'bar',
-            ]
+        $path = new PathRoute('/:id/bar', [
+            'id' => '\d+',
+        ], [
+            'foo' => 'bar',
         ]);
         $match = $path->match($request, 4);
 
@@ -64,7 +61,6 @@ class PathRouteTest extends TestCase
      *
      * Test that '/foo/bar/baz' will not match '/:id/bar' and return null.
      *
-     * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::factory()
      * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::match()
      * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::getPattern()
@@ -86,11 +82,8 @@ class PathRouteTest extends TestCase
         /**
          * @var RequestInterface $request
          */
-        $path = PathRoute::factory([
-            'path' => '/:id/bar',
-            'constraints' => [
-                'id' => '\d+',
-            ]
+        $path = new PathRoute('/:id/bar', [
+            'id' => '\d+',
         ]);
         $match = $path->match($request, 4);
 
@@ -98,17 +91,30 @@ class PathRouteTest extends TestCase
     }
 
     /**
-     * Missing path.
+     * Factory.
      *
-     * Test that factory will throw an exception for missing path in options.
+     * Test that factory will return an instance of RouteInterface.
      *
-     * @covers                   \ExtendsFramework\Http\Router\Route\Path\PathRoute::factory()
-     * @covers                   \ExtendsFramework\Http\Router\Route\Path\Exception\MissingPath::__construct()
-     * @expectedException        \ExtendsFramework\Http\Router\Route\Path\Exception\MissingPath
-     * @expectedExceptionMessage Path is required and must be set in options.
+     * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::factory()
+     * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::__construct()
      */
-    public function testMissingPath(): void
+    public function testFactory(): void
     {
-        PathRoute::factory([]);
+        $serviceLocator = $this->createMock(ServiceLocatorInterface::class);
+
+        /**
+         * @var ServiceLocatorInterface $serviceLocator
+         */
+        $route = PathRoute::factory(PathRoute::class, $serviceLocator, [
+            'path' => '/:id/bar',
+            'constraints' => [
+                'id' => '\d+',
+            ],
+            'parameters' => [
+                'foo' => 'bar',
+            ]
+        ]);
+
+        $this->assertInstanceOf(RouteInterface::class, $route);
     }
 }

@@ -4,12 +4,13 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Router\Route\Path;
 
 use ExtendsFramework\Http\Request\RequestInterface;
-use ExtendsFramework\Http\Router\Route\Path\Exception\MissingPath;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatch;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
+use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryInterface;
+use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 
-class PathRoute implements RouteInterface
+class PathRoute implements RouteInterface, StaticFactoryInterface
 {
     /**
      * Constraints for matching the URI variables.
@@ -58,18 +59,6 @@ class PathRoute implements RouteInterface
     /**
      * @inheritDoc
      */
-    public static function factory(array $options): RouteInterface
-    {
-        if (array_key_exists('path', $options) === false) {
-            throw new MissingPath();
-        }
-
-        return new static($options['path'], $options['constraints'] ?? [], $options['parameters'] ?? []);
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function match(RequestInterface $request, int $pathOffset): ?RouteMatchInterface
     {
         if ((bool)preg_match($this->getPattern(), $request->getUri()->getPath(), $matches, PREG_OFFSET_CAPTURE, $pathOffset) === true) {
@@ -77,6 +66,14 @@ class PathRoute implements RouteInterface
         }
 
         return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): RouteInterface
+    {
+        return new static($extra['path'], $extra['constraints'] ?? [], $extra['parameters'] ?? []);
     }
 
     /**

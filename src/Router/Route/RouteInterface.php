@@ -15,17 +15,7 @@ interface RouteInterface
      * @param RequestInterface $request
      * @param int              $pathOffset
      * @return RouteMatchInterface
-     */
-    public function match(RequestInterface $request, int $pathOffset): ?RouteMatchInterface;
-
-    /**
-     * Create new route with given $options.
-     *
-     * When factory fails, an exception will be thrown.
-     *
-     * @param array $options
-     * @return RouteInterface
      * @throws RouteException
      */
-    public static function factory(array $options): RouteInterface;
+    public function match(RequestInterface $request, int $pathOffset): ?RouteMatchInterface;
 }

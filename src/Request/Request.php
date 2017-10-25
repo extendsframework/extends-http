@@ -6,8 +6,10 @@ namespace ExtendsFramework\Http\Request;
 use ExtendsFramework\Http\Request\Exception\InvalidRequestBody;
 use ExtendsFramework\Http\Request\Uri\Uri;
 use ExtendsFramework\Http\Request\Uri\UriInterface;
+use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryInterface;
+use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 
-class Request implements RequestInterface
+class Request implements RequestInterface, StaticFactoryInterface
 {
     /**
      * Custom request attributes.
@@ -188,5 +190,13 @@ class Request implements RequestInterface
         $clone->uri = $uri;
 
         return $clone;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): RequestInterface
+    {
+        return new static();
     }
 }

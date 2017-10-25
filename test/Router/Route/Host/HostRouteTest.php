@@ -5,7 +5,9 @@ namespace ExtendsFramework\Http\Router\Route\Host;
 
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Request\Uri\UriInterface;
+use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
+use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 use PHPUnit\Framework\TestCase;
 
 class HostRouteTest extends TestCase
@@ -15,7 +17,6 @@ class HostRouteTest extends TestCase
      *
      * Test that host route can match host and return RouteMatchInterface.
      *
-     * @covers \ExtendsFramework\Http\Router\Route\Host\HostRoute::factory()
      * @covers \ExtendsFramework\Http\Router\Route\Host\HostRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Host\HostRoute::match()
      */
@@ -36,11 +37,8 @@ class HostRouteTest extends TestCase
         /**
          * @var RequestInterface $request
          */
-        $host = HostRoute::factory([
-            'host' => 'www.example.com',
-            'parameters' => [
-                'foo' => 'bar',
-            ],
+        $host = new HostRoute('www.example.com', [
+            'foo' => 'bar',
         ]);
         $match = $host->match($request, 5);
 
@@ -58,7 +56,6 @@ class HostRouteTest extends TestCase
      *
      * Test that host route can not match host and return null.
      *
-     * @covers \ExtendsFramework\Http\Router\Route\Host\HostRoute::factory()
      * @covers \ExtendsFramework\Http\Router\Route\Host\HostRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Host\HostRoute::match()
      */
@@ -79,26 +76,34 @@ class HostRouteTest extends TestCase
         /**
          * @var RequestInterface $request
          */
-        $host = HostRoute::factory([
-            'host' => 'www.example.net',
-        ]);
+        $host = new HostRoute('www.example.net');
         $match = $host->match($request, 5);
 
         $this->assertNull($match);
     }
 
     /**
-     * Missing host.
+     * Factory.
      *
-     * Test that factory will throw an exception for missing host in options.
+     * Test that factory will return an instance of RouteInterface.
      *
-     * @covers                   \ExtendsFramework\Http\Router\Route\Host\HostRoute::factory()
-     * @covers                   \ExtendsFramework\Http\Router\Route\Host\Exception\MissingHost::__construct()
-     * @expectedException        \ExtendsFramework\Http\Router\Route\Host\Exception\MissingHost
-     * @expectedExceptionMessage Host is required and must be set in options.
+     * @covers \ExtendsFramework\Http\Router\Route\Host\HostRoute::factory()
+     * @covers \ExtendsFramework\Http\Router\Route\Host\HostRoute::__construct()
      */
-    public function testMissingHost(): void
+    public function testFactory(): void
     {
-        HostRoute::factory([]);
+        $serviceLocator = $this->createMock(ServiceLocatorInterface::class);
+
+        /**
+         * @var ServiceLocatorInterface $serviceLocator
+         */
+        $route = HostRoute::factory(HostRoute::class, $serviceLocator, [
+            'host' => 'www.example.com',
+            'parameters' => [
+                'foo' => 'bar',
+            ],
+        ]);
+
+        $this->assertInstanceOf(RouteInterface::class, $route);
     }
 }

@@ -3,7 +3,10 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Response;
 
-class Response implements ResponseInterface
+use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryInterface;
+use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
+
+class Response implements ResponseInterface, StaticFactoryInterface
 {
     /**
      * @var array
@@ -86,5 +89,13 @@ class Response implements ResponseInterface
         $clone->statusCode = $statusCode;
 
         return $clone;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): ResponseInterface
+    {
+        return new static();
     }
 }

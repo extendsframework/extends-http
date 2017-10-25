@@ -4,12 +4,13 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Router\Route\Host;
 
 use ExtendsFramework\Http\Request\RequestInterface;
-use ExtendsFramework\Http\Router\Route\Host\Exception\MissingHost;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatch;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
+use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryInterface;
+use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 
-class HostRoute implements RouteInterface
+class HostRoute implements RouteInterface, StaticFactoryInterface
 {
     /**
      * Host to match.
@@ -40,18 +41,6 @@ class HostRoute implements RouteInterface
     /**
      * @inheritDoc
      */
-    public static function factory(array $options): RouteInterface
-    {
-        if (array_key_exists('host', $options) === false) {
-            throw new MissingHost();
-        }
-
-        return new static($options['host'], $options['parameters'] ?? []);
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function match(RequestInterface $request, int $pathOffset): ?RouteMatchInterface
     {
         if ($request->getUri()->getHost() === $this->host) {
@@ -59,5 +48,13 @@ class HostRoute implements RouteInterface
         }
 
         return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): RouteInterface
+    {
+        return new static($extra['host'], $extra['parameters'] ?? []);
     }
 }

@@ -4,12 +4,13 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Router\Route\Method;
 
 use ExtendsFramework\Http\Request\RequestInterface;
-use ExtendsFramework\Http\Router\Route\Method\Exception\MissingMethod;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatch;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
+use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryInterface;
+use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 
-class MethodRoute implements RouteInterface
+class MethodRoute implements RouteInterface, StaticFactoryInterface
 {
     /**
      * Method to match.
@@ -40,18 +41,6 @@ class MethodRoute implements RouteInterface
     /**
      * @inheritDoc
      */
-    public static function factory(array $options): RouteInterface
-    {
-        if (array_key_exists('method', $options) === false) {
-            throw new MissingMethod();
-        }
-
-        return new static($options['method'], $options['parameters'] ?? []);
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function match(RequestInterface $request, int $pathOffset): ?RouteMatchInterface
     {
         if (strtoupper($request->getMethod()) === $this->method) {
@@ -59,5 +48,13 @@ class MethodRoute implements RouteInterface
         }
 
         return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): RouteInterface
+    {
+        return new static($extra['method'], $extra['parameters'] ?? []);
     }
 }

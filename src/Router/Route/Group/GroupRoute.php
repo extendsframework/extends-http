@@ -4,12 +4,12 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Router\Route\Group;
 
 use ExtendsFramework\Http\Request\RequestInterface;
-use ExtendsFramework\Http\Router\Route\Group\Exception\MissingChildren;
-use ExtendsFramework\Http\Router\Route\Group\Exception\MissingRoute;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
+use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryInterface;
+use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 
-class GroupRoute implements RouteInterface
+class GroupRoute implements RouteInterface, StaticFactoryInterface
 {
     /**
      * If this can be matched.
@@ -47,27 +47,6 @@ class GroupRoute implements RouteInterface
     /**
      * @inheritDoc
      */
-    public static function factory(array $options): RouteInterface
-    {
-        if (array_key_exists('route', $options) === false) {
-            throw new MissingRoute();
-        }
-
-        if (array_key_exists('children', $options) === false) {
-            throw new MissingChildren();
-        }
-
-        $route = new static($options['route'], $options['abstract'] ?? null);
-        foreach ($options['children'] as $child) {
-            $route->addChild($child);
-        }
-
-        return $route;
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function match(RequestInterface $request, int $pathOffset): ?RouteMatchInterface
     {
         $match = $this->route->match($request, $pathOffset);
@@ -87,6 +66,21 @@ class GroupRoute implements RouteInterface
         }
 
         return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): RouteInterface
+    {
+        $route = new static($extra['route'], $extra['abstract'] ?? null);
+        foreach ($extra['children'] ?? [] as $child) {
+            $route->addChild(
+                $serviceLocator->getService($child['name'], $child['options'] ?? [])
+            );
+        }
+
+        return $route;
     }
 
     /**

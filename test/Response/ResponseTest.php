@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Response;
 
+use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 use PHPUnit\Framework\TestCase;
 
 class ResponseTest extends TestCase
@@ -68,5 +69,24 @@ class ResponseTest extends TestCase
         $this->assertSame(['foo' => 'bar'], $response->getBody());
         $this->assertSame(['baz' => 'qux'], $response->getHeaders());
         $this->assertSame(201, $response->getStatusCode());
+    }
+
+    /**
+     * Factory.
+     *
+     * Test that factory will return an instance of ResponseInterface.
+     *
+     * @covers \ExtendsFramework\Http\Response\Response::factory()
+     */
+    public function testFactory(): void
+    {
+        $serviceLocator = $this->createMock(ServiceLocatorInterface::class);
+
+        /**
+         * @var ServiceLocatorInterface $serviceLocator
+         */
+        $request = Response::factory(ResponseInterface::class, $serviceLocator);
+
+        $this->assertInstanceOf(ResponseInterface::class, $request);
     }
 }

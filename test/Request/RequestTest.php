@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Request;
 
 use ExtendsFramework\Http\Request\Uri\UriInterface;
+use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 use PHPUnit\Framework\TestCase;
 
 class RequestTest extends TestCase
@@ -134,6 +135,25 @@ class RequestTest extends TestCase
         $request->getBody();
 
         Buffer::reset();
+    }
+
+    /**
+     * Factory.
+     *
+     * Test that factory will return an instance of RequestInterface.
+     *
+     * @covers \ExtendsFramework\Http\Request\Request::factory()
+     */
+    public function testFactory(): void
+    {
+        $serviceLocator = $this->createMock(ServiceLocatorInterface::class);
+
+        /**
+         * @var ServiceLocatorInterface $serviceLocator
+         */
+        $request = Request::factory(RequestInterface::class, $serviceLocator);
+
+        $this->assertInstanceOf(RequestInterface::class, $request);
     }
 }
 

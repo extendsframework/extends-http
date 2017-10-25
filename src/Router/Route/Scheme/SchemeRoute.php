@@ -7,9 +7,10 @@ use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatch;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
-use ExtendsFramework\Http\Router\Route\Scheme\Exception\MissingScheme;
+use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryInterface;
+use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 
-class SchemeRoute implements RouteInterface
+class SchemeRoute implements RouteInterface, StaticFactoryInterface
 {
     /**
      * Parameters to return when route is matched.
@@ -40,18 +41,6 @@ class SchemeRoute implements RouteInterface
     /**
      * @inheritDoc
      */
-    public static function factory(array $options): RouteInterface
-    {
-        if (array_key_exists('scheme', $options) === false) {
-            throw new MissingScheme();
-        }
-
-        return new static($options['scheme'], $options['parameters'] ?? []);
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function match(RequestInterface $request, int $pathOffset): ?RouteMatchInterface
     {
         if (strtoupper($request->getUri()->getScheme()) === $this->scheme) {
@@ -59,5 +48,13 @@ class SchemeRoute implements RouteInterface
         }
 
         return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): RouteInterface
+    {
+        return new static($extra['scheme'], $extra['parameters'] ?? []);
     }
 }

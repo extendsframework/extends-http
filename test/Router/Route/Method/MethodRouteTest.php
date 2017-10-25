@@ -4,7 +4,9 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Router\Route\Method;
 
 use ExtendsFramework\Http\Request\RequestInterface;
+use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
+use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 use PHPUnit\Framework\TestCase;
 
 class MethodRouteTest extends TestCase
@@ -29,11 +31,8 @@ class MethodRouteTest extends TestCase
         /**
          * @var RequestInterface $request
          */
-        $method = MethodRoute::factory([
-            'method' => 'POST',
-            'parameters' => [
-                'foo' => 'bar',
-            ],
+        $method = new MethodRoute('POST', [
+            'foo' => 'bar',
         ]);
         $match = $method->match($request, 5);
 
@@ -66,26 +65,34 @@ class MethodRouteTest extends TestCase
         /**
          * @var RequestInterface $request
          */
-        $method = MethodRoute::factory([
-            'method' => 'POST',
-        ]);
+        $method = new MethodRoute('POST');
         $match = $method->match($request, 5);
 
         $this->assertNull($match);
     }
 
     /**
-     * Missing method.
+     * Factory.
      *
-     * Test that factory will throw an exception for missing method in options.
+     * Test that factory will return an instance of RouteInterface.
      *
-     * @covers                   \ExtendsFramework\Http\Router\Route\Method\MethodRoute::factory()
-     * @covers                   \ExtendsFramework\Http\Router\Route\Method\Exception\MissingMethod::__construct()
-     * @expectedException        \ExtendsFramework\Http\Router\Route\Method\Exception\MissingMethod
-     * @expectedExceptionMessage Method is required and must be set in options.
+     * @covers \ExtendsFramework\Http\Router\Route\Method\MethodRoute::factory()
+     * @covers \ExtendsFramework\Http\Router\Route\Method\MethodRoute::__construct()
      */
-    public function testCanNotCreateWithoutMethod(): void
+    public function testFactory(): void
     {
-        MethodRoute::factory([]);
+        $serviceLocator = $this->createMock(ServiceLocatorInterface::class);
+
+        /**
+         * @var ServiceLocatorInterface $serviceLocator
+         */
+        $route = MethodRoute::factory(MethodRoute::class, $serviceLocator, [
+            'method' => 'POST',
+            'parameters' => [
+                'foo' => 'bar',
+            ],
+        ]);
+
+        $this->assertInstanceOf(RouteInterface::class, $route);
     }
 }
