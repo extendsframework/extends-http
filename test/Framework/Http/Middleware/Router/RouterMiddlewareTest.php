@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace ExtendsFramework\Http\Middleware\Router;
+namespace ExtendsFramework\Http\Framework\Http\Middleware\Router;
 
 use ExtendsFramework\Http\Controller\ControllerInterface;
 use ExtendsFramework\Http\Controller\Exception\ActionNotFound;
@@ -21,9 +21,9 @@ class RouterMiddlewareTest extends TestCase
      *
      * Test that route can be matched, controller will be dispatched and a response will be returned.
      *
-     * @covers \ExtendsFramework\Http\Middleware\Router\RouterMiddleware::__construct()
-     * @covers \ExtendsFramework\Http\Middleware\Router\RouterMiddleware::process()
-     * @covers \ExtendsFramework\Http\Middleware\Router\RouterMiddleware::getController()
+     * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::__construct()
+     * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::process()
+     * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::getController()
      */
     public function testMatch(): void
     {
@@ -79,8 +79,8 @@ class RouterMiddlewareTest extends TestCase
      *
      * Test that when no route can be matched the chain will be called and returned.
      *
-     * @covers \ExtendsFramework\Http\Middleware\Router\RouterMiddleware::__construct()
-     * @covers \ExtendsFramework\Http\Middleware\Router\RouterMiddleware::process()
+     * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::__construct()
+     * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::process()
      */
     public function testNoMatch(): void
     {
@@ -121,10 +121,10 @@ class RouterMiddlewareTest extends TestCase
      *
      * Test that the controller parameter is missing in the match parameters and a exception will be thrown.
      *
-     * @covers                   \ExtendsFramework\Http\Middleware\Router\RouterMiddleware::__construct()
-     * @covers                   \ExtendsFramework\Http\Middleware\Router\RouterMiddleware::process()
-     * @covers                   \ExtendsFramework\Http\Middleware\Router\Exception\ControllerParameterMissing::__construct()
-     * @expectedException        \ExtendsFramework\Http\Middleware\Router\Exception\ControllerParameterMissing
+     * @covers                   \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::__construct()
+     * @covers                   \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::process()
+     * @covers                   \ExtendsFramework\Http\Framework\Http\Middleware\Router\Exception\ControllerParameterMissing::__construct()
+     * @expectedException        \ExtendsFramework\Http\Framework\Http\Middleware\Router\Exception\ControllerParameterMissing
      * @expectedExceptionMessage Controller key is not set in route match parameters.
      */
     public function testControllerParameterMissing(): void
@@ -163,10 +163,10 @@ class RouterMiddlewareTest extends TestCase
      *
      * Test that when route match parameter 'controller' is not set the exception ControllerNotFound is thrown.
      *
-     * @covers                   \ExtendsFramework\Http\Middleware\Router\RouterMiddleware::__construct()
-     * @covers                   \ExtendsFramework\Http\Middleware\Router\RouterMiddleware::process()
-     * @covers                   \ExtendsFramework\Http\Middleware\Router\Exception\ControllerNotFound::__construct()
-     * @expectedException        \ExtendsFramework\Http\Middleware\Router\Exception\ControllerNotFound
+     * @covers                   \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::__construct()
+     * @covers                   \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::process()
+     * @covers                   \ExtendsFramework\Http\Framework\Http\Middleware\Router\Exception\ControllerNotFound::__construct()
+     * @expectedException        \ExtendsFramework\Http\Framework\Http\Middleware\Router\Exception\ControllerNotFound
      * @expectedExceptionMessage Controller for key "foo" can not be retrieved from service locator. See previous
      *                           exception for more details.
      */
@@ -218,10 +218,10 @@ class RouterMiddlewareTest extends TestCase
      *
      * Test that a ControllerException can be caught and the exception ControllerDispatchFailed will be thrown.
      *
-     * @covers                   \ExtendsFramework\Http\Middleware\Router\RouterMiddleware::__construct()
-     * @covers                   \ExtendsFramework\Http\Middleware\Router\RouterMiddleware::process()
-     * @covers                   \ExtendsFramework\Http\Middleware\Router\Exception\ControllerDispatchFailed::__construct()
-     * @expectedException        \ExtendsFramework\Http\Middleware\Router\Exception\ControllerDispatchFailed
+     * @covers                   \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::__construct()
+     * @covers                   \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::process()
+     * @covers                   \ExtendsFramework\Http\Framework\Http\Middleware\Router\Exception\ControllerDispatchFailed::__construct()
+     * @expectedException        \ExtendsFramework\Http\Framework\Http\Middleware\Router\Exception\ControllerDispatchFailed
      * @expectedExceptionMessage Failed to dispatch request to controller. See previous exception for more details.
      */
     public function testControllerDispatchFailed(): void

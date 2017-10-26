@@ -1,8 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace ExtendsFramework\Http\ServiceLocator\Loader;
+namespace ExtendsFramework\Http\Framework\ServiceLocator\Loader;
 
+use ExtendsFramework\Http\Framework\Http\Middleware\NotFound\NotFoundMiddleware;
+use ExtendsFramework\Http\Framework\Http\Middleware\Renderer\RendererMiddleware;
+use ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware;
+use ExtendsFramework\Http\Framework\ServiceLocator\Factory\MiddlewareChainFactory;
+use ExtendsFramework\Http\Framework\ServiceLocator\Factory\RouterFactory;
+use ExtendsFramework\Http\Framework\ServiceLocator\Factory\RouterMiddlewareFactory;
 use ExtendsFramework\Http\Middleware\Chain\MiddlewareChainInterface;
 use ExtendsFramework\Http\Renderer\Json\JsonRenderer;
 use ExtendsFramework\Http\Renderer\RendererInterface;
@@ -17,36 +23,23 @@ use ExtendsFramework\Http\Router\Route\Path\PathRoute;
 use ExtendsFramework\Http\Router\Route\Query\QueryRoute;
 use ExtendsFramework\Http\Router\Route\Scheme\SchemeRoute;
 use ExtendsFramework\Http\Router\RouterInterface;
-use ExtendsFramework\Http\Server\Middleware\Logger\LoggerMiddleware;
-use ExtendsFramework\Http\Server\Middleware\NotFound\NotFoundMiddleware;
-use ExtendsFramework\Http\Server\Middleware\Renderer\RendererMiddleware;
-use ExtendsFramework\Http\Server\Middleware\Router\RouterMiddleware;
 use ExtendsFramework\Http\Server\Server;
 use ExtendsFramework\Http\Server\ServerInterface;
-use ExtendsFramework\Http\ServiceLocator\Factory\MiddlewareChainFactory;
-use ExtendsFramework\Http\ServiceLocator\Factory\RouterFactory;
-use ExtendsFramework\Http\ServiceLocator\Factory\RouterMiddlewareFactory;
+use ExtendsFramework\ServiceLocator\Config\Loader\LoaderInterface;
 use ExtendsFramework\ServiceLocator\Resolver\Factory\FactoryResolver;
 use ExtendsFramework\ServiceLocator\Resolver\Invokable\InvokableResolver;
 use ExtendsFramework\ServiceLocator\Resolver\Reflection\ReflectionResolver;
 use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryResolver;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
-use PHPUnit\Framework\TestCase;
 
-class ConfigLoaderTest extends TestCase
+class ConfigLoader implements LoaderInterface
 {
     /**
-     * Load.
-     *
-     * Test that loader returns correct array.
-     *
-     * @covers \ExtendsFramework\Http\ServiceLocator\Loader\ConfigLoader::load()
+     * @inheritDoc
      */
-    public function testLoad(): void
+    public function load(): array
     {
-        $loader = new ConfigLoader();
-
-        $this->assertSame([
+        return [
             ServiceLocatorInterface::class => [
                 FactoryResolver::class => [
                     RouterInterface::class => RouterFactory::class,
@@ -69,19 +62,17 @@ class ConfigLoaderTest extends TestCase
                 ],
                 ReflectionResolver::class => [
                     ServerInterface::class => Server::class,
-                    LoggerMiddleware::class => LoggerMiddleware::class,
                     RendererMiddleware::class => RendererMiddleware::class,
                 ],
             ],
             MiddlewareChainInterface::class => [
-                RendererMiddleware::class => 10,
-                LoggerMiddleware::class => 20,
-                RouterMiddleware::class => 30,
-                NotFoundMiddleware::class => 40,
+                RendererMiddleware::class => 50,
+                RouterMiddleware::class => 100,
+                NotFoundMiddleware::class => 150,
             ],
             RouterInterface::class => [
                 'routes' => [],
             ],
-        ], $loader->load());
+        ];
     }
 }

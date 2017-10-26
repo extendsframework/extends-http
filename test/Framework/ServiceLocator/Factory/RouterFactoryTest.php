@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace ExtendsFramework\Http\ServiceLocator\Factory;
+namespace ExtendsFramework\Http\Framework\ServiceLocator\Factory;
 
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\Scheme\SchemeRoute;
@@ -16,7 +16,7 @@ class RouterFactoryTest extends TestCase
      *
      * Test that factory will return an instance of RouterInterface.
      *
-     * @covers \ExtendsFramework\Http\ServiceLocator\Factory\RouterFactory::createService()
+     * @covers \ExtendsFramework\Http\Framework\ServiceLocator\Factory\RouterFactory::createService()
      */
     public function testCreateService(): void
     {

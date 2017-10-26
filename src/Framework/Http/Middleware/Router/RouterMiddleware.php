@@ -1,15 +1,15 @@
 <?php
 declare(strict_types=1);
 
-namespace ExtendsFramework\Http\Middleware\Router;
+namespace ExtendsFramework\Http\Framework\Http\Middleware\Router;
 
 use ExtendsFramework\Http\Controller\ControllerException;
 use ExtendsFramework\Http\Controller\ControllerInterface;
+use ExtendsFramework\Http\Framework\Http\Middleware\Router\Exception\ControllerDispatchFailed;
+use ExtendsFramework\Http\Framework\Http\Middleware\Router\Exception\ControllerNotFound;
+use ExtendsFramework\Http\Framework\Http\Middleware\Router\Exception\ControllerParameterMissing;
 use ExtendsFramework\Http\Middleware\Chain\MiddlewareChainInterface;
 use ExtendsFramework\Http\Middleware\MiddlewareInterface;
-use ExtendsFramework\Http\Middleware\Router\Exception\ControllerDispatchFailed;
-use ExtendsFramework\Http\Middleware\Router\Exception\ControllerNotFound;
-use ExtendsFramework\Http\Middleware\Router\Exception\ControllerParameterMissing;
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Response\ResponseInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;

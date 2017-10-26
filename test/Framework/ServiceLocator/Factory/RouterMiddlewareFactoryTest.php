@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace ExtendsFramework\Http\ServiceLocator\Factory;
+namespace ExtendsFramework\Http\Framework\ServiceLocator\Factory;
 
 use ExtendsFramework\Http\Router\RouterInterface;
-use ExtendsFramework\Http\Server\Middleware\Router\RouterMiddleware;
+use ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -15,7 +15,7 @@ class RouterMiddlewareFactoryTest extends TestCase
      *
      * Test that factory will return an instance of RouterMiddleware.
      *
-     * @covers \ExtendsFramework\Http\ServiceLocator\Factory\RouterMiddlewareFactory::createService()
+     * @covers \ExtendsFramework\Http\Framework\ServiceLocator\Factory\RouterMiddlewareFactory::createService()
      */
     public function testCreateService(): void
     {

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace ExtendsFramework\Http\ServiceLocator\Factory;
+namespace ExtendsFramework\Http\Framework\ServiceLocator\Factory;
 
 use ExtendsFramework\Http\Router\Router;
 use ExtendsFramework\Http\Router\RouterInterface;

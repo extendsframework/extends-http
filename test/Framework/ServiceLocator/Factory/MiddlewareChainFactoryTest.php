@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace ExtendsFramework\Http\ServiceLocator\Factory;
+namespace ExtendsFramework\Http\Framework\ServiceLocator\Factory;
 
 use ExtendsFramework\Http\Middleware\Chain\MiddlewareChainInterface;
 use ExtendsFramework\Http\Middleware\MiddlewareInterface;
@@ -15,7 +15,7 @@ class MiddlewareChainFactoryTest extends TestCase
      *
      * Test that factory will return an instance of RouterMiddleware.
      *
-     * @covers \ExtendsFramework\Http\ServiceLocator\Factory\MiddlewareChainFactory::createService()
+     * @covers \ExtendsFramework\Http\Framework\ServiceLocator\Factory\MiddlewareChainFactory::createService()
      */
     public function testCreateService(): void
     {

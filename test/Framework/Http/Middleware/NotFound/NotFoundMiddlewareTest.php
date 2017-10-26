@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace ExtendsFramework\Http\Middleware\NotFound;
+namespace ExtendsFramework\Http\Framework\Http\Middleware\NotFound;
 
 use ExtendsFramework\Http\Middleware\Chain\MiddlewareChainInterface;
 use ExtendsFramework\Http\Request\RequestInterface;
@@ -15,7 +15,7 @@ class NotFoundMiddlewareTest extends TestCase
      *
      * Test that and response will be returned with a 404 status code.
      *
-     * @covers \ExtendsFramework\Http\Middleware\NotFound\NotFoundMiddleware::process()
+     * @covers \ExtendsFramework\Http\Framework\Http\Middleware\NotFound\NotFoundMiddleware::process()
      */
     public function testProcess(): void
     {
