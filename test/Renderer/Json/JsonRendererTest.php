@@ -67,6 +67,64 @@ class JsonRendererTest extends TestCase
         ], Buffer::getHeaders());
         $this->assertSame(200, Buffer::getCode());
     }
+
+    /**
+     * Render.
+     *
+     * Test that no body will be send.
+     *
+     * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::render()
+     * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::stringifyBody()
+     * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::addContentLength()
+     * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::sendHeaders()
+     * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::sendResponseCode()
+     * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::sendBody()
+     */
+    public function testEmptyBody(): void
+    {
+        Buffer::reset();
+
+        $response = $this->createMock(ResponseInterface::class);
+        $response
+            ->expects($this->once())
+            ->method('getBody')
+            ->willReturn(null);
+
+        $response
+            ->expects($this->once())
+            ->method('andHeader')
+            ->with('Content-Length', '0')
+            ->willReturnSelf();
+
+        $response
+            ->expects($this->once())
+            ->method('getHeaders')
+            ->willReturn([
+                'Accept-Charset' => 'utf-8',
+                'Content-Length' => '0',
+            ]);
+
+        $response
+            ->expects($this->once())
+            ->method('getStatusCode')
+            ->willReturn(200);
+
+        /**
+         * @var ResponseInterface $response
+         */
+        $renderer = new JsonRenderer();
+
+        ob_start();
+        $renderer->render($response);
+        $output = ob_get_clean();
+
+        $this->assertSame('', $output);
+        $this->assertSame([
+            'Accept-Charset: utf-8',
+            'Content-Length: 0',
+        ], Buffer::getHeaders());
+        $this->assertSame(200, Buffer::getCode());
+    }
 }
 
 class Buffer

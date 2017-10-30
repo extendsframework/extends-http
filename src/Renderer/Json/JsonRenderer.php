@@ -75,7 +75,12 @@ class JsonRenderer implements RendererInterface
      */
     protected function stringifyBody(ResponseInterface $response): string
     {
-        return json_encode($response->getBody(), JSON_PARTIAL_OUTPUT_ON_ERROR) ?? '';
+        $body = $response->getBody();
+        if ($body === null) {
+            return '';
+        }
+
+        return json_encode($body, JSON_PARTIAL_OUTPUT_ON_ERROR);
     }
 
     /**
