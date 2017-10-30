@@ -24,6 +24,11 @@ class RendererMiddlewareTest extends TestCase
         $request = $this->createMock(RequestInterface::class);
 
         $response = $this->createMock(ResponseInterface::class);
+        $response
+            ->expects($this->once())
+            ->method('andHeader')
+            ->with('Content-Type', 'application/json')
+            ->willReturnSelf();
 
         $chain = $this->createMock(MiddlewareChainInterface::class);
         $chain
