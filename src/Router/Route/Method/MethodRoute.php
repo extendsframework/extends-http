@@ -10,11 +10,11 @@ use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryInterface;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 
-/**
- * @see https://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html
- */
 class MethodRoute implements RouteInterface, StaticFactoryInterface
 {
+    /**
+     * @see https://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html
+     */
     public const METHOD_OPTIONS = 'OPTIONS';
     public const METHOD_GET = 'GET';
     public const METHOD_HEAD = 'HEAD';
