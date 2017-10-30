@@ -22,9 +22,6 @@ class JsonRenderer implements RendererInterface
         }
 
         http_response_code($response->getStatusCode());
-        file_put_contents(
-            STDOUT,
-            json_encode($response->getBody(), JSON_PARTIAL_OUTPUT_ON_ERROR)
-        );
+        echo json_encode($response->getBody(), JSON_PARTIAL_OUTPUT_ON_ERROR);
     }
 }

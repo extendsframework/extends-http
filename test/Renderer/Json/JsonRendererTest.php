@@ -44,9 +44,12 @@ class JsonRendererTest extends TestCase
          * @var ResponseInterface $response
          */
         $renderer = new JsonRenderer();
-        $renderer->render($response);
 
-        $this->assertSame('{"foo":"bar"}', Buffer::getBody());
+        ob_start();
+        $renderer->render($response);
+        $output = ob_get_clean();
+
+        $this->assertSame('{"foo":"bar"}', $output);
         $this->assertSame([
             'Accept: text/plain',
             'Accept-Charset: utf-8',
@@ -59,18 +62,11 @@ class Buffer
 {
     protected static $headers = [];
 
-    protected static $body;
-
     protected static $code;
 
     public static function getHeaders(): array
     {
         return self::$headers;
-    }
-
-    public static function getBody(): string
-    {
-        return self::$body;
     }
 
     public static function getCode(): int
@@ -83,11 +79,6 @@ class Buffer
         self::$headers[] = $header;
     }
 
-    public static function setBody($body): void
-    {
-        self::$body = $body;
-    }
-
     public static function setCode($code): void
     {
         self::$code = $code;
@@ -96,7 +87,6 @@ class Buffer
     public static function reset(): void
     {
         static::$headers = [];
-        static::$body = null;
         static::$code = null;
     }
 }
@@ -104,11 +94,6 @@ class Buffer
 function header($header)
 {
     Buffer::addHeader($header);
-}
-
-function file_put_contents()
-{
-    Buffer::setBody(func_get_arg(1));
 }
 
 function http_response_code($code)
