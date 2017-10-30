@@ -79,7 +79,7 @@ class Request implements RequestInterface, StaticFactoryInterface
     }
 
     /**
-     * @return array
+     * @inheritDoc
      */
     public function getAttributes(): array
     {
