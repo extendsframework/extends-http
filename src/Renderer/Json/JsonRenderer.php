@@ -14,7 +14,7 @@ class JsonRenderer implements RendererInterface
     public function render(ResponseInterface $response): void
     {
         $body = $this->stringifyBody($response);
-        $response = $this->addContentLength($response, $body);
+        $response = $this->addHeaders($response, $body);
 
         $this
             ->sendHeaders($response)
@@ -90,8 +90,10 @@ class JsonRenderer implements RendererInterface
      * @param string            $body
      * @return ResponseInterface
      */
-    protected function addContentLength(ResponseInterface $response, string $body): ResponseInterface
+    protected function addHeaders(ResponseInterface $response, string $body): ResponseInterface
     {
-        return $response->andHeader('Content-Length', (string)strlen($body));
+        return $response
+            ->andHeader('Content-Type', 'application/json')
+            ->andHeader('Content-Length', (string)strlen($body));
     }
 }

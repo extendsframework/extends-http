@@ -15,7 +15,7 @@ class JsonRendererTest extends TestCase
      *
      * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::render()
      * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::stringifyBody()
-     * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::addContentLength()
+     * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::addHeaders()
      * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::sendHeaders()
      * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::sendResponseCode()
      * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::sendBody()
@@ -33,9 +33,12 @@ class JsonRendererTest extends TestCase
             ]);
 
         $response
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('andHeader')
-            ->with('Content-Length', '13')
+            ->withConsecutive(
+                ['Content-Type', 'application/json'],
+                ['Content-Length', '13']
+            )
             ->willReturnSelf();
 
         $response
@@ -43,6 +46,7 @@ class JsonRendererTest extends TestCase
             ->method('getHeaders')
             ->willReturn([
                 'Accept-Charset' => 'utf-8',
+                'Content-Type' => 'application/json',
                 'Content-Length' => '13',
             ]);
 
@@ -63,6 +67,7 @@ class JsonRendererTest extends TestCase
         $this->assertSame('{"foo":"bar"}', $output);
         $this->assertSame([
             'Accept-Charset: utf-8',
+            'Content-Type: application/json',
             'Content-Length: 13',
         ], Buffer::getHeaders());
         $this->assertSame(200, Buffer::getCode());
@@ -75,7 +80,7 @@ class JsonRendererTest extends TestCase
      *
      * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::render()
      * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::stringifyBody()
-     * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::addContentLength()
+     * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::addHeaders()
      * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::sendHeaders()
      * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::sendResponseCode()
      * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::sendBody()
@@ -91,9 +96,12 @@ class JsonRendererTest extends TestCase
             ->willReturn(null);
 
         $response
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('andHeader')
-            ->with('Content-Length', '0')
+            ->withConsecutive(
+                ['Content-Type', 'application/json'],
+                ['Content-Length', '0']
+            )
             ->willReturnSelf();
 
         $response
@@ -101,6 +109,7 @@ class JsonRendererTest extends TestCase
             ->method('getHeaders')
             ->willReturn([
                 'Accept-Charset' => 'utf-8',
+                'Content-Type' => 'application/json',
                 'Content-Length' => '0',
             ]);
 
@@ -121,6 +130,7 @@ class JsonRendererTest extends TestCase
         $this->assertSame('', $output);
         $this->assertSame([
             'Accept-Charset: utf-8',
+            'Content-Type: application/json',
             'Content-Length: 0',
         ], Buffer::getHeaders());
         $this->assertSame(200, Buffer::getCode());

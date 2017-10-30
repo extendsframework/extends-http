@@ -33,9 +33,7 @@ class RendererMiddleware implements MiddlewareInterface
      */
     public function process(RequestInterface $request, MiddlewareChainInterface $chain): ResponseInterface
     {
-        $response = $chain
-            ->proceed($request)
-            ->andHeader('Content-Type', 'application/json');
+        $response = $chain->proceed($request);
         $this->renderer->render($response);
 
         return $response;
