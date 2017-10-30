@@ -109,10 +109,37 @@ class RequestTest extends TestCase
     {
         $uri = (new Request())
             ->andHeader('foo', 'bar')
+            ->andHeader('foo', 'baz')
             ->andHeader('qux', 'quux');
 
         $this->assertSame([
-            'foo' => 'bar',
+            'foo' => [
+                'bar',
+                'baz'
+            ],
+            'qux' => 'quux',
+        ], $uri->getHeaders());
+    }
+
+    /**
+     * With headers.
+     *
+     * Test that already set header will be overwritten.
+     *
+     * @covers \ExtendsFramework\Http\Request\Request::andHeader()
+     * @covers \ExtendsFramework\Http\Request\Request::withHeader()
+     * @covers \ExtendsFramework\Http\Request\Request::getHeaders()
+     */
+    public function testWithHeader(): void
+    {
+        $uri = (new Request())
+            ->andHeader('foo', 'bar')
+            ->andHeader('foo', 'baz')
+            ->withHeader('foo', 'qux')
+            ->andHeader('qux', 'quux');
+
+        $this->assertSame([
+            'foo' => 'qux',
             'qux' => 'quux',
         ], $uri->getHeaders());
     }

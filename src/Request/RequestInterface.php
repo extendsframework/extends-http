@@ -17,7 +17,9 @@ interface RequestInterface
     public function andAttribute(string $name, string $value): RequestInterface;
 
     /**
-     * Merge $name and $value into existing headers and return new instance.
+     * Add header with $name for $value.
+     *
+     * If header with $name already exists, it will be added to the array.
      *
      * @param string $name
      * @param string $value
@@ -76,6 +78,17 @@ interface RequestInterface
      * @return RequestInterface
      */
     public function withBody(array $body): RequestInterface;
+
+    /**
+     * Set header with $name for $value.
+     *
+     * If header with $name already exists, it will be overwritten.
+     *
+     * @param string $name
+     * @param string $value
+     * @return RequestInterface
+     */
+    public function withHeader(string $name, string $value): RequestInterface;
 
     /**
      * Return new instance with $headers.

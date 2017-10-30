@@ -31,6 +31,10 @@ class JsonRenderer implements RendererInterface
     protected function sendHeaders(ResponseInterface $response): JsonRenderer
     {
         foreach ($response->getHeaders() as $header => $value) {
+            if (is_array($value) === true) {
+                $value = implode(', ', $value);
+            }
+
             header(sprintf(
                 '%s: %s',
                 $header,

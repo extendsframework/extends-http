@@ -45,7 +45,12 @@ class JsonRendererTest extends TestCase
             ->expects($this->once())
             ->method('getHeaders')
             ->willReturn([
-                'Accept-Charset' => 'utf-8',
+                'Accept' => [
+                    'text/html',
+                    'application/xhtml+xml',
+                    'application/xml;q=0.9',
+                    '*/*;q=0.8',
+                ],
                 'Content-Type' => 'application/json',
                 'Content-Length' => '13',
             ]);
@@ -66,7 +71,7 @@ class JsonRendererTest extends TestCase
 
         $this->assertSame('{"foo":"bar"}', $output);
         $this->assertSame([
-            'Accept-Charset: utf-8',
+            'Accept: text/html, application/xhtml+xml, application/xml;q=0.9, */*;q=0.8',
             'Content-Type: application/json',
             'Content-Length: 13',
         ], Buffer::getHeaders());

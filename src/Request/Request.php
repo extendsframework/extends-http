@@ -30,7 +30,7 @@ class Request implements RequestInterface, StaticFactoryInterface
      *
      * @var array
      */
-    protected $headers;
+    protected $headers = [];
 
     /**
      * Request method.
@@ -60,10 +60,20 @@ class Request implements RequestInterface, StaticFactoryInterface
     /**
      * @inheritDoc
      */
-    public function andHeader(string $name, string $value): RequestInterface
+    public function andHeader(string $name, string $value, bool $replace = null): RequestInterface
     {
         $clone = clone $this;
-        $clone->headers[$name] = $value;
+        if (array_key_exists($name, $clone->headers) === true) {
+            if (is_array($clone->headers[$name]) === false) {
+                $clone->headers[$name] = [
+                    $clone->headers[$name]
+                ];
+            }
+
+            $clone->headers[$name][] = $value;
+        } else {
+            $clone->headers[$name] = $value;
+        }
 
         return $clone;
     }
@@ -96,7 +106,7 @@ class Request implements RequestInterface, StaticFactoryInterface
      */
     public function getHeaders(): array
     {
-        if ($this->headers === null) {
+        if ($this->headers === []) {
             foreach ($_SERVER as $name => $value) {
                 if (strpos($name, 'HTTP_') === 0) {
                     $name = substr($name, 5);
@@ -155,6 +165,17 @@ class Request implements RequestInterface, StaticFactoryInterface
     {
         $clone = clone $this;
         $clone->body = $body;
+
+        return $clone;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function withHeader(string $name, string $value): RequestInterface
+    {
+        $clone = clone $this;
+        $clone->headers[$name] = $value;
 
         return $clone;
     }
