@@ -72,9 +72,9 @@ class HttpConfigLoaderTest extends TestCase
                 ],
             ],
             MiddlewareChainInterface::class => [
-                RendererMiddleware::class => 50,
+                RendererMiddleware::class => 150,
                 RouterMiddleware::class => 100,
-                NotFoundMiddleware::class => 150,
+                NotFoundMiddleware::class => 50,
             ],
             RouterInterface::class => [
                 'routes' => [],
