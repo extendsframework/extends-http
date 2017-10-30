@@ -17,9 +17,9 @@ interface ResponseInterface
     /**
      * Return body.
      *
-     * @return array
+     * @return array|null
      */
-    public function getBody(): array;
+    public function getBody(): ?array;
 
     /**
      * Return headers.

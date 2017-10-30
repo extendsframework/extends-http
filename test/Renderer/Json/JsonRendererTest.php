@@ -14,6 +14,11 @@ class JsonRendererTest extends TestCase
      * Test that response will be rendered: headers sent, body encoded and HTTP status code set.
      *
      * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::render()
+     * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::stringifyBody()
+     * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::addContentLength()
+     * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::sendHeaders()
+     * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::sendResponseCode()
+     * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::sendBody()
      */
     public function testRender(): void
     {
@@ -29,10 +34,16 @@ class JsonRendererTest extends TestCase
 
         $response
             ->expects($this->once())
+            ->method('andHeader')
+            ->with('Content-Length', '13')
+            ->willReturnSelf();
+
+        $response
+            ->expects($this->once())
             ->method('getHeaders')
             ->willReturn([
-                'Accept' => 'text/plain',
                 'Accept-Charset' => 'utf-8',
+                'Content-Length' => '13',
             ]);
 
         $response
@@ -51,8 +62,8 @@ class JsonRendererTest extends TestCase
 
         $this->assertSame('{"foo":"bar"}', $output);
         $this->assertSame([
-            'Accept: text/plain',
             'Accept-Charset: utf-8',
+            'Content-Length: 13',
         ], Buffer::getHeaders());
         $this->assertSame(200, Buffer::getCode());
     }

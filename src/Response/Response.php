@@ -11,7 +11,7 @@ class Response implements ResponseInterface, StaticFactoryInterface
     /**
      * @var array
      */
-    protected $body = [];
+    protected $body;
 
     /**
      * @var array
@@ -37,7 +37,7 @@ class Response implements ResponseInterface, StaticFactoryInterface
     /**
      * @inheritDoc
      */
-    public function getBody(): array
+    public function getBody(): ?array
     {
         return $this->body;
     }

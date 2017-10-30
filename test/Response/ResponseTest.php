@@ -21,7 +21,7 @@ class ResponseTest extends TestCase
     {
         $response = new Response();
 
-        $this->assertSame([], $response->getBody());
+        $this->assertSame(null, $response->getBody());
         $this->assertSame([], $response->getHeaders());
         $this->assertSame(200, $response->getStatusCode());
     }
