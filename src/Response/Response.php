@@ -28,10 +28,20 @@ class Response implements ResponseInterface, StaticFactoryInterface
      */
     public function andHeader(string $name, string $value): ResponseInterface
     {
-        $response = clone $this;
-        $response->headers[$name] = $value;
+        $clone = clone $this;
+        if (array_key_exists($name, $clone->headers) === true) {
+            if (is_array($clone->headers[$name]) === false) {
+                $clone->headers[$name] = [
+                    $clone->headers[$name]
+                ];
+            }
 
-        return $response;
+            $clone->headers[$name][] = $value;
+        } else {
+            $clone->headers[$name] = $value;
+        }
+
+        return $clone;
     }
 
     /**
@@ -67,6 +77,17 @@ class Response implements ResponseInterface, StaticFactoryInterface
         $clone->body = $body;
 
         return $clone;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function withHeader(string $name, string $value): ResponseInterface
+    {
+        $response = clone $this;
+        $response->headers[$name] = $value;
+
+        return $response;
     }
 
     /**

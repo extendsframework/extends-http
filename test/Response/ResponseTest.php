@@ -39,10 +39,14 @@ class ResponseTest extends TestCase
     {
         $response = (new Response())
             ->andHeader('baz', 'qux')
+            ->andHeader('baz', 'bar')
             ->andHeader('foo', 'bar');
 
         $this->assertSame([
-            'baz' => 'qux',
+            'baz' => [
+                'qux',
+                'bar',
+            ],
             'foo' => 'bar',
         ], $response->getHeaders());
     }
@@ -69,6 +73,29 @@ class ResponseTest extends TestCase
         $this->assertSame(['foo' => 'bar'], $response->getBody());
         $this->assertSame(['baz' => 'qux'], $response->getHeaders());
         $this->assertSame(201, $response->getStatusCode());
+    }
+
+    /**
+     * With headers.
+     *
+     * Test that already set header will be overwritten.
+     *
+     * @covers \ExtendsFramework\Http\Response\Response::andHeader()
+     * @covers \ExtendsFramework\Http\Response\Response::withHeader()
+     * @covers \ExtendsFramework\Http\Response\Response::getHeaders()
+     */
+    public function testWithHeader(): void
+    {
+        $uri = (new Response())
+            ->andHeader('foo', 'bar')
+            ->andHeader('foo', 'baz')
+            ->withHeader('foo', 'qux')
+            ->andHeader('qux', 'quux');
+
+        $this->assertSame([
+            'foo' => 'qux',
+            'qux' => 'quux',
+        ], $uri->getHeaders());
     }
 
     /**

@@ -6,7 +6,9 @@ namespace ExtendsFramework\Http\Response;
 interface ResponseInterface
 {
     /**
-     * Merge $name and $value into existing headers and return new instance.
+     * Add header with $name for $value.
+     *
+     * If header with $name already exists, it will be added to the array.
      *
      * @param string $name
      * @param string $value
@@ -42,6 +44,17 @@ interface ResponseInterface
      * @return ResponseInterface
      */
     public function withBody(array $body): ResponseInterface;
+
+    /**
+     * Set header with $name for $value.
+     *
+     * If header with $name already exists, it will be overwritten.
+     *
+     * @param string $name
+     * @param string $value
+     * @return ResponseInterface
+     */
+    public function withHeader(string $name, string $value): ResponseInterface;
 
     /**
      * Return new instance with $headers.
