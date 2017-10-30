@@ -64,7 +64,7 @@ class RouterMiddleware implements MiddlewareInterface
             }
 
             try {
-                return $controller->dispatch($request);
+                return $controller->dispatch($request, $match);
             } catch (ControllerException $exception) {
                 throw new ControllerDispatchFailed($exception);
             }

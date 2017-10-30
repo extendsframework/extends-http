@@ -6,6 +6,7 @@ namespace ExtendsFramework\Http\Controller;
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Response\Response;
 use ExtendsFramework\Http\Response\ResponseInterface;
+use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use PHPUnit\Framework\TestCase;
 
 class AbstractControllerTest extends TestCase
@@ -23,18 +24,21 @@ class AbstractControllerTest extends TestCase
     public function testDispatch(): void
     {
         $request = $this->createMock(RequestInterface::class);
-        $request
+
+        $match = $this->createMock(RouteMatchInterface::class);
+        $match
             ->expects($this->once())
-            ->method('getAttributes')
+            ->method('getParameters')
             ->willReturn([
                 'action' => 'foo.not-found'
             ]);
 
         /**
-         * @var RequestInterface $request
+         * @var RequestInterface    $request
+         * @var RouteMatchInterface $match
          */
         $controller = new ControllerStub();
-        $response = $controller->dispatch($request);
+        $response = $controller->dispatch($request, $match);
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
     }
@@ -54,16 +58,19 @@ class AbstractControllerTest extends TestCase
     public function testActionNotFound(): void
     {
         $request = $this->createMock(RequestInterface::class);
-        $request
+
+        $match = $this->createMock(RouteMatchInterface::class);
+        $match
             ->expects($this->once())
-            ->method('getAttributes')
+            ->method('getParameters')
             ->willReturn([]);
 
         /**
-         * @var RequestInterface $request
+         * @var RequestInterface    $request
+         * @var RouteMatchInterface $match
          */
         $controller = new ControllerStub();
-        $controller->dispatch($request);
+        $controller->dispatch($request, $match);
     }
 
     /**
@@ -81,18 +88,21 @@ class AbstractControllerTest extends TestCase
     public function testMethodNotFound(): void
     {
         $request = $this->createMock(RequestInterface::class);
-        $request
+
+        $match = $this->createMock(RouteMatchInterface::class);
+        $match
             ->expects($this->once())
-            ->method('getAttributes')
+            ->method('getParameters')
             ->willReturn([
-                'action' => 'bar',
+                'action' => 'bar'
             ]);
 
         /**
-         * @var RequestInterface $request
+         * @var RequestInterface    $request
+         * @var RouteMatchInterface $match
          */
         $controller = new ControllerStub();
-        $controller->dispatch($request);
+        $controller->dispatch($request, $match);
     }
 }
 

@@ -5,6 +5,7 @@ namespace ExtendsFramework\Http\Controller;
 
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Response\ResponseInterface;
+use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 
 interface ControllerInterface
 {
@@ -14,9 +15,10 @@ interface ControllerInterface
      * Method must return result as an array. When there is no result to result, this method must return an empty
      * array. When no method can be found, an exception will be thrown.
      *
-     * @param RequestInterface $request
+     * @param RequestInterface    $request
+     * @param RouteMatchInterface $routeMatch
      * @return ResponseInterface
      * @throws ControllerException
      */
-    public function dispatch(RequestInterface $request): ResponseInterface;
+    public function dispatch(RequestInterface $request, RouteMatchInterface $routeMatch): ResponseInterface;
 }

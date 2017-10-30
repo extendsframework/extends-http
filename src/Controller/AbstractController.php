@@ -7,6 +7,7 @@ use ExtendsFramework\Http\Controller\Exception\ActionNotFound;
 use ExtendsFramework\Http\Controller\Exception\MethodNotFound;
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Response\ResponseInterface;
+use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 
 abstract class AbstractController implements ControllerInterface
 {
@@ -20,9 +21,9 @@ abstract class AbstractController implements ControllerInterface
     /**
      * @inheritDoc
      */
-    public function dispatch(RequestInterface $request): ResponseInterface
+    public function dispatch(RequestInterface $request, RouteMatchInterface $routeMatch): ResponseInterface
     {
-        $method = $this->getMethod($request);
+        $method = $this->getMethod($routeMatch);
 
         return $method($request);
     }
@@ -33,13 +34,13 @@ abstract class AbstractController implements ControllerInterface
      * The object property $postfix will be append to $action. When no method can be found for $action, an exception
      * will be thrown.
      *
-     * @param RequestInterface $request
+     * @param RouteMatchInterface $routeMatch
      * @return callable
      * @throws ControllerException
      */
-    protected function getMethod(RequestInterface $request): callable
+    protected function getMethod(RouteMatchInterface $routeMatch): callable
     {
-        $action = $this->getAction($request);
+        $action = $this->getAction($routeMatch);
         $method = $action . $this->postfix;
         if (method_exists($this, $method) === false) {
             throw new MethodNotFound($action);
@@ -51,18 +52,18 @@ abstract class AbstractController implements ControllerInterface
     /**
      * Normalize action string.
      *
-     * @param RequestInterface $request
+     * @param RouteMatchInterface $routeMatch
      * @return string
      * @throws ControllerException
      */
-    protected function getAction(RequestInterface $request): string
+    protected function getAction(RouteMatchInterface $routeMatch): string
     {
-        $attributes = $request->getAttributes();
-        if (array_key_exists('action', $attributes) === false) {
+        $parameters = $routeMatch->getParameters();
+        if (array_key_exists('action', $parameters) === false) {
             throw new ActionNotFound();
         }
 
-        return $this->normalizeAction($attributes['action']);
+        return $this->normalizeAction($parameters['action']);
     }
 
     /**

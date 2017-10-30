@@ -254,7 +254,7 @@ class RouterMiddlewareTest extends TestCase
         $controller
             ->expects($this->once())
             ->method('dispatch')
-            ->with($request)
+            ->with($request, $match)
             ->willThrowException($exception);
 
         $serviceLocator = $this->createMock(ServiceLocatorInterface::class);
