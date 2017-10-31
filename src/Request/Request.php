@@ -6,7 +6,7 @@ namespace ExtendsFramework\Http\Request;
 use ExtendsFramework\Http\Request\Exception\InvalidRequestBody;
 use ExtendsFramework\Http\Request\Uri\Uri;
 use ExtendsFramework\Http\Request\Uri\UriInterface;
-use ExtendsFramework\Http\Router\Route\RouteInterface;
+use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryInterface;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 
@@ -50,9 +50,9 @@ class Request implements RequestInterface, StaticFactoryInterface
     /**
      * Matched route.
      *
-     * @var RouteInterface|null
+     * @var RouteMatchInterface|null
      */
-    protected $route;
+    protected $routeMatch;
 
     /**
      * @inheritDoc
@@ -158,9 +158,9 @@ class Request implements RequestInterface, StaticFactoryInterface
     /**
      * @inheritDoc
      */
-    public function getRoute(): ?RouteInterface
+    public function getRouteMatch(): ?RouteMatchInterface
     {
-        return $this->route;
+        return $this->routeMatch;
     }
 
     /**
@@ -232,10 +232,10 @@ class Request implements RequestInterface, StaticFactoryInterface
     /**
      * @inheritDoc
      */
-    public function withRoute(RouteInterface $route): RequestInterface
+    public function withRouteMatch(RouteMatchInterface $routeMatch): RequestInterface
     {
         $clone = clone $this;
-        $clone->route = $route;
+        $clone->routeMatch = $routeMatch;
 
         return $clone;
     }
