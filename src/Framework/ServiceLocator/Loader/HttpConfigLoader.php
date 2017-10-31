@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Framework\ServiceLocator\Loader;
 
+use ExtendsFramework\Http\Framework\Http\Middleware\Controller\ControllerMiddleware;
 use ExtendsFramework\Http\Framework\Http\Middleware\NotFound\NotFoundMiddleware;
 use ExtendsFramework\Http\Framework\Http\Middleware\Renderer\RendererMiddleware;
 use ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware;
@@ -66,8 +67,9 @@ class HttpConfigLoader implements LoaderInterface
                 ],
             ],
             MiddlewareChainInterface::class => [
-                RendererMiddleware::class => 150,
-                RouterMiddleware::class => 100,
+                RendererMiddleware::class => 200,
+                RouterMiddleware::class => 150,
+                ControllerMiddleware::class => 100,
                 NotFoundMiddleware::class => 50,
             ],
             RouterInterface::class => [

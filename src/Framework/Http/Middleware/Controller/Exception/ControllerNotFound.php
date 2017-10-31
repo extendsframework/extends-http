@@ -1,13 +1,13 @@
 <?php
 declare(strict_types=1);
 
-namespace ExtendsFramework\Http\Framework\Http\Middleware\Router\Exception;
+namespace ExtendsFramework\Http\Framework\Http\Middleware\Controller\Exception;
 
 use Exception;
-use ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddlewareException;
+use ExtendsFramework\Http\Framework\Http\Middleware\Controller\ControllerMiddlewareException;
 use ExtendsFramework\ServiceLocator\ServiceLocatorException;
 
-class ControllerNotFound extends Exception implements RouterMiddlewareException
+class ControllerNotFound extends Exception implements ControllerMiddlewareException
 {
     /**
      * When controller can not be found.
