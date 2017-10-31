@@ -28,7 +28,7 @@ class PathRouteTest extends TestCase
         $uri
             ->expects($this->once())
             ->method('getPath')
-            ->willReturn('/foo/33/bar/baz');
+            ->willReturn('/foo/John/bar/baz');
 
         $request = $this->createMock(RequestInterface::class);
         $request
@@ -39,8 +39,8 @@ class PathRouteTest extends TestCase
         /**
          * @var RequestInterface $request
          */
-        $path = new PathRoute('/:id/bar', [
-            'id' => '\d+',
+        $path = new PathRoute('/:first_name/bar', [
+            'first_name' => '\w+',
         ], [
             'foo' => 'bar',
         ]);
@@ -48,10 +48,10 @@ class PathRouteTest extends TestCase
 
         $this->assertInstanceOf(RouteMatchInterface::class, $match);
         if ($match instanceof RouteMatchInterface) {
-            $this->assertSame(11, $match->getPathOffset());
+            $this->assertSame(13, $match->getPathOffset());
             $this->assertSame([
                 'foo' => 'bar',
-                'id' => '33',
+                'first_name' => 'John',
             ], $match->getParameters());
         }
     }

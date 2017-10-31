@@ -103,7 +103,7 @@ class PathRoute implements RouteInterface, StaticFactoryInterface
      */
     protected function getPattern(): string
     {
-        $path = preg_replace_callback('~:([a-z][a-z0-9]+)~i', function ($match) {
+        $path = preg_replace_callback('~:([a-z][a-z0-9\_]+)~i', function ($match) {
             return sprintf('(?<%s>%s)', $match[1], $this->constraints[$match[1]] ?? '\w+');
         }, $this->path);
 
