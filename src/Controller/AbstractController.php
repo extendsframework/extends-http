@@ -25,7 +25,7 @@ abstract class AbstractController implements ControllerInterface
     {
         $method = $this->getMethod($routeMatch);
 
-        return $method($request);
+        return $method($request, $routeMatch);
     }
 
     /**
