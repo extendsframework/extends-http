@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Framework\ServiceLocator\Factory;
 
+use ExtendsFramework\Http\Router\Route\Group\GroupRoute;
+use ExtendsFramework\Http\Router\Route\Method\MethodRoute;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\Scheme\SchemeRoute;
 use ExtendsFramework\Http\Router\RouterInterface;
@@ -17,6 +19,8 @@ class RouterFactoryTest extends TestCase
      * Test that factory will return an instance of RouterInterface.
      *
      * @covers \ExtendsFramework\Http\Framework\ServiceLocator\Factory\RouterFactory::createService()
+     * @covers \ExtendsFramework\Http\Framework\ServiceLocator\Factory\RouterFactory::createRoute()
+     * @covers \ExtendsFramework\Http\Framework\ServiceLocator\Factory\RouterFactory::createGroup()
      */
     public function testCreateService(): void
     {
@@ -35,21 +39,58 @@ class RouterFactoryTest extends TestCase
                                     'foo' => 'bar',
                                 ],
                             ],
+                            'abstract' => false,
+                            'children' => [
+                                [
+                                    'name' => MethodRoute::class,
+                                    'options' => [
+                                        'method' => MethodRoute::METHOD_POST,
+                                    ],
+                                ],
+                            ],
                         ],
                     ],
                 ],
             ]);
 
+
+        $route1 = $this->createMock(RouteInterface::class);
+
+        $route2 = $this->createMock(RouteInterface::class);
+
+        $group = $this->createMock(GroupRoute::class);
+        $group
+            ->method('addChild')
+            ->with($route2)
+            ->willReturnSelf();
+
         $serviceLocator
-            ->expects($this->once())
+            ->expects($this->at(1))
             ->method('getService')
             ->with(SchemeRoute::class, [
                 'scheme' => 'https',
                 'parameters' => [
                     'foo' => 'bar',
-                ],
+                ]
             ])
-            ->willReturn($this->createMock(RouteInterface::class));
+            ->willReturn($route1);
+
+        $serviceLocator
+            ->expects($this->at(2))
+            ->method('getService')
+            ->with(GroupRoute::class, [
+                'route' => $route1,
+                'abstract' => null,
+            ])
+            ->willReturn($group);
+
+        $serviceLocator
+            ->expects($this->at(3))
+            ->method('getService')
+            ->with(MethodRoute::class, [
+                'method' => MethodRoute::METHOD_POST,
+            ])
+            ->willReturn($route2);
 
         /**
          * @var ServiceLocatorInterface $serviceLocator

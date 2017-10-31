@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Framework\ServiceLocator\Factory;
 
+use ExtendsFramework\Http\Router\Route\Group\GroupRoute;
+use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Router;
 use ExtendsFramework\Http\Router\RouterInterface;
 use ExtendsFramework\ServiceLocator\Resolver\Factory\ServiceFactoryInterface;
@@ -26,12 +28,56 @@ class RouterFactory implements ServiceFactoryInterface
         $config = $config[RouterInterface::class] ?? [];
 
         $router = new Router();
-        foreach ($config['routes'] ?? [] as $route) {
+        foreach ($config['routes'] ?? [] as $config) {
             $router->addRoute(
-                $serviceLocator->getService($route['name'], $route['options'] ?? [])
+                $this->createRoute($serviceLocator, $config)
             );
         }
 
         return $router;
+    }
+
+    /**
+     * Create RouterInterface from $config.
+     *
+     * @param ServiceLocatorInterface $serviceLocator
+     * @param array                   $config
+     * @return RouteInterface
+     * @throws ServiceLocatorException
+     */
+    protected function createRoute(ServiceLocatorInterface $serviceLocator, array $config): RouteInterface
+    {
+        $route = $serviceLocator->getService($config['name'], $config['options'] ?? []);
+        if (array_key_exists('children', $config) === true) {
+            $route = $this->createGroup($serviceLocator, $route, $config['children'], $config['abstract'] ?? null);
+        }
+
+        return $route;
+    }
+
+    /**
+     * Create group route.
+     *
+     * @param ServiceLocatorInterface $serviceLocator
+     * @param RouteInterface          $route
+     * @param array                   $children
+     * @param bool|null               $abstract
+     * @return RouteInterface
+     * @throws ServiceLocatorException
+     */
+    protected function createGroup(ServiceLocatorInterface $serviceLocator, RouteInterface $route, array $children, bool $abstract = null): RouteInterface
+    {
+        $group = $serviceLocator->getService(GroupRoute::class, [
+            'route' => $route,
+            'abstract' => $abstract,
+        ]);
+
+        foreach ($children as $child) {
+            $group->addChild(
+                $this->createRoute($serviceLocator, $child)
+            );
+        }
+
+        return $group;
     }
 }

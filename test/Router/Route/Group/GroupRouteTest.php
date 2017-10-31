@@ -232,25 +232,12 @@ class GroupRouteTest extends TestCase
     public function testFactory(): void
     {
         $serviceLocator = $this->createMock(ServiceLocatorInterface::class);
-        $serviceLocator
-            ->expects($this->once())
-            ->method('getService')
-            ->with(RouteInterface::class, ['foo' => 'bar'])
-            ->willReturn($this->createMock(RouteInterface::class));
 
         /**
          * @var ServiceLocatorInterface $serviceLocator
          */
         $route = GroupRoute::factory(GroupRoute::class, $serviceLocator, [
             'route' => $this->createMock(RouteInterface::class),
-            'children' => [
-                [
-                    'name' => RouteInterface::class,
-                    'options' => [
-                        'foo' => 'bar'
-                    ],
-                ],
-            ],
         ]);
 
         $this->assertInstanceOf(RouteInterface::class, $route);
