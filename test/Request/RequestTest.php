@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Request;
 
 use ExtendsFramework\Http\Request\Uri\UriInterface;
+use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -36,6 +37,7 @@ class RequestTest extends TestCase
         $this->assertSame(['Content-Type' => 'application/json'], $request->getHeaders());
         $this->assertSame('POST', $request->getMethod());
         $this->assertInstanceOf(UriInterface::class, $request->getUri());
+        $this->assertNull($request->getRoute());
 
         Buffer::reset();
     }
@@ -50,31 +52,38 @@ class RequestTest extends TestCase
      * @covers  \ExtendsFramework\Http\Request\Request::withHeaders()
      * @covers  \ExtendsFramework\Http\Request\Request::withMethod()
      * @covers  \ExtendsFramework\Http\Request\Request::withUri()
+     * @covers  \ExtendsFramework\Http\Request\Request::withRoute()
      * @covers  \ExtendsFramework\Http\Request\Request::getAttributes()
      * @covers  \ExtendsFramework\Http\Request\Request::getBody()
      * @covers  \ExtendsFramework\Http\Request\Request::getHeaders()
      * @covers  \ExtendsFramework\Http\Request\Request::getMethod()
      * @covers  \ExtendsFramework\Http\Request\Request::getUri()
+     * @covers  \ExtendsFramework\Http\Request\Request::getRoute()
      */
     public function testWithMethods(): void
     {
         $uri = $this->createMock(UriInterface::class);
 
+        $route = $this->createMock(RouteInterface::class);
+
         /**
-         * @var UriInterface $uri
+         * @var UriInterface   $uri
+         * @var RouteInterface $route
          */
         $request = (new Request())
             ->withAttributes(['foo' => 'bar'])
             ->withBody(['baz' => 'qux'])
             ->withHeaders(['qux' => 'quux'])
             ->withMethod('POST')
-            ->withUri($uri);
+            ->withUri($uri)
+            ->withRoute($route);
 
         $this->assertSame(['foo' => 'bar'], $request->getAttributes());
         $this->assertSame(['baz' => 'qux'], $request->getBody());
         $this->assertSame(['qux' => 'quux'], $request->getHeaders());
         $this->assertSame('POST', $request->getMethod());
         $this->assertSame($uri, $request->getUri());
+        $this->assertSame($route, $request->getRoute());
     }
 
     /**

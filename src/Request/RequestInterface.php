@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Request;
 
 use ExtendsFramework\Http\Request\Uri\UriInterface;
+use ExtendsFramework\Http\Router\Route\RouteInterface;
 
 interface RequestInterface
 {
@@ -55,6 +56,13 @@ interface RequestInterface
      * @return string
      */
     public function getMethod(): string;
+
+    /**
+     * Get matched route.
+     *
+     * @return RouteInterface|null
+     */
+    public function getRoute(): ?RouteInterface;
 
     /**
      * Return request URI.
@@ -113,4 +121,12 @@ interface RequestInterface
      * @return RequestInterface
      */
     public function withUri(UriInterface $uri): RequestInterface;
+
+    /**
+     * Return new instance with $route.
+     *
+     * @param RouteInterface $route
+     * @return RequestInterface
+     */
+    public function withRoute(RouteInterface $route): RequestInterface;
 }
