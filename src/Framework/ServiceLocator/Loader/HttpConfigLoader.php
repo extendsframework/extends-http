@@ -9,7 +9,6 @@ use ExtendsFramework\Http\Framework\Http\Middleware\Renderer\RendererMiddleware;
 use ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware;
 use ExtendsFramework\Http\Framework\ServiceLocator\Factory\MiddlewareChainFactory;
 use ExtendsFramework\Http\Framework\ServiceLocator\Factory\RouterFactory;
-use ExtendsFramework\Http\Framework\ServiceLocator\Factory\RouterMiddlewareFactory;
 use ExtendsFramework\Http\Middleware\Chain\MiddlewareChainInterface;
 use ExtendsFramework\Http\Renderer\Json\JsonRenderer;
 use ExtendsFramework\Http\Renderer\RendererInterface;
@@ -45,7 +44,6 @@ class HttpConfigLoader implements LoaderInterface
                 FactoryResolver::class => [
                     RouterInterface::class => RouterFactory::class,
                     MiddlewareChainInterface::class => MiddlewareChainFactory::class,
-                    RouterMiddleware::class => RouterMiddlewareFactory::class
                 ],
                 StaticFactoryResolver::class => [
                     RequestInterface::class => Request::class,
@@ -64,6 +62,7 @@ class HttpConfigLoader implements LoaderInterface
                 ReflectionResolver::class => [
                     ServerInterface::class => Server::class,
                     RendererMiddleware::class => RendererMiddleware::class,
+                    RouterMiddleware::class => RouterMiddleware::class,
                 ],
             ],
             MiddlewareChainInterface::class => [
