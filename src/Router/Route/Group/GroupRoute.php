@@ -61,7 +61,7 @@ class GroupRoute implements RouteInterface, StaticFactoryInterface
             }
         }
 
-        if ($this->abstract === false && $this->isEndOfPath($request, $match) === true) {
+        if ($this->abstract === false) {
             return $match;
         }
 
@@ -87,19 +87,5 @@ class GroupRoute implements RouteInterface, StaticFactoryInterface
         $this->children[] = $route;
 
         return $this;
-    }
-
-    /**
-     * Return if whole path is matched.
-     *
-     * When path offset is end of request path, a non-abstract route will be matched.
-     *
-     * @param RequestInterface    $request
-     * @param RouteMatchInterface $match
-     * @return bool
-     */
-    protected function isEndOfPath(RequestInterface $request, RouteMatchInterface $match): bool
-    {
-        return strlen($request->getUri()->getPath()) === $match->getPathOffset();
     }
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Router\Route\Group;
 
 use ExtendsFramework\Http\Request\RequestInterface;
-use ExtendsFramework\Http\Request\Uri\UriInterface;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
@@ -75,27 +74,12 @@ class GroupRouteTest extends TestCase
      *
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::match()
-     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::isEndOfPath()
      */
     public function testNonAbstractRoute(): void
     {
-        $uri = $this->createMock(UriInterface::class);
-        $uri
-            ->expects($this->once())
-            ->method('getPath')
-            ->willReturn('/quux');
-
         $request = $this->createMock(RequestInterface::class);
-        $request
-            ->expects($this->once())
-            ->method('getUri')
-            ->willReturn($uri);
 
         $match = $this->createMock(RouteMatchInterface::class);
-        $match
-            ->expects($this->once())
-            ->method('getPathOffset')
-            ->willReturn(5);
 
         $route = $this->createMock(RouteInterface::class);
         $route
@@ -115,59 +99,12 @@ class GroupRouteTest extends TestCase
     }
 
     /**
-     * End of path.
-     *
-     * Test that group route can not match end of path and will return null.
-     *
-     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
-     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::match()
-     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::isEndOfPath()
-     */
-    public function testEndOfPath()
-    {
-        $uri = $this->createMock(UriInterface::class);
-        $uri
-            ->expects($this->once())
-            ->method('getPath')
-            ->willReturn('/quux/foo');
-
-        $request = $this->createMock(RequestInterface::class);
-        $request
-            ->expects($this->once())
-            ->method('getUri')
-            ->willReturn($uri);
-
-        $match = $this->createMock(RouteMatchInterface::class);
-        $match
-            ->expects($this->once())
-            ->method('getPathOffset')
-            ->willReturn(5);
-
-        $route = $this->createMock(RouteInterface::class);
-        $route
-            ->expects($this->once())
-            ->method('match')
-            ->with($request, 0)
-            ->willReturn($match);
-
-        /**
-         * @var RouteInterface   $route
-         * @var RequestInterface $request
-         */
-        $group = new GroupRoute($route, false);
-        $matched = $group->match($request, 0);
-
-        $this->assertNull($matched);
-    }
-
-    /**
      * Abstract route.
      *
      * Test that group route will not match abstract self and return null.
      *
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::match()
-     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::isEndOfPath()
      */
     public function testAbstractRoute(): void
     {
