@@ -39,7 +39,8 @@ class ControllerMiddlewareTest extends TestCase
         $request = $this->createMock(RequestInterface::class);
         $request
             ->expects($this->once())
-            ->method('getRouteMatch')
+            ->method('getAttribute')
+            ->with('routeMatch')
             ->willReturn($match);
 
         $response = $this->createMock(ResponseInterface::class);
@@ -95,7 +96,8 @@ class ControllerMiddlewareTest extends TestCase
         $request = $this->createMock(RequestInterface::class);
         $request
             ->expects($this->once())
-            ->method('getRouteMatch')
+            ->method('getAttribute')
+            ->with('routeMatch')
             ->willReturn($match);
 
         $exception = $this->createMock(ServiceNotFound::class);
@@ -145,7 +147,8 @@ class ControllerMiddlewareTest extends TestCase
         $request = $this->createMock(RequestInterface::class);
         $request
             ->expects($this->once())
-            ->method('getRouteMatch')
+            ->method('getAttribute')
+            ->with('routeMatch')
             ->willReturn($match);
 
         $exception = $this->createMock(ActionNotFound::class);
@@ -191,7 +194,8 @@ class ControllerMiddlewareTest extends TestCase
         $request = $this->createMock(RequestInterface::class);
         $request
             ->expects($this->once())
-            ->method('getRouteMatch')
+            ->method('getAttribute')
+            ->with('routeMatch')
             ->willReturn(null);
 
         $response = $this->createMock(ResponseInterface::class);
@@ -234,7 +238,8 @@ class ControllerMiddlewareTest extends TestCase
         $request = $this->createMock(RequestInterface::class);
         $request
             ->expects($this->once())
-            ->method('getRouteMatch')
+            ->method('getAttribute')
+            ->with('routeMatch')
             ->willReturn($match);
 
         $response = $this->createMock(ResponseInterface::class);

@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Request;
 
 use ExtendsFramework\Http\Request\Uri\UriInterface;
-use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -37,7 +36,6 @@ class RequestTest extends TestCase
         $this->assertSame(['Content-Type' => 'application/json'], $request->getHeaders());
         $this->assertSame('POST', $request->getMethod());
         $this->assertInstanceOf(UriInterface::class, $request->getUri());
-        $this->assertNull($request->getRouteMatch());
 
         Buffer::reset();
     }
@@ -52,38 +50,39 @@ class RequestTest extends TestCase
      * @covers  \ExtendsFramework\Http\Request\Request::withHeaders()
      * @covers  \ExtendsFramework\Http\Request\Request::withMethod()
      * @covers  \ExtendsFramework\Http\Request\Request::withUri()
-     * @covers  \ExtendsFramework\Http\Request\Request::withRouteMatch()
      * @covers  \ExtendsFramework\Http\Request\Request::getAttributes()
+     * @covers  \ExtendsFramework\Http\Request\Request::getAttribute()
      * @covers  \ExtendsFramework\Http\Request\Request::getBody()
      * @covers  \ExtendsFramework\Http\Request\Request::getHeaders()
+     * @covers  \ExtendsFramework\Http\Request\Request::getHeader()
      * @covers  \ExtendsFramework\Http\Request\Request::getMethod()
      * @covers  \ExtendsFramework\Http\Request\Request::getUri()
-     * @covers  \ExtendsFramework\Http\Request\Request::getRouteMatch()
      */
     public function testWithMethods(): void
     {
         $uri = $this->createMock(UriInterface::class);
 
-        $routeMatch = $this->createMock(RouteMatchInterface::class);
-
         /**
-         * @var UriInterface        $uri
-         * @var RouteMatchInterface $routeMatch
+         * @var UriInterface $uri
          */
         $request = (new Request())
             ->withAttributes(['foo' => 'bar'])
             ->withBody(['baz' => 'qux'])
             ->withHeaders(['qux' => 'quux'])
             ->withMethod('POST')
-            ->withUri($uri)
-            ->withRouteMatch($routeMatch);
+            ->withUri($uri);
 
         $this->assertSame(['foo' => 'bar'], $request->getAttributes());
         $this->assertSame(['baz' => 'qux'], $request->getBody());
         $this->assertSame(['qux' => 'quux'], $request->getHeaders());
         $this->assertSame('POST', $request->getMethod());
         $this->assertSame($uri, $request->getUri());
-        $this->assertSame($routeMatch, $request->getRouteMatch());
+        $this->assertSame('quux', $request->getHeader('qux'));
+        $this->assertSame('bar', $request->getAttribute('foo'));
+
+        // Default return values.
+        $this->assertSame('qux', $request->getHeader('bar', 'qux'));
+        $this->assertSame('quux', $request->getAttribute('bar', 'quux'));
     }
 
     /**
@@ -96,14 +95,14 @@ class RequestTest extends TestCase
      */
     public function testCanMergeWithAttribute(): void
     {
-        $uri = (new Request())
+        $request = (new Request())
             ->andAttribute('foo', 'bar')
             ->andAttribute('qux', 'quux');
 
         $this->assertSame([
             'foo' => 'bar',
             'qux' => 'quux',
-        ], $uri->getAttributes());
+        ], $request->getAttributes());
     }
 
     /**
@@ -116,7 +115,7 @@ class RequestTest extends TestCase
      */
     public function testAndHeader(): void
     {
-        $uri = (new Request())
+        $request = (new Request())
             ->andHeader('foo', 'bar')
             ->andHeader('foo', 'baz')
             ->andHeader('qux', 'quux');
@@ -127,7 +126,7 @@ class RequestTest extends TestCase
                 'baz'
             ],
             'qux' => 'quux',
-        ], $uri->getHeaders());
+        ], $request->getHeaders());
     }
 
     /**
@@ -138,10 +137,11 @@ class RequestTest extends TestCase
      * @covers \ExtendsFramework\Http\Request\Request::andHeader()
      * @covers \ExtendsFramework\Http\Request\Request::withHeader()
      * @covers \ExtendsFramework\Http\Request\Request::getHeaders()
+     * @covers \ExtendsFramework\Http\Request\Request::getHeader()
      */
     public function testWithHeader(): void
     {
-        $uri = (new Request())
+        $request = (new Request())
             ->andHeader('foo', 'bar')
             ->andHeader('foo', 'baz')
             ->withHeader('foo', 'qux')
@@ -150,7 +150,7 @@ class RequestTest extends TestCase
         $this->assertSame([
             'foo' => 'qux',
             'qux' => 'quux',
-        ], $uri->getHeaders());
+        ], $request->getHeaders());
     }
 
     /**

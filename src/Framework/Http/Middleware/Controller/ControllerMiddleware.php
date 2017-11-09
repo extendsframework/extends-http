@@ -39,7 +39,7 @@ class ControllerMiddleware implements MiddlewareInterface
      */
     public function process(RequestInterface $request, MiddlewareChainInterface $chain): ResponseInterface
     {
-        $match = $request->getRouteMatch();
+        $match = $request->getAttribute('routeMatch');
         if ($match instanceof RouteMatchInterface) {
             $parameters = $match->getParameters();
             if (array_key_exists('controller', $parameters) === true) {

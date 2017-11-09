@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Request;
 
 use ExtendsFramework\Http\Request\Uri\UriInterface;
-use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 
 interface RequestInterface
 {
@@ -12,10 +11,10 @@ interface RequestInterface
      * Merge $name and $value into existing attributes and return new instance.
      *
      * @param string $name
-     * @param string $value
+     * @param mixed  $value
      * @return RequestInterface
      */
-    public function andAttribute(string $name, string $value): RequestInterface;
+    public function andAttribute(string $name, $value): RequestInterface;
 
     /**
      * Add header with $name for $value.
@@ -23,10 +22,10 @@ interface RequestInterface
      * If header with $name already exists, it will be added to the array.
      *
      * @param string $name
-     * @param string $value
+     * @param mixed  $value
      * @return RequestInterface
      */
-    public function andHeader(string $name, string $value): RequestInterface;
+    public function andHeader(string $name, $value): RequestInterface;
 
     /**
      * Return custom attributes.
@@ -34,6 +33,17 @@ interface RequestInterface
      * @return array
      */
     public function getAttributes(): array;
+
+    /**
+     * Get attribute for $key.
+     *
+     * Default value $default will be returned when attribute for $key does not exists.
+     *
+     * @param string $key
+     * @param mixed  $default
+     * @return mixed
+     */
+    public function getAttribute(string $key, $default = null);
 
     /**
      * Return body.
@@ -51,18 +61,22 @@ interface RequestInterface
     public function getHeaders(): array;
 
     /**
+     * Get header value for $name.
+     *
+     * Default value $default will be returned when header with $name does not exists.
+     *
+     * @param string $name
+     * @param mixed  $default
+     * @return mixed
+     */
+    public function getHeader(string $name, $default = null);
+
+    /**
      * Return method.
      *
      * @return string
      */
     public function getMethod(): string;
-
-    /**
-     * Get matched route.
-     *
-     * @return RouteMatchInterface|null
-     */
-    public function getRouteMatch(): ?RouteMatchInterface;
 
     /**
      * Return request URI.
@@ -113,14 +127,6 @@ interface RequestInterface
      * @return RequestInterface
      */
     public function withMethod(string $method): RequestInterface;
-
-    /**
-     * Return new instance with $routeMatch.
-     *
-     * @param RouteMatchInterface $routeMatch
-     * @return RequestInterface
-     */
-    public function withRouteMatch(RouteMatchInterface $routeMatch): RequestInterface;
 
     /**
      * Return new instance with $uri.

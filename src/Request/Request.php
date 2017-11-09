@@ -57,7 +57,7 @@ class Request implements RequestInterface, StaticFactoryInterface
     /**
      * @inheritDoc
      */
-    public function andAttribute(string $name, string $value): RequestInterface
+    public function andAttribute(string $name, $value): RequestInterface
     {
         $clone = clone $this;
         $clone->attributes[$name] = $value;
@@ -68,7 +68,7 @@ class Request implements RequestInterface, StaticFactoryInterface
     /**
      * @inheritDoc
      */
-    public function andHeader(string $name, string $value, bool $replace = null): RequestInterface
+    public function andHeader(string $name, $value, bool $replace = null): RequestInterface
     {
         $clone = clone $this;
         if (array_key_exists($name, $clone->headers) === true) {
@@ -92,6 +92,14 @@ class Request implements RequestInterface, StaticFactoryInterface
     public function getAttributes(): array
     {
         return $this->attributes;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getAttribute(string $key, $default = null)
+    {
+        return $this->attributes[$key] ?? $default;
     }
 
     /**
@@ -134,6 +142,14 @@ class Request implements RequestInterface, StaticFactoryInterface
     /**
      * @inheritDoc
      */
+    public function getHeader(string $name, $default = null)
+    {
+        return $this->headers[$name] ?? $default;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function getMethod(): string
     {
         if ($this->method === null) {
@@ -155,13 +171,6 @@ class Request implements RequestInterface, StaticFactoryInterface
         return $this->uri;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getRouteMatch(): ?RouteMatchInterface
-    {
-        return $this->routeMatch;
-    }
 
     /**
      * @inheritDoc
@@ -225,17 +234,6 @@ class Request implements RequestInterface, StaticFactoryInterface
     {
         $clone = clone $this;
         $clone->uri = $uri;
-
-        return $clone;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function withRouteMatch(RouteMatchInterface $routeMatch): RequestInterface
-    {
-        $clone = clone $this;
-        $clone->routeMatch = $routeMatch;
 
         return $clone;
     }

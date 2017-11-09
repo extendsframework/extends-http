@@ -36,7 +36,7 @@ class RouterMiddleware implements MiddlewareInterface
     {
         $match = $this->router->route($request);
         if ($match instanceof RouteMatchInterface) {
-            $request = $request->withRouteMatch($match);
+            $request = $request->andAttribute('routeMatch', $match);
         }
 
         return $chain->proceed($request);

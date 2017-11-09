@@ -27,8 +27,8 @@ class RouterMiddlewareTest extends TestCase
         $request = $this->createMock(RequestInterface::class);
         $request
             ->expects($this->once())
-            ->method('withRouteMatch')
-            ->with($match)
+            ->method('andAttribute')
+            ->with('routeMatch', $match)
             ->willReturnSelf();
 
         $response = $this->createMock(ResponseInterface::class);
