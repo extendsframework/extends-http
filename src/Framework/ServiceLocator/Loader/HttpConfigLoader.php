@@ -63,6 +63,7 @@ class HttpConfigLoader implements LoaderInterface
                     ServerInterface::class => Server::class,
                     RendererMiddleware::class => RendererMiddleware::class,
                     RouterMiddleware::class => RouterMiddleware::class,
+                    ControllerMiddleware::class => ControllerMiddleware::class,
                 ],
             ],
             MiddlewareChainInterface::class => [
