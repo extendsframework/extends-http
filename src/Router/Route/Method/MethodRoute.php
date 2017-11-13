@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Router\Route\Method;
 
 use ExtendsFramework\Http\Request\RequestInterface;
+use ExtendsFramework\Http\Router\Route\AbstractRoute;
+use ExtendsFramework\Http\Router\Route\Method\Exception\MethodNotAllowed;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatch;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
@@ -55,11 +57,12 @@ class MethodRoute implements RouteInterface, StaticFactoryInterface
      */
     public function match(RequestInterface $request, int $pathOffset): ?RouteMatchInterface
     {
-        if (strtoupper($request->getMethod()) === $this->method) {
+        $method = $request->getMethod();
+        if (strtoupper($method) === $this->method) {
             return new RouteMatch($this->parameters);
         }
 
-        return null;
+        throw new MethodNotAllowed($method);
     }
 
     /**

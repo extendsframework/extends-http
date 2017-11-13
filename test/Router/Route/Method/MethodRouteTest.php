@@ -46,15 +46,18 @@ class MethodRouteTest extends TestCase
     }
 
     /**
-     * No match.
+     * Method not allowed.
      *
-     * Test that method GET can not be matched and null will be returned.
+     * Test that method GET is not allowed and an exception will be thrown.
      *
-     * @covers \ExtendsFramework\Http\Router\Route\Method\MethodRoute::factory()
-     * @covers \ExtendsFramework\Http\Router\Route\Method\MethodRoute::__construct()
-     * @covers \ExtendsFramework\Http\Router\Route\Method\MethodRoute::match()
+     * @covers                   \ExtendsFramework\Http\Router\Route\Method\MethodRoute::factory()
+     * @covers                   \ExtendsFramework\Http\Router\Route\Method\MethodRoute::__construct()
+     * @covers                   \ExtendsFramework\Http\Router\Route\Method\MethodRoute::match()
+     * @covers                   \ExtendsFramework\Http\Router\Route\Method\Exception\MethodNotAllowed::__construct()
+     * @expectedException        \ExtendsFramework\Http\Router\Route\Method\Exception\MethodNotAllowed
+     * @expectedExceptionMessage Method "GET" is not allowed.
      */
-    public function testNoMatch(): void
+    public function testMethodNotAllowed(): void
     {
         $request = $this->createMock(RequestInterface::class);
         $request
@@ -66,9 +69,7 @@ class MethodRouteTest extends TestCase
          * @var RequestInterface $request
          */
         $method = new MethodRoute('POST');
-        $match = $method->match($request, 5);
-
-        $this->assertNull($match);
+        $method->match($request, 5);
     }
 
     /**
