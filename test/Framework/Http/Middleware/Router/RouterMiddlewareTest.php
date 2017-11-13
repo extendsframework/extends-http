@@ -6,6 +6,7 @@ namespace ExtendsFramework\Http\Framework\Http\Middleware\Router;
 use ExtendsFramework\Http\Middleware\Chain\MiddlewareChainInterface;
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Response\ResponseInterface;
+use ExtendsFramework\Http\Router\Route\Method\Exception\MethodNotAllowed;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use ExtendsFramework\Http\Router\RouterInterface;
 use PHPUnit\Framework\TestCase;
@@ -94,5 +95,43 @@ class RouterMiddlewareTest extends TestCase
         $processed = $middleware->process($request, $chain);
 
         $this->assertSame($response, $processed);
+    }
+
+    /**
+     * Method not allowed.
+     *
+     * Test that when no route can be matched the chain will be called and returned.
+     *
+     * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::__construct()
+     * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::process()
+     */
+    public function testMethodNotAllowed(): void
+    {
+        $chain = $this->createMock(MiddlewareChainInterface::class);
+
+        $request = $this->createMock(RequestInterface::class);
+
+        $router = $this->createMock(RouterInterface::class);
+        $router
+            ->expects($this->once())
+            ->method('route')
+            ->with($request)
+            ->willThrowException(new MethodNotAllowed('GET'));
+
+        /**
+         * @var RouterInterface          $router
+         * @var RequestInterface         $request
+         * @var MiddlewareChainInterface $chain
+         */
+        $middleware = new RouterMiddleware($router);
+        $response = $middleware->process($request, $chain);
+
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+        if ($response instanceof ResponseInterface) {
+            $this->assertSame(405, $response->getStatusCode());
+            $this->assertSame([
+                'message' => 'Method "GET" is not allowed.',
+            ], $response->getBody());
+        }
     }
 }
