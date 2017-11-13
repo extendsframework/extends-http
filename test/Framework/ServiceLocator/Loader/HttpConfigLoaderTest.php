@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Framework\ServiceLocator\Loader;
 
 use ExtendsFramework\Http\Framework\Http\Middleware\Controller\ControllerMiddleware;
+use ExtendsFramework\Http\Framework\Http\Middleware\Exception\ExceptionMiddleware;
 use ExtendsFramework\Http\Framework\Http\Middleware\NotFound\NotFoundMiddleware;
 use ExtendsFramework\Http\Framework\Http\Middleware\Renderer\RendererMiddleware;
 use ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware;
@@ -70,10 +71,12 @@ class HttpConfigLoaderTest extends TestCase
                     RendererMiddleware::class => RendererMiddleware::class,
                     RouterMiddleware::class => RouterMiddleware::class,
                     ControllerMiddleware::class => ControllerMiddleware::class,
+                    ExceptionMiddleware::class => ExceptionMiddleware::class,
                 ],
             ],
             MiddlewareChainInterface::class => [
                 RendererMiddleware::class => 200,
+                ExceptionMiddleware::class => 190,
                 RouterMiddleware::class => 150,
                 ControllerMiddleware::class => 100,
                 NotFoundMiddleware::class => 50,
