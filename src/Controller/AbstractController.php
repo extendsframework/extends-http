@@ -19,13 +19,28 @@ abstract class AbstractController implements ControllerInterface
     protected $postfix = 'Action';
 
     /**
+     * Dispatch request.
+     *
+     * @var RequestInterface
+     */
+    protected $request;
+
+    /**
+     * Dispatch route match.
+     *
+     * @var RouteMatchInterface
+     */
+    protected $routeMatch;
+
+    /**
      * @inheritDoc
      */
     public function dispatch(RequestInterface $request, RouteMatchInterface $routeMatch): ResponseInterface
     {
-        $method = $this->getMethod($routeMatch);
+        $this->request = $request;
+        $this->routeMatch = $routeMatch;
 
-        return $method($request, $routeMatch);
+        return $this->getMethod($routeMatch)();
     }
 
     /**
@@ -81,5 +96,25 @@ abstract class AbstractController implements ControllerInterface
         $action = lcfirst($action);
 
         return $action;
+    }
+
+    /**
+     * Get request.
+     *
+     * @return RequestInterface
+     */
+    protected function getRequest(): RequestInterface
+    {
+        return $this->request;
+    }
+
+    /**
+     * Get route match.
+     *
+     * @return RouteMatchInterface
+     */
+    protected function getRouteMatch(): RouteMatchInterface
+    {
+        return $this->routeMatch;
     }
 }

@@ -20,6 +20,8 @@ class AbstractControllerTest extends TestCase
      * @covers \ExtendsFramework\Http\Controller\AbstractController::getMethod()
      * @covers \ExtendsFramework\Http\Controller\AbstractController::getAction()
      * @covers \ExtendsFramework\Http\Controller\AbstractController::normalizeAction()
+     * @covers \ExtendsFramework\Http\Controller\AbstractController::getRequest()
+     * @covers \ExtendsFramework\Http\Controller\AbstractController::getRouteMatch()
      */
     public function testDispatch(): void
     {
@@ -30,7 +32,7 @@ class AbstractControllerTest extends TestCase
             ->expects($this->once())
             ->method('getParameters')
             ->willReturn([
-                'action' => 'foo.not-found'
+                'action' => 'foo.not-found',
             ]);
 
         /**
@@ -41,6 +43,12 @@ class AbstractControllerTest extends TestCase
         $response = $controller->dispatch($request, $match);
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
+        if ($response instanceof ResponseInterface) {
+            $this->assertSame([
+                'request' => $request,
+                'routeMatch' => $match,
+            ], $response->getBody());
+        }
     }
 
     /**
@@ -94,7 +102,7 @@ class AbstractControllerTest extends TestCase
             ->expects($this->once())
             ->method('getParameters')
             ->willReturn([
-                'action' => 'bar'
+                'action' => 'bar',
             ]);
 
         /**
@@ -113,6 +121,10 @@ class ControllerStub extends AbstractController
      */
     protected function fooNotFoundAction(): ResponseInterface
     {
-        return new Response();
+        return (new Response())
+            ->withBody([
+                'request' => $this->getRequest(),
+                'routeMatch' => $this->getRouteMatch(),
+            ]);
     }
 }
