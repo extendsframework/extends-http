@@ -42,17 +42,16 @@ class MethodRoute implements RouteInterface, StaticFactoryInterface
     /**
      * Create a method route.
      *
-     * To allow multiple methods at once use a comma separated string for $method. For example: PUT, POST.
-     *
-     * @param string $method
-     * @param array  $parameters
+     * @param array $methods
+     * @param array $parameters
      */
-    public function __construct(string $method, array $parameters = null)
+    public function __construct(array $methods, array $parameters = null)
     {
-        $this->methods = array_map(function (string $method) {
-            return strtoupper(trim($method));
-        }, explode(',', $method));
         $this->parameters = $parameters ?? [];
+
+        foreach ($methods as $method) {
+            $this->addMethod($method);
+        }
     }
 
     /**
@@ -69,10 +68,23 @@ class MethodRoute implements RouteInterface, StaticFactoryInterface
     }
 
     /**
+     * Add $method to route.
+     *
+     * @param string $method
+     * @return MethodRoute
+     */
+    public function addMethod(string $method): MethodRoute
+    {
+        $this->methods[] = strtoupper(trim($method));
+
+        return $this;
+    }
+
+    /**
      * @inheritDoc
      */
     public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): RouteInterface
     {
-        return new static($extra['method'], $extra['parameters'] ?? []);
+        return new static((array)$extra['method'], $extra['parameters'] ?? []);
     }
 }

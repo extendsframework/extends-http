@@ -18,6 +18,7 @@ class MethodRouteTest extends TestCase
      *
      * @covers \ExtendsFramework\Http\Router\Route\Method\MethodRoute::factory()
      * @covers \ExtendsFramework\Http\Router\Route\Method\MethodRoute::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Method\MethodRoute::addMethod()
      * @covers \ExtendsFramework\Http\Router\Route\Method\MethodRoute::match()
      */
     public function testMatch(): void
@@ -31,7 +32,7 @@ class MethodRouteTest extends TestCase
         /**
          * @var RequestInterface $request
          */
-        $method = new MethodRoute('GET, POST, PUT', [
+        $method = new MethodRoute(['GET', 'POST', 'PUT'], [
             'foo' => 'bar',
         ]);
         $match = $method->match($request, 5);
@@ -52,6 +53,7 @@ class MethodRouteTest extends TestCase
      *
      * @covers                   \ExtendsFramework\Http\Router\Route\Method\MethodRoute::factory()
      * @covers                   \ExtendsFramework\Http\Router\Route\Method\MethodRoute::__construct()
+     * @covers                   \ExtendsFramework\Http\Router\Route\Method\MethodRoute::addMethod()
      * @covers                   \ExtendsFramework\Http\Router\Route\Method\MethodRoute::match()
      * @covers                   \ExtendsFramework\Http\Router\Route\Method\Exception\MethodNotAllowed::__construct()
      * @expectedException        \ExtendsFramework\Http\Router\Route\Method\Exception\MethodNotAllowed
@@ -68,7 +70,7 @@ class MethodRouteTest extends TestCase
         /**
          * @var RequestInterface $request
          */
-        $method = new MethodRoute('POST');
+        $method = new MethodRoute(['POST']);
         $method->match($request, 5);
     }
 
@@ -79,6 +81,7 @@ class MethodRouteTest extends TestCase
      *
      * @covers \ExtendsFramework\Http\Router\Route\Method\MethodRoute::factory()
      * @covers \ExtendsFramework\Http\Router\Route\Method\MethodRoute::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Method\MethodRoute::addMethod()
      */
     public function testFactory(): void
     {

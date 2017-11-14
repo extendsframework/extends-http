@@ -5,41 +5,42 @@ namespace ExtendsFramework\Http\Router;
 
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Router\Exception\NotFound;
+use ExtendsFramework\Http\Router\Route\Method\Exception\MethodNotAllowed;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
-use SplPriorityQueue;
 
 class Router implements RouterInterface
 {
     /**
      * Routes to match.
      *
-     * @var SplPriorityQueue
+     * @var RouteInterface[]
      */
-    protected $routes;
-
-    /**
-     * Create a new router with $routes.
-     *
-     * @param SplPriorityQueue $routes
-     */
-    public function __construct(SplPriorityQueue $routes = null)
-    {
-        $this->routes = $routes ?: new SplPriorityQueue();
-    }
+    protected $routes = [];
 
     /**
      * @inheritDoc
      */
     public function route(RequestInterface $request): RouteMatchInterface
     {
-        foreach (clone $this->routes as $route) {
-            if ($route instanceof RouteInterface) {
+        $notAllowed = null;
+        foreach ($this->routes as $route) {
+            try {
                 $match = $route->match($request, 0);
                 if ($match instanceof RouteMatchInterface) {
                     return $match;
                 }
+            } catch (MethodNotAllowed $exception) {
+                if ($notAllowed instanceof MethodNotAllowed) {
+                    $notAllowed->addAllowedMethods($exception->getAllowedMethods());
+                } else {
+                    $notAllowed = $exception;
+                }
             }
+        }
+
+        if ($notAllowed instanceof MethodNotAllowed) {
+            throw $notAllowed;
         }
 
         throw new NotFound($request);
@@ -48,15 +49,12 @@ class Router implements RouterInterface
     /**
      * Add $route to router with $priority.
      *
-     * Route with a higher $priority will be processed earlier.
-     *
      * @param RouteInterface $route
-     * @param int            $priority
      * @return Router
      */
-    public function addRoute(RouteInterface $route, int $priority = null): Router
+    public function addRoute(RouteInterface $route): Router
     {
-        $this->routes->insert($route, $priority ?: 1);
+        $this->routes[] = $route;
 
         return $this;
     }

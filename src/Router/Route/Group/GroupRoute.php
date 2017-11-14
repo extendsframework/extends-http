@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Router\Route\Group;
 
 use ExtendsFramework\Http\Request\RequestInterface;
+use ExtendsFramework\Http\Router\Route\Method\Exception\MethodNotAllowed;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryInterface;
@@ -54,15 +55,28 @@ class GroupRoute implements RouteInterface, StaticFactoryInterface
             return null;
         }
 
-        foreach ($this->children as $child) {
-            $childMatch = $child->match($request, $match->getPathOffset());
-            if ($childMatch instanceof RouteMatchInterface) {
-                return $match->merge($childMatch);
+        $notAllowed = null;
+        foreach ($this->children as $index => $child) {
+            try {
+                $childMatch = $child->match($request, $match->getPathOffset());
+                if ($childMatch instanceof RouteMatchInterface) {
+                    return $match->merge($childMatch);
+                }
+            } catch (MethodNotAllowed $exception) {
+                if ($notAllowed instanceof MethodNotAllowed) {
+                    $notAllowed->addAllowedMethods($exception->getAllowedMethods());
+                } else {
+                    $notAllowed = $exception;
+                }
             }
         }
 
         if ($this->abstract === false) {
             return $match;
+        }
+
+        if ($notAllowed instanceof MethodNotAllowed) {
+            throw $notAllowed;
         }
 
         return null;

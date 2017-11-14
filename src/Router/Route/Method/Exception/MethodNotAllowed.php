@@ -38,6 +38,19 @@ class MethodNotAllowed extends LogicException implements RouteException
      */
     public function getAllowedMethods(): array
     {
-        return array_unique($this->allowedMethods);
+        return array_merge(array_unique($this->allowedMethods));
+    }
+
+    /**
+     * Add allowed $methods.
+     *
+     * @param array $methods
+     * @return MethodNotAllowed
+     */
+    public function addAllowedMethods(array $methods): MethodNotAllowed
+    {
+        $this->allowedMethods = array_merge($this->allowedMethods, $methods);
+
+        return $this;
     }
 }
