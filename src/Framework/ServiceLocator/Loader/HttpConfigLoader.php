@@ -57,7 +57,6 @@ class HttpConfigLoader implements LoaderInterface
                     SchemeRoute::class => SchemeRoute::class,
                 ],
                 InvokableResolver::class => [
-                    NotFoundMiddleware::class => NotFoundMiddleware::class,
                     RendererInterface::class => JsonRenderer::class,
                 ],
                 ReflectionResolver::class => [
@@ -73,7 +72,6 @@ class HttpConfigLoader implements LoaderInterface
                 ExceptionMiddleware::class => 190,
                 RouterMiddleware::class => 150,
                 ControllerMiddleware::class => 100,
-                NotFoundMiddleware::class => 50,
             ],
             RouterInterface::class => [
                 'routes' => [],
