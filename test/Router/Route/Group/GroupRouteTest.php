@@ -4,8 +4,6 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Router\Route\Group;
 
 use ExtendsFramework\Http\Request\RequestInterface;
-use ExtendsFramework\Http\Router\Route\Method\Exception\MethodNotAllowed;
-use ExtendsFramework\Http\Router\Route\Method\MethodRoute;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
@@ -19,8 +17,10 @@ class GroupRouteTest extends TestCase
      * Test that group route will match child route for request and return RouteMatchInterface.
      *
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
-     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::addChild()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::match()
+     * @covers \ExtendsFramework\Http\Router\Routes::addRoute()
+     * @covers \ExtendsFramework\Http\Router\Routes::matchRoutes()
+     * @covers \ExtendsFramework\Http\Router\Routes::getRoutes()
      */
     public function testChildRoute(): void
     {
@@ -63,7 +63,7 @@ class GroupRouteTest extends TestCase
          */
         $group = new GroupRoute($route1);
         $matched = $group
-            ->addChild($route2)
+            ->addRoute($route2)
             ->match($request, 5);
 
         $this->assertInstanceOf(RouteMatchInterface::class, $matched);
@@ -76,6 +76,9 @@ class GroupRouteTest extends TestCase
      *
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::match()
+     * @covers \ExtendsFramework\Http\Router\Routes::addRoute()
+     * @covers \ExtendsFramework\Http\Router\Routes::matchRoutes()
+     * @covers \ExtendsFramework\Http\Router\Routes::getRoutes()
      */
     public function testNonAbstractRoute(): void
     {
@@ -107,6 +110,9 @@ class GroupRouteTest extends TestCase
      *
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::match()
+     * @covers \ExtendsFramework\Http\Router\Routes::addRoute()
+     * @covers \ExtendsFramework\Http\Router\Routes::matchRoutes()
+     * @covers \ExtendsFramework\Http\Router\Routes::getRoutes()
      */
     public function testAbstractRoute(): void
     {
@@ -138,6 +144,9 @@ class GroupRouteTest extends TestCase
      *
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::match()
+     * @covers \ExtendsFramework\Http\Router\Routes::addRoute()
+     * @covers \ExtendsFramework\Http\Router\Routes::matchRoutes()
+     * @covers \ExtendsFramework\Http\Router\Routes::getRoutes()
      */
     public function testNoRouteMatch(): void
     {
@@ -158,116 +167,6 @@ class GroupRouteTest extends TestCase
         $matched = $group->match($request, 0);
 
         $this->assertNull($matched);
-    }
-
-    /**
-     * Method not allowed.
-     *
-     * Test that method is not allowed by multiple child routes and exception will thrown with allowed methods.
-     *
-     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
-     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::addChild()
-     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::match()
-     */
-    public function testMethodNotAllowed(): void
-    {
-        $request = $this->createMock(RequestInterface::class);
-
-        $match = $this->createMock(RouteMatchInterface::class);
-
-        $route1 = $this->createMock(MethodRoute::class);
-        $route1
-            ->expects($this->once())
-            ->method('match')
-            ->with($request, 0)
-            ->willReturn($match);
-
-        $route2 = $this->createMock(MethodRoute::class);
-        $route2
-            ->expects($this->once())
-            ->method('match')
-            ->with($request, 0)
-            ->willThrowException(new MethodNotAllowed('GET', ['POST', 'PUT']));
-
-        $route3 = $this->createMock(MethodRoute::class);
-        $route3
-            ->expects($this->once())
-            ->method('match')
-            ->with($request, 0)
-            ->willThrowException(new MethodNotAllowed('GET', ['DELETE']));
-
-        /**
-         * @var RouteInterface   $route1
-         * @var RouteInterface   $route2
-         * @var RouteInterface   $route3
-         * @var RequestInterface $request
-         */
-        $group = new GroupRoute($route1);
-        $group
-            ->addChild($route2)
-            ->addChild($route3);
-
-        try {
-            $group->match($request, 0);
-        } catch (MethodNotAllowed $exception) {
-            $this->assertSame(['POST', 'PUT', 'DELETE'], $exception->getAllowedMethods());
-        }
-    }
-
-    /**
-     * Method not allowed.
-     *
-     * Test that method is allowed after failed child route and match will be returned.
-     *
-     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
-     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::addChild()
-     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::match()
-     */
-    public function testMethodAllowed(): void
-    {
-        $request = $this->createMock(RequestInterface::class);
-
-        $match = $this->createMock(RouteMatchInterface::class);
-        $match
-            ->expects($this->once())
-            ->method('merge')
-            ->with($match)
-            ->willReturnSelf();
-
-        $route1 = $this->createMock(MethodRoute::class);
-        $route1
-            ->expects($this->once())
-            ->method('match')
-            ->with($request, 0)
-            ->willReturn($match);
-
-        $route2 = $this->createMock(MethodRoute::class);
-        $route2
-            ->expects($this->once())
-            ->method('match')
-            ->with($request, 0)
-            ->willThrowException(new MethodNotAllowed('GET', ['POST', 'PUT']));
-
-        $route3 = $this->createMock(MethodRoute::class);
-        $route3
-            ->expects($this->once())
-            ->method('match')
-            ->with($request, 0)
-            ->willReturn($match);
-
-        /**
-         * @var RouteInterface   $route1
-         * @var RouteInterface   $route2
-         * @var RouteInterface   $route3
-         * @var RequestInterface $request
-         */
-        $group = new GroupRoute($route1);
-        $matched = $group
-            ->addChild($route2)
-            ->addChild($route3)
-            ->match($request, 0);
-
-        $this->assertSame($match, $matched);
     }
 
     /**

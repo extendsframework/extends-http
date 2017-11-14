@@ -60,7 +60,7 @@ class RouterFactoryTest extends TestCase
 
         $group = $this->createMock(GroupRoute::class);
         $group
-            ->method('addChild')
+            ->method('addRoute')
             ->with($route2)
             ->willReturnSelf();
 

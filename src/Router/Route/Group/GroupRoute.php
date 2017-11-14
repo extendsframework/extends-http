@@ -4,27 +4,22 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Router\Route\Group;
 
 use ExtendsFramework\Http\Request\RequestInterface;
-use ExtendsFramework\Http\Router\Route\Method\Exception\MethodNotAllowed;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
+use ExtendsFramework\Http\Router\Routes;
 use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryInterface;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 
 class GroupRoute implements RouteInterface, StaticFactoryInterface
 {
+    use Routes;
+
     /**
      * If this can be matched.
      *
      * @var bool
      */
     protected $abstract;
-
-    /**
-     * Child routes to match.
-     *
-     * @var RouteInterface[]
-     */
-    protected $children = [];
 
     /**
      * Route to match.
@@ -50,33 +45,18 @@ class GroupRoute implements RouteInterface, StaticFactoryInterface
      */
     public function match(RequestInterface $request, int $pathOffset): ?RouteMatchInterface
     {
-        $match = $this->route->match($request, $pathOffset);
-        if (!$match instanceof RouteMatchInterface) {
+        $outer = $this->route->match($request, $pathOffset);
+        if (!$outer instanceof RouteMatchInterface) {
             return null;
         }
 
-        $notAllowed = null;
-        foreach ($this->children as $index => $child) {
-            try {
-                $childMatch = $child->match($request, $match->getPathOffset());
-                if ($childMatch instanceof RouteMatchInterface) {
-                    return $match->merge($childMatch);
-                }
-            } catch (MethodNotAllowed $exception) {
-                if ($notAllowed instanceof MethodNotAllowed) {
-                    $notAllowed->addAllowedMethods($exception->getAllowedMethods());
-                } else {
-                    $notAllowed = $exception;
-                }
-            }
+        $inner = $this->matchRoutes($request, $outer->getPathOffset());
+        if ($inner instanceof RouteMatchInterface) {
+            return $outer->merge($inner);
         }
 
         if ($this->abstract === false) {
-            return $match;
-        }
-
-        if ($notAllowed instanceof MethodNotAllowed) {
-            throw $notAllowed;
+            return $outer;
         }
 
         return null;
@@ -88,18 +68,5 @@ class GroupRoute implements RouteInterface, StaticFactoryInterface
     public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): RouteInterface
     {
         return new static($extra['route'], $extra['abstract'] ?? null);
-    }
-
-    /**
-     * Add a child route.
-     *
-     * @param RouteInterface $route
-     * @return GroupRoute
-     */
-    public function addChild(RouteInterface $route): GroupRoute
-    {
-        $this->children[] = $route;
-
-        return $this;
     }
 }
