@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Router\Route\Method;
 
 use ExtendsFramework\Http\Request\RequestInterface;
-use ExtendsFramework\Http\Router\Route\AbstractRoute;
 use ExtendsFramework\Http\Router\Route\Method\Exception\MethodNotAllowed;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatch;
@@ -62,7 +61,7 @@ class MethodRoute implements RouteInterface, StaticFactoryInterface
             return new RouteMatch($this->parameters);
         }
 
-        throw new MethodNotAllowed($method);
+        throw new MethodNotAllowed($method, [$this->method]);
     }
 
     /**
