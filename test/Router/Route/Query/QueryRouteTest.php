@@ -66,9 +66,12 @@ class QueryRouteTest extends TestCase
      *
      * Test that route will not match empty query and return null.
      *
-     * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::__construct()
-     * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::match()
-     * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::getPattern()
+     * @covers                   \ExtendsFramework\Http\Router\Route\Query\QueryRoute::__construct()
+     * @covers                   \ExtendsFramework\Http\Router\Route\Query\QueryRoute::match()
+     * @covers                   \ExtendsFramework\Http\Router\Route\Query\QueryRoute::getPattern()
+     * @covers                   \ExtendsFramework\Http\Router\Route\Query\Exception\InvalidQueryString::__construct()
+     * @expectedException        \ExtendsFramework\Http\Router\Route\Query\Exception\InvalidQueryString
+     * @expectedExceptionMessage Query string parameter "limit" value "foo" does not match constraint "\d+".
      */
     public function testNoMatch(): void
     {
@@ -92,9 +95,7 @@ class QueryRouteTest extends TestCase
         $path = new QueryRoute([
             'limit' => '\d+',
         ]);
-        $match = $path->match($request, 4);
-
-        $this->assertNull($match);
+        $path->match($request, 4);
     }
 
     /**
@@ -120,7 +121,7 @@ class QueryRouteTest extends TestCase
             ],
             'parameters' => [
                 'offset' => '0',
-            ]
+            ],
         ]);
 
         $this->assertInstanceOf(RouteInterface::class, $route);

@@ -8,6 +8,7 @@ use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Response\ResponseInterface;
 use ExtendsFramework\Http\Router\Exception\NotFound;
 use ExtendsFramework\Http\Router\Route\Method\Exception\MethodNotAllowed;
+use ExtendsFramework\Http\Router\Route\Query\Exception\InvalidQueryString;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use ExtendsFramework\Http\Router\RouterInterface;
 use PHPUnit\Framework\TestCase;
@@ -126,5 +127,41 @@ class RouterMiddlewareTest extends TestCase
         $this->assertSame([
             'Allow' => 'PUT, POST',
         ], $response->getHeaders());
+    }
+
+    /**
+     * Invalid query string.
+     *
+     * Test that invalid query string exception will be caught and returned as a 400 response.
+     *
+     * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::__construct()
+     * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::process()
+     */
+    public function testInvalidQueryString(): void
+    {
+        $chain = $this->createMock(MiddlewareChainInterface::class);
+
+        $request = $this->createMock(RequestInterface::class);
+
+        $router = $this->createMock(RouterInterface::class);
+        $router
+            ->expects($this->once())
+            ->method('route')
+            ->with($request)
+            ->willThrowException(new InvalidQueryString('limit', 'foo', '\d+'));
+
+        /**
+         * @var RouterInterface          $router
+         * @var RequestInterface         $request
+         * @var MiddlewareChainInterface $chain
+         */
+        $middleware = new RouterMiddleware($router);
+        $response = $middleware->process($request, $chain);
+
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertSame([
+            'message' => 'Query string parameter "limit" value "foo" does not match constraint "\d+".',
+        ], $response->getBody());
     }
 }

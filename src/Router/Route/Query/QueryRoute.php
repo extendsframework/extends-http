@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Router\Route\Query;
 
 use ExtendsFramework\Http\Request\RequestInterface;
+use ExtendsFramework\Http\Router\Route\Query\Exception\InvalidQueryString;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatch;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
@@ -46,11 +47,11 @@ class QueryRoute implements RouteInterface, StaticFactoryInterface
         $matched = [];
         foreach ($this->constraints as $path => $constraint) {
             if (array_key_exists($path, $query)) {
-                if ((bool)preg_match($this->getPattern($constraint), $query[$path], $matches) === true) {
-                    $matched[$path] = current($matches);
-                } else {
-                    return null;
+                if ((bool)preg_match($this->getPattern($constraint), $query[$path], $matches) === false) {
+                    throw new InvalidQueryString($path, $query[$path], $constraint);
                 }
+
+                $matched[$path] = current($matches);
             }
         }
 
