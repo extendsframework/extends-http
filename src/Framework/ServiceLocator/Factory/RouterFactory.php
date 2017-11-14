@@ -67,13 +67,14 @@ class RouterFactory implements ServiceFactoryInterface
      */
     protected function createGroup(ServiceLocatorInterface $serviceLocator, RouteInterface $route, array $children, bool $abstract = null): RouteInterface
     {
+        /** @var GroupRoute $group */
         $group = $serviceLocator->getService(GroupRoute::class, [
             'route' => $route,
             'abstract' => $abstract,
         ]);
 
         foreach ($children as $child) {
-            $group->addChild(
+            $group->addRoute(
                 $this->createRoute($serviceLocator, $child)
             );
         }
