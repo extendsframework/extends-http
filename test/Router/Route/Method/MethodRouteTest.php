@@ -31,7 +31,7 @@ class MethodRouteTest extends TestCase
         /**
          * @var RequestInterface $request
          */
-        $method = new MethodRoute('POST', [
+        $method = new MethodRoute('GET, POST, PUT', [
             'foo' => 'bar',
         ]);
         $match = $method->match($request, 5);

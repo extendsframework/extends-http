@@ -26,11 +26,11 @@ class MethodRoute implements RouteInterface, StaticFactoryInterface
     public const METHOD_CONNECT = 'CONNECT';
 
     /**
-     * Method to match.
+     * Methods to match.
      *
-     * @var string
+     * @var array
      */
-    protected $method;
+    protected $methods;
 
     /**
      * Default parameters to return.
@@ -42,12 +42,16 @@ class MethodRoute implements RouteInterface, StaticFactoryInterface
     /**
      * Create a method route.
      *
+     * To allow multiple methods at once use a comma separated string for $method. For example: PUT, POST.
+     *
      * @param string $method
      * @param array  $parameters
      */
     public function __construct(string $method, array $parameters = null)
     {
-        $this->method = strtoupper(trim($method));
+        $this->methods = array_map(function (string $method) {
+            return strtoupper(trim($method));
+        }, explode(',', $method));
         $this->parameters = $parameters ?? [];
     }
 
@@ -57,11 +61,11 @@ class MethodRoute implements RouteInterface, StaticFactoryInterface
     public function match(RequestInterface $request, int $pathOffset): ?RouteMatchInterface
     {
         $method = $request->getMethod();
-        if (strtoupper($method) === $this->method) {
+        if (in_array(strtoupper($method), $this->methods, true) === true) {
             return new RouteMatch($this->parameters);
         }
 
-        throw new MethodNotAllowed($method, [$this->method]);
+        throw new MethodNotAllowed($method, $this->methods);
     }
 
     /**
