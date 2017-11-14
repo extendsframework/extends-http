@@ -11,11 +11,11 @@ interface RouterInterface
     /**
      * Route $request to corresponding controller.
      *
-     * When $request can not be matched, null will be returned.
+     * When $request can not be matched, and exception will be thrown. A route can throw an more detailed exception.
      *
      * @param RequestInterface $request
      * @return RouteMatchInterface
      * @throws RouterException
      */
-    public function route(RequestInterface $request): ?RouteMatchInterface;
+    public function route(RequestInterface $request): RouteMatchInterface;
 }

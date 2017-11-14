@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Router;
 
 use ExtendsFramework\Http\Request\RequestInterface;
+use ExtendsFramework\Http\Router\Exception\NotFound;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use SplPriorityQueue;
@@ -30,7 +31,7 @@ class Router implements RouterInterface
     /**
      * @inheritDoc
      */
-    public function route(RequestInterface $request): ?RouteMatchInterface
+    public function route(RequestInterface $request): RouteMatchInterface
     {
         foreach (clone $this->routes as $route) {
             if ($route instanceof RouteInterface) {
@@ -41,7 +42,7 @@ class Router implements RouterInterface
             }
         }
 
-        return null;
+        throw new NotFound($request);
     }
 
     /**
