@@ -6,6 +6,7 @@ namespace ExtendsFramework\Http\Framework\Http\Middleware\Router;
 use ExtendsFramework\Http\Middleware\Chain\MiddlewareChainInterface;
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Response\ResponseInterface;
+use ExtendsFramework\Http\Router\Exception\NotFound;
 use ExtendsFramework\Http\Router\Route\Method\Exception\MethodNotAllowed;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use ExtendsFramework\Http\Router\RouterInterface;
@@ -59,32 +60,25 @@ class RouterMiddlewareTest extends TestCase
     }
 
     /**
-     * No match.
+     * Not found.
      *
-     * Test that when no route can be matched the chain will be called and returned.
+     * Test that when method is not allowed a 404 Not Found response will be returned.
      *
      * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::__construct()
      * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::process()
      */
-    public function testNoMatch(): void
+    public function testNotFound(): void
     {
-        $request = $this->createMock(RequestInterface::class);
-
-        $response = $this->createMock(ResponseInterface::class);
-
         $chain = $this->createMock(MiddlewareChainInterface::class);
-        $chain
-            ->expects($this->once())
-            ->method('proceed')
-            ->with($request)
-            ->willReturn($response);
+
+        $request = $this->createMock(RequestInterface::class);
 
         $router = $this->createMock(RouterInterface::class);
         $router
             ->expects($this->once())
             ->method('route')
             ->with($request)
-            ->willReturn(null);
+            ->willThrowException(new NotFound($request));
 
         /**
          * @var RouterInterface          $router
@@ -92,15 +86,16 @@ class RouterMiddlewareTest extends TestCase
          * @var MiddlewareChainInterface $chain
          */
         $middleware = new RouterMiddleware($router);
-        $processed = $middleware->process($request, $chain);
+        $response = $middleware->process($request, $chain);
 
-        $this->assertSame($response, $processed);
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertSame(404, $response->getStatusCode());
     }
 
     /**
      * Method not allowed.
      *
-     * Test that when no route can be matched the chain will be called and returned.
+     * Test that when method is not allowed a 405 Method Not Allowed response will be returned.
      *
      * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::__construct()
      * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::process()
@@ -116,7 +111,7 @@ class RouterMiddlewareTest extends TestCase
             ->expects($this->once())
             ->method('route')
             ->with($request)
-            ->willThrowException(new MethodNotAllowed('GET'));
+            ->willThrowException(new MethodNotAllowed('GET', ['PUT', 'POST']));
 
         /**
          * @var RouterInterface          $router
@@ -127,11 +122,9 @@ class RouterMiddlewareTest extends TestCase
         $response = $middleware->process($request, $chain);
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        if ($response instanceof ResponseInterface) {
-            $this->assertSame(405, $response->getStatusCode());
-            $this->assertSame([
-                'message' => 'Method "GET" is not allowed.',
-            ], $response->getBody());
-        }
+        $this->assertSame(405, $response->getStatusCode());
+        $this->assertSame([
+            'Allow' => 'PUT, POST',
+        ], $response->getHeaders());
     }
 }

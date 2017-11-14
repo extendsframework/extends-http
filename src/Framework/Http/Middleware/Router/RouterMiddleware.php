@@ -8,7 +8,9 @@ use ExtendsFramework\Http\Middleware\MiddlewareInterface;
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Response\Response;
 use ExtendsFramework\Http\Response\ResponseInterface;
+use ExtendsFramework\Http\Router\Exception\NotFound;
 use ExtendsFramework\Http\Router\Route\Method\Exception\MethodNotAllowed;
+use ExtendsFramework\Http\Router\Route\Query\Exception\InvalidParameterValue;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use ExtendsFramework\Http\Router\RouterInterface;
 
@@ -41,9 +43,9 @@ class RouterMiddleware implements MiddlewareInterface
         } catch (MethodNotAllowed $exception) {
             return (new Response())
                 ->withStatusCode(405)
-                ->withBody([
-                    'message' => $exception->getMessage(),
-                ]);
+                ->withHeader('Allow', implode(', ', $exception->getAllowedMethods()));
+        } catch (NotFound $exception) {
+            return (new Response())->withStatusCode(404);
         }
 
         if ($match instanceof RouteMatchInterface) {
