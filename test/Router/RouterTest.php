@@ -90,8 +90,11 @@ class RouterTest extends TestCase
      *
      * Test that router can not match route and will return null.
      *
-     * @covers \ExtendsFramework\Http\Router\Router::__construct()
-     * @covers \ExtendsFramework\Http\Router\Router::route()
+     * @covers                   \ExtendsFramework\Http\Router\Router::__construct()
+     * @covers                   \ExtendsFramework\Http\Router\Router::route()
+     * @covers                   \ExtendsFramework\Http\Router\Exception\NotFound::__construct()
+     * @expectedException        \ExtendsFramework\Http\Router\Exception\NotFound
+     * @expectedExceptionMessage
      */
     public function testNoMatch(): void
     {
@@ -101,8 +104,6 @@ class RouterTest extends TestCase
          * @var RequestInterface $request
          */
         $router = new Router();
-        $match = $router->route($request);
-
-        $this->assertNull($match);
+        $router->route($request);
     }
 }
