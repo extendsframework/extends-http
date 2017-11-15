@@ -112,6 +112,7 @@ class MethodRouteTest extends TestCase
         $this->assertSame('HEAD', MethodRoute::METHOD_HEAD);
         $this->assertSame('POST', MethodRoute::METHOD_POST);
         $this->assertSame('PUT', MethodRoute::METHOD_PUT);
+        $this->assertSame('PATCH', MethodRoute::METHOD_PATCH);
         $this->assertSame('DELETE', MethodRoute::METHOD_DELETE);
         $this->assertSame('TRACE', MethodRoute::METHOD_TRACE);
         $this->assertSame('CONNECT', MethodRoute::METHOD_CONNECT);
