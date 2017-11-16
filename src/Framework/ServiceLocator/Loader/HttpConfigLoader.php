@@ -5,7 +5,6 @@ namespace ExtendsFramework\Http\Framework\ServiceLocator\Loader;
 
 use ExtendsFramework\Http\Framework\Http\Middleware\Controller\ControllerMiddleware;
 use ExtendsFramework\Http\Framework\Http\Middleware\Exception\ExceptionMiddleware;
-use ExtendsFramework\Http\Framework\Http\Middleware\NotFound\NotFoundMiddleware;
 use ExtendsFramework\Http\Framework\Http\Middleware\Renderer\RendererMiddleware;
 use ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware;
 use ExtendsFramework\Http\Framework\ServiceLocator\Factory\MiddlewareChainFactory;
