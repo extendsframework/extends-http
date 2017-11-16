@@ -15,7 +15,8 @@ class PathRouteTest extends TestCase
     /**
      * Match.
      *
-     * Test that path '/foo/33/bar/baz' will match '/:id/bar' and return an instance of RouteMatchInterface.
+     * Test that path '/foo/:first_name/bar' will match '/:first_name/bar' and return an instance of
+     * RouteMatchInterface.
      *
      * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::match()
@@ -28,7 +29,7 @@ class PathRouteTest extends TestCase
         $uri
             ->expects($this->once())
             ->method('getPath')
-            ->willReturn('/foo/John/bar/baz');
+            ->willReturn('/foo/John/bar');
 
         $request = $this->createMock(RequestInterface::class);
         $request
@@ -91,6 +92,74 @@ class PathRouteTest extends TestCase
     }
 
     /**
+     * Strict mode.
+     *
+     * Test that path must be a exact match.
+     *
+     * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::setStrict()
+     * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::match()
+     * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::getPattern()
+     */
+    public function testStrictMode(): void
+    {
+        $uri = $this->createMock(UriInterface::class);
+        $uri
+            ->expects($this->once())
+            ->method('getPath')
+            ->willReturn('/foo/bar/baz');
+
+        $request = $this->createMock(RequestInterface::class);
+        $request
+            ->expects($this->once())
+            ->method('getUri')
+            ->willReturn($uri);
+
+        /**
+         * @var RequestInterface $request
+         */
+        $path = new PathRoute('/foo/bar');
+        $match = $path->match($request, 0);
+
+        $this->assertNull($match);
+    }
+
+    /**
+     * Non strict mode.
+     *
+     * Test that path can have offset left and still matches.
+     *
+     * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::setStrict()
+     * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::match()
+     * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::getPattern()
+     */
+    public function testNonStrictMode(): void
+    {
+        $uri = $this->createMock(UriInterface::class);
+        $uri
+            ->expects($this->once())
+            ->method('getPath')
+            ->willReturn('/foo/bar/baz');
+
+        $request = $this->createMock(RequestInterface::class);
+        $request
+            ->expects($this->once())
+            ->method('getUri')
+            ->willReturn($uri);
+
+        /**
+         * @var RequestInterface $request
+         */
+        $path = new PathRoute('/foo/bar');
+        $match = $path
+            ->setStrict(false)
+            ->match($request, 0);
+
+        $this->assertInstanceOf(RouteMatchInterface::class, $match);
+    }
+
+    /**
      * Factory.
      *
      * Test that factory will return an instance of RouteInterface.
@@ -112,7 +181,7 @@ class PathRouteTest extends TestCase
             ],
             'parameters' => [
                 'foo' => 'bar',
-            ]
+            ],
         ]);
 
         $this->assertInstanceOf(RouteInterface::class, $route);

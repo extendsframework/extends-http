@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Router\Route\Group;
 
 use ExtendsFramework\Http\Request\RequestInterface;
+use ExtendsFramework\Http\Router\Route\Path\PathRoute;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
@@ -167,6 +168,63 @@ class GroupRouteTest extends TestCase
         $matched = $group->match($request, 0);
 
         $this->assertNull($matched);
+    }
+
+    /**
+     * Path route.
+     *
+     * Test that outer PathRoute will be set to non strict mode to match any path child routes.
+     *
+     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::match()
+     * @covers \ExtendsFramework\Http\Router\Routes::addRoute()
+     * @covers \ExtendsFramework\Http\Router\Routes::matchRoutes()
+     * @covers \ExtendsFramework\Http\Router\Routes::getRoutes()
+     */
+    public function testPathRoute(): void
+    {
+        $request = $this->createMock(RequestInterface::class);
+
+        $match2 = $this->createMock(RouteMatchInterface::class);
+
+        $route2 = $this->createMock(PathRoute::class);
+        $route2
+            ->expects($this->once())
+            ->method('match')
+            ->with($request, 0)
+            ->willReturn($match2);
+
+        $match1 = $this->createMock(RouteMatchInterface::class);
+        $match1
+            ->expects($this->once())
+            ->method('merge')
+            ->with($match2)
+            ->willReturn($this->createMock(RouteMatchInterface::class));
+
+        $route1 = $this->createMock(PathRoute::class);
+        $route1
+            ->expects($this->once())
+            ->method('setStrict')
+            ->with(false)
+            ->willReturnSelf();
+
+        $route1
+            ->expects($this->once())
+            ->method('match')
+            ->with($request, 0)
+            ->willReturn($match1);
+
+        /**
+         * @var RouteInterface   $route1
+         * @var RouteInterface   $route2
+         * @var RequestInterface $request
+         */
+        $group = new GroupRoute($route1);
+        $match = $group
+            ->addRoute($route2)
+            ->match($request, 0);
+
+        $this->assertInstanceOf(RouteMatchInterface::class, $match);
     }
 
     /**

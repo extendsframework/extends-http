@@ -34,6 +34,13 @@ class PathRoute implements RouteInterface, StaticFactoryInterface
     protected $path;
 
     /**
+     * Strict mode.
+     *
+     * @var bool
+     */
+    protected $strict = true;
+
+    /**
      * Create new path route.
      *
      * Value of $path must be a part of the, or the whole, request URI path to match. Variables can be used and must
@@ -77,6 +84,22 @@ class PathRoute implements RouteInterface, StaticFactoryInterface
     }
 
     /**
+     * Set strict mode.
+     *
+     * If strict mode is on, the path must exactly match the request path. The path /foo/bar will not match the request
+     * path /foo/bar/baz when strict mode is on. With strict mode off, /foo/bar will match anything after /foo/bar.
+     *
+     * @param bool|null $strict
+     * @return PathRoute
+     */
+    public function setStrict(bool $strict = null): PathRoute
+    {
+        $this->strict = $strict ?? true;
+
+        return $this;
+    }
+
+    /**
      * Get the parameters when the route is matches.
      *
      * The $matches will be filtered for integer keys and merged into the default parameters.
@@ -99,6 +122,8 @@ class PathRoute implements RouteInterface, StaticFactoryInterface
     /**
      * Get pattern to match request path.
      *
+     * When strict mode is on, \z is added to the end of the pattern which means the string needs to be a exact match.
+     *
      * @return string
      */
     protected function getPattern(): string
@@ -107,6 +132,10 @@ class PathRoute implements RouteInterface, StaticFactoryInterface
             return sprintf('(?<%s>%s)', $match[1], $this->constraints[$match[1]] ?? '\w+');
         }, $this->path);
 
-        return sprintf('~\G%s(/|\z)~', $path);
+        return sprintf(
+            '~\G%s%s~',
+            $path,
+            $this->strict === true ? '(\z)' : '(/|\z)'
+        );
     }
 }

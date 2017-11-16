@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Router\Route\Group;
 
 use ExtendsFramework\Http\Request\RequestInterface;
+use ExtendsFramework\Http\Router\Route\Path\PathRoute;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use ExtendsFramework\Http\Router\Routes;
@@ -36,6 +37,10 @@ class GroupRoute implements RouteInterface, StaticFactoryInterface
      */
     public function __construct(RouteInterface $route, bool $abstract = null)
     {
+        if ($route instanceof PathRoute) {
+            $route->setStrict(false);
+        }
+
         $this->route = $route;
         $this->abstract = $abstract ?? true;
     }
