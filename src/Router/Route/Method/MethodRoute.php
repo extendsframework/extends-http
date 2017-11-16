@@ -62,7 +62,7 @@ class MethodRoute implements RouteInterface, StaticFactoryInterface
     {
         $method = $request->getMethod();
         if (in_array(strtoupper($method), $this->methods, true) === true) {
-            return new RouteMatch($this->parameters);
+            return new RouteMatch($this->parameters, $pathOffset);
         }
 
         throw new MethodNotAllowed($method, $this->methods);

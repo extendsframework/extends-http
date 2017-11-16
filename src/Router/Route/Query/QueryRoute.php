@@ -55,7 +55,7 @@ class QueryRoute implements RouteInterface, StaticFactoryInterface
             }
         }
 
-        return new RouteMatch($this->getParameters($matched));
+        return new RouteMatch($this->getParameters($matched), $pathOffset);
     }
 
     /**

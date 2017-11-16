@@ -39,7 +39,7 @@ class MethodRouteTest extends TestCase
 
         $this->assertInstanceOf(RouteMatchInterface::class, $match);
         if ($match instanceof RouteMatchInterface) {
-            $this->assertSame(0, $match->getPathOffset());
+            $this->assertSame(5, $match->getPathOffset());
             $this->assertSame([
                 'foo' => 'bar',
             ], $match->getParameters());

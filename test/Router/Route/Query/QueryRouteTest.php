@@ -52,7 +52,7 @@ class QueryRouteTest extends TestCase
 
         $this->assertInstanceOf(RouteMatchInterface::class, $match);
         if ($match instanceof RouteMatchInterface) {
-            $this->assertSame(0, $match->getPathOffset());
+            $this->assertSame(4, $match->getPathOffset());
             $this->assertSame([
                 'offset' => '0',
                 'limit' => '20',

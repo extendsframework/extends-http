@@ -44,7 +44,7 @@ class SchemeRoute implements RouteInterface, StaticFactoryInterface
     public function match(RequestInterface $request, int $pathOffset): ?RouteMatchInterface
     {
         if (strtoupper($request->getUri()->getScheme()) === $this->scheme) {
-            return new RouteMatch($this->parameters);
+            return new RouteMatch($this->parameters, $pathOffset);
         }
 
         return null;

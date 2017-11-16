@@ -44,7 +44,7 @@ class HostRoute implements RouteInterface, StaticFactoryInterface
     public function match(RequestInterface $request, int $pathOffset): ?RouteMatchInterface
     {
         if ($request->getUri()->getHost() === $this->host) {
-            return new RouteMatch($this->parameters);
+            return new RouteMatch($this->parameters, $pathOffset);
         }
 
         return null;

@@ -47,6 +47,6 @@ class RouteMatchTest extends TestCase
             'foo' => 'bar',
             'baz' => 'qux',
         ], $match3->getParameters());
-        $this->assertSame(25, $match3->getPathOffset());
+        $this->assertSame(15, $match3->getPathOffset());
     }
 }
