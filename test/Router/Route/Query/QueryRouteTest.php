@@ -99,6 +99,44 @@ class QueryRouteTest extends TestCase
     }
 
     /**
+     * Constraint without default.
+     *
+     * Test that a missing query parameter, without default value, will thrown an exception.
+     *
+     * @covers                   \ExtendsFramework\Http\Router\Route\Query\QueryRoute::__construct()
+     * @covers                   \ExtendsFramework\Http\Router\Route\Query\QueryRoute::match()
+     * @covers                   \ExtendsFramework\Http\Router\Route\Query\QueryRoute::getPattern()
+     * @covers                   \ExtendsFramework\Http\Router\Route\Query\Exception\QueryParameterMissing::__construct()
+     * @expectedException        \ExtendsFramework\Http\Router\Route\Query\Exception\QueryParameterMissing
+     * @expectedExceptionMessage Query string parameter "offset" value is required
+     */
+    public function testConstraintWithoutDefault(): void
+    {
+        $uri = $this->createMock(UriInterface::class);
+        $uri
+            ->expects($this->once())
+            ->method('getQuery')
+            ->willReturn([
+                'limit' => 20,
+            ]);
+
+        $request = $this->createMock(RequestInterface::class);
+        $request
+            ->expects($this->once())
+            ->method('getUri')
+            ->willReturn($uri);
+
+        /**
+         * @var RequestInterface $request
+         */
+        $path = new QueryRoute([
+            'limit' => '\d+',
+            'offset' => '\d+',
+        ]);
+        $path->match($request, 4);
+    }
+
+    /**
      * Factory.
      *
      * Test that factory will return an instance of RouteInterface.
