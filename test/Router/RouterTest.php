@@ -56,7 +56,7 @@ class RouterTest extends TestCase
      * @covers                   \ExtendsFramework\Http\Router\Routes::getRoutes()
      * @covers                   \ExtendsFramework\Http\Router\Exception\NotFound::__construct()
      * @expectedException        \ExtendsFramework\Http\Router\Exception\NotFound
-     * @expectedExceptionMessage
+     * @expectedExceptionMessage Request could not be matched by a route.
      */
     public function testNoMatch(): void
     {
