@@ -17,7 +17,7 @@ class Router implements RouterInterface
     public function route(RequestInterface $request): RouteMatchInterface
     {
         $match = $this->matchRoutes($request, 0);
-        if ($match instanceof RouteMatchInterface) {
+        if ($match instanceof RouteMatchInterface && $match->getPathOffset() === strlen($request->getUri()->getPath())) {
             return $match;
         }
 
