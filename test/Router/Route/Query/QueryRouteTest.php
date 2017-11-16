@@ -61,49 +61,6 @@ class QueryRouteTest extends TestCase
     }
 
     /**
-     * Encoded value.
-     *
-     * Test that a encoded value will be decoded and matched.
-     *
-     * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::__construct()
-     * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::match()
-     * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::getPattern()
-     * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::getParameters()
-     */
-    public function testEncodedValue(): void
-    {
-        $uri = $this->createMock(UriInterface::class);
-        $uri
-            ->expects($this->once())
-            ->method('getQuery')
-            ->willReturn([
-                'phrase' => urlencode('dog & cat'),
-            ]);
-
-        $request = $this->createMock(RequestInterface::class);
-        $request
-            ->expects($this->once())
-            ->method('getUri')
-            ->willReturn($uri);
-
-        /**
-         * @var RequestInterface $request
-         */
-        $path = new QueryRoute([
-            'phrase' => '.+',
-        ]);
-        $match = $path->match($request, 4);
-
-        $this->assertInstanceOf(RouteMatchInterface::class, $match);
-        if ($match instanceof RouteMatchInterface) {
-            $this->assertSame(4, $match->getPathOffset());
-            $this->assertSame([
-                'phrase' => 'dog & cat',
-            ], $match->getParameters());
-        }
-    }
-
-    /**
      * No match.
      *
      * Test that route will not match empty query and return null.
