@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Router\Route\Query\Exception;
 
-use ExtendsFramework\Http\Router\Route\RouteException;
+use ExtendsFramework\Http\Router\Route\Query\QueryRouteException;
 use InvalidArgumentException;
 
-class InvalidQueryString extends InvalidArgumentException implements RouteException
+class InvalidQueryString extends InvalidArgumentException implements QueryRouteException
 {
     /**
      * InvalidParameterValue constructor.
