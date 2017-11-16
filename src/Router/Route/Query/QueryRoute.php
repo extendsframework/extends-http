@@ -48,11 +48,13 @@ class QueryRoute implements RouteInterface, StaticFactoryInterface
         $matched = [];
         foreach ($this->constraints as $path => $constraint) {
             if (array_key_exists($path, $query) === true) {
-                if ((bool)preg_match($this->getPattern($constraint), (string)$query[$path], $matches) === false) {
-                    throw new InvalidQueryString($path, $query[$path], $constraint);
+                $value = urldecode((string)$query[$path]);
+
+                if ((bool)preg_match($this->getPattern($constraint), $value, $matches) === false) {
+                    throw new InvalidQueryString($path, $value, $constraint);
                 }
 
-                $matched[$path] = current($matches);
+                $matched[$path] = $value;
             } elseif (array_key_exists($path, $this->parameters) === false) {
                 throw new QueryParameterMissing($path);
             }
