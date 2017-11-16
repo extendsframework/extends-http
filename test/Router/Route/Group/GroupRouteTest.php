@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Router\Route\Group;
 
 use ExtendsFramework\Http\Request\RequestInterface;
+use ExtendsFramework\Http\Request\Uri\UriInterface;
 use ExtendsFramework\Http\Router\Route\Path\PathRoute;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
@@ -183,7 +184,23 @@ class GroupRouteTest extends TestCase
      */
     public function testPathRoute(): void
     {
+        $uri = $this->createMock(UriInterface::class);
+        $uri
+            ->expects($this->once())
+            ->method('getPath')
+            ->willReturn('/foo/bar/baz');
+
         $request = $this->createMock(RequestInterface::class);
+        $request
+            ->expects($this->once())
+            ->method('getUri')
+            ->willReturn($uri);
+
+        $merged = $this->createMock(RouteMatchInterface::class);
+        $merged
+            ->expects($this->once())
+            ->method('getPathOffset')
+            ->willReturn(12);
 
         $match2 = $this->createMock(RouteMatchInterface::class);
 
@@ -199,7 +216,7 @@ class GroupRouteTest extends TestCase
             ->expects($this->once())
             ->method('merge')
             ->with($match2)
-            ->willReturn($this->createMock(RouteMatchInterface::class));
+            ->willReturn($merged);
 
         $route1 = $this->createMock(PathRoute::class);
         $route1

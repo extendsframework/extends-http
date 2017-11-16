@@ -57,7 +57,10 @@ class GroupRoute implements RouteInterface, StaticFactoryInterface
 
         $inner = $this->matchRoutes($request, $outer->getPathOffset());
         if ($inner instanceof RouteMatchInterface) {
-            return $outer->merge($inner);
+            $outer = $outer->merge($inner);
+            if ($outer->getPathOffset() === strlen($request->getUri()->getPath())) {
+                return $outer;
+            }
         }
 
         if ($this->abstract === false) {
