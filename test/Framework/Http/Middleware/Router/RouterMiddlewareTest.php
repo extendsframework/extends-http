@@ -9,6 +9,7 @@ use ExtendsFramework\Http\Response\ResponseInterface;
 use ExtendsFramework\Http\Router\Exception\NotFound;
 use ExtendsFramework\Http\Router\Route\Method\Exception\MethodNotAllowed;
 use ExtendsFramework\Http\Router\Route\Query\Exception\InvalidQueryString;
+use ExtendsFramework\Http\Router\Route\Query\Exception\QueryParameterMissing;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use ExtendsFramework\Http\Router\RouterInterface;
 use PHPUnit\Framework\TestCase;
@@ -162,6 +163,42 @@ class RouterMiddlewareTest extends TestCase
         $this->assertSame(400, $response->getStatusCode());
         $this->assertSame([
             'message' => 'Query string parameter "limit" value "foo" does not match constraint "\d+".',
+        ], $response->getBody());
+    }
+
+    /**
+     * Query parameter missing.
+     *
+     * Test that query parameter missing exception will be caught and returned as a 400 response.
+     *
+     * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::__construct()
+     * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::process()
+     */
+    public function testQueryParameterMissing(): void
+    {
+        $chain = $this->createMock(MiddlewareChainInterface::class);
+
+        $request = $this->createMock(RequestInterface::class);
+
+        $router = $this->createMock(RouterInterface::class);
+        $router
+            ->expects($this->once())
+            ->method('route')
+            ->with($request)
+            ->willThrowException(new QueryParameterMissing('phrase'));
+
+        /**
+         * @var RouterInterface          $router
+         * @var RequestInterface         $request
+         * @var MiddlewareChainInterface $chain
+         */
+        $middleware = new RouterMiddleware($router);
+        $response = $middleware->process($request, $chain);
+
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertSame([
+            'message' => 'Query string parameter "phrase" value is required.',
         ], $response->getBody());
     }
 }
