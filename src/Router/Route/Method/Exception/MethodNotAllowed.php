@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Router\Route\Method\Exception;
 
-use ExtendsFramework\Http\Router\Route\RouteException;
+use ExtendsFramework\Http\Router\Route\Method\MethodRouteException;
 use LogicException;
 
-class MethodNotAllowed extends LogicException implements RouteException
+class MethodNotAllowed extends LogicException implements MethodRouteException
 {
     /**
      * Allowed HTTP methods.
