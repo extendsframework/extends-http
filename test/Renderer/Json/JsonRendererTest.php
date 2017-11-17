@@ -56,7 +56,7 @@ class JsonRendererTest extends TestCase
             ]);
 
         $response
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('getStatusCode')
             ->willReturn(200);
 
@@ -119,7 +119,7 @@ class JsonRendererTest extends TestCase
             ]);
 
         $response
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('getStatusCode')
             ->willReturn(200);
 
@@ -139,6 +139,69 @@ class JsonRendererTest extends TestCase
             'Content-Length: 0',
         ], Buffer::getHeaders());
         $this->assertSame(200, Buffer::getCode());
+    }
+
+    /**
+     * Problem details.
+     *
+     * Test that ...
+     *
+     * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::render()
+     * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::stringifyBody()
+     * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::addHeaders()
+     * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::sendHeaders()
+     * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::sendResponseCode()
+     * @covers \ExtendsFramework\Http\Renderer\Json\JsonRenderer::sendBody()
+     */
+    public function testProblemDetails(): void
+    {
+        Buffer::reset();
+
+        $response = $this->createMock(ResponseInterface::class);
+        $response
+            ->expects($this->once())
+            ->method('getBody')
+            ->willReturn([]);
+
+        $response
+            ->expects($this->exactly(2))
+            ->method('andHeader')
+            ->withConsecutive(
+                ['Content-Type', 'application/problem+json'],
+                ['Content-Length', '2']
+            )
+            ->willReturnSelf();
+
+        $response
+            ->expects($this->once())
+            ->method('getHeaders')
+            ->willReturn([
+                'Accept-Charset' => 'utf-8',
+                'Content-Type' => 'application/problem+json',
+                'Content-Length' => '2',
+            ]);
+
+        $response
+            ->expects($this->exactly(2))
+            ->method('getStatusCode')
+            ->willReturn(429);
+
+        /**
+         * @var ResponseInterface $response
+         */
+        $renderer = new JsonRenderer();
+
+        ob_start();
+        $renderer->render($response);
+        $output = ob_get_clean();
+
+        $this->assertSame('[]', $output);
+        $this->assertSame([
+            'Accept-Charset: utf-8',
+            'Content-Type: application/problem+json',
+            'Content-Length: 2',
+        ], Buffer::getHeaders());
+        $this->assertSame(429, Buffer::getCode());
     }
 }
 
