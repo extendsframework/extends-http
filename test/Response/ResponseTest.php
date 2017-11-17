@@ -31,6 +31,9 @@ class ResponseTest extends TestCase
      *
      * Test that new responses will be returned with the correct values.
      *
+     * @covers \ExtendsFramework\Http\Response\Response::withBody()
+     * @covers \ExtendsFramework\Http\Response\Response::andBody()
+     * @covers \ExtendsFramework\Http\Response\Response::getBody()
      * @covers \ExtendsFramework\Http\Response\Response::withHeaders()
      * @covers \ExtendsFramework\Http\Response\Response::andHeader()
      * @covers \ExtendsFramework\Http\Response\Response::getHeaders()
@@ -38,6 +41,15 @@ class ResponseTest extends TestCase
     public function testAndMethods(): void
     {
         $response = (new Response())
+            ->withBody([
+                'foo' => 'baz',
+            ])
+            ->andBody([
+                'foo' => 'bar',
+            ])
+            ->andBody([
+                'qux' => 'quux',
+            ])
             ->andHeader('baz', 'qux')
             ->andHeader('baz', 'bar')
             ->andHeader('foo', 'bar');
@@ -49,6 +61,10 @@ class ResponseTest extends TestCase
             ],
             'foo' => 'bar',
         ], $response->getHeaders());
+        $this->assertSame([
+            'foo' => 'bar',
+            'qux' => 'quux',
+        ], $response->getBody());
     }
 
     /**
@@ -86,7 +102,7 @@ class ResponseTest extends TestCase
      */
     public function testWithHeader(): void
     {
-        $uri = (new Response())
+        $response = (new Response())
             ->andHeader('foo', 'bar')
             ->andHeader('foo', 'baz')
             ->withHeader('foo', 'qux')
@@ -95,7 +111,40 @@ class ResponseTest extends TestCase
         $this->assertSame([
             'foo' => 'qux',
             'qux' => 'quux',
-        ], $uri->getHeaders());
+        ], $response->getHeaders());
+    }
+
+    /**
+     * With problem.
+     *
+     * Test that correct problem details will be set.
+     *
+     * @covers \ExtendsFramework\Http\Response\Response::withProblem()
+     * @covers \ExtendsFramework\Http\Response\Response::andBody()
+     * @covers \ExtendsFramework\Http\Response\Response::getStatusCode()
+     * @covers \ExtendsFramework\Http\Response\Response::getBody()
+     */
+    public function testWithProblem()
+    {
+        $response = (new Response())
+            ->withProblem(429, 'https://www.example.com/docs/invalid-data', 'Invalid data.')
+            ->andBody([
+                'errors' => [
+                    'property' => 'first_name',
+                    'reason' => 'Can not be empty.',
+                ],
+            ]);
+
+        $this->assertSame([
+            'type' => 'https://www.example.com/docs/invalid-data',
+            'title' => 'Invalid data.',
+            'errors' => [
+                'property' => 'first_name',
+                'reason' => 'Can not be empty.',
+            ],
+        ], $response->getBody());
+        $this->assertSame(429, $response->getStatusCode());
+
     }
 
     /**

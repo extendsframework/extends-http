@@ -32,7 +32,7 @@ class Response implements ResponseInterface, StaticFactoryInterface
         if (array_key_exists($name, $clone->headers) === true) {
             if (is_array($clone->headers[$name]) === false) {
                 $clone->headers[$name] = [
-                    $clone->headers[$name]
+                    $clone->headers[$name],
                 ];
             }
 
@@ -40,6 +40,20 @@ class Response implements ResponseInterface, StaticFactoryInterface
         } else {
             $clone->headers[$name] = $value;
         }
+
+        return $clone;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function andBody(array $body): ResponseInterface
+    {
+        $clone = clone $this;
+        $clone->body = array_merge(
+            $clone->body ?? [],
+            $body
+        );
 
         return $clone;
     }
@@ -110,6 +124,19 @@ class Response implements ResponseInterface, StaticFactoryInterface
         $clone->statusCode = $statusCode;
 
         return $clone;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function withProblem(int $statusCode, string $type, string $title): ResponseInterface
+    {
+        return (clone $this)
+            ->withStatusCode($statusCode)
+            ->withBody([
+                'type' => $type,
+                'title' => $title,
+            ]);
     }
 
     /**
