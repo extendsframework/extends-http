@@ -42,18 +42,13 @@ class RouterMiddleware implements MiddlewareInterface
         try {
             $match = $this->router->route($request);
         } catch (MethodNotAllowed $exception) {
-            return (new Response())
-                ->withStatusCode(405)
-                ->withHeader('Allow', implode(', ', $exception->getAllowedMethods()));
+            return $this->getMethodNotAllowedResponse($exception);
         } catch (NotFound $exception) {
-            return (new Response())
-                ->withStatusCode(404);
-        } catch (InvalidQueryString | QueryParameterMissing $exception) {
-            return (new Response())
-                ->withStatusCode(400)
-                ->withBody([
-                    'message' => $exception->getMessage(),
-                ]);
+            return $this->getNotFoundResponse($exception);
+        } catch (InvalidQueryString $exception) {
+            return $this->getInvalidQueryStringResponse($exception);
+        } catch (QueryParameterMissing $exception) {
+            return $this->getQueryParameterMissingResponse($exception);
         }
 
         if ($match instanceof RouteMatchInterface) {
@@ -61,5 +56,71 @@ class RouterMiddleware implements MiddlewareInterface
         }
 
         return $chain->proceed($request);
+    }
+
+    /**
+     * Get response for MethodNotAllowed exception.
+     *
+     * @param MethodNotAllowed $exception
+     * @return ResponseInterface
+     */
+    protected function getMethodNotAllowedResponse(MethodNotAllowed $exception): ResponseInterface
+    {
+        return (new Response())
+            ->withProblem(405, '', 'Method not allowed.')
+            ->withHeader('Allow', implode(', ', $exception->getAllowedMethods()))
+            ->andBody([
+                'method' => $exception->getMethod(),
+                'allowed_methods' => $exception->getAllowedMethods(),
+            ]);
+    }
+
+    /**
+     * Get response for NotFound exception.
+     *
+     * @param NotFound $exception
+     * @return ResponseInterface
+     */
+    protected function getNotFoundResponse(NotFound $exception): ResponseInterface
+    {
+        return (new Response())
+            ->withProblem(404, '', 'Not found.')
+            ->andBody([
+                'path' => $exception
+                    ->getRequest()
+                    ->getUri()
+                    ->getPath(),
+            ]);
+    }
+
+    /**
+     * Get response for InvalidQueryString exception.
+     *
+     * @param InvalidQueryString $exception
+     * @return ResponseInterface
+     */
+    protected function getInvalidQueryStringResponse(InvalidQueryString $exception): ResponseInterface
+    {
+        return (new Response())
+            ->withProblem(400, '', 'Invalid query string.')
+            ->andBody([
+                'parameter' => $exception->getParameter(),
+                'reason' => $exception->getViolation(),
+            ]);
+    }
+
+    /**
+     * Get response for QueryParameterMissing exception.
+     *
+     * @param QueryParameterMissing $exception
+     * @return ResponseInterface
+     */
+    protected function getQueryParameterMissingResponse(QueryParameterMissing $exception): ResponseInterface
+    {
+        return (new Response())
+            ->withProblem(400, '', 'Query parameter missing.')
+            ->andBody([
+                'parameter' => $exception->getParameter(),
+            ]);
     }
 }

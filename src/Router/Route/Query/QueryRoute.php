@@ -11,13 +11,15 @@ use ExtendsFramework\Http\Router\Route\RouteMatch;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryInterface;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
+use ExtendsFramework\Validator\Constraint\ConstraintInterface;
+use ExtendsFramework\Validator\Constraint\ConstraintViolationInterface;
 
 class QueryRoute implements RouteInterface, StaticFactoryInterface
 {
     /**
      * Constraints for matching the query parameters.
      *
-     * @var array
+     * @var ConstraintInterface[]
      */
     protected $constraints;
 
@@ -26,16 +28,16 @@ class QueryRoute implements RouteInterface, StaticFactoryInterface
      *
      * @var array
      */
-    protected $parameters;
+    protected $defaults;
 
     /**
      * @param array $constraints
-     * @param array $parameters
+     * @param array $defaults
      */
-    public function __construct(array $constraints, array $parameters = null)
+    public function __construct(array $constraints, array $defaults = null)
     {
         $this->constraints = $constraints;
-        $this->parameters = $parameters ?? [];
+        $this->defaults = $defaults ?? [];
     }
 
     /**
@@ -50,12 +52,13 @@ class QueryRoute implements RouteInterface, StaticFactoryInterface
             if (array_key_exists($path, $query) === true) {
                 $value = (string)$query[$path];
 
-                if ((bool)preg_match($this->getPattern($constraint), $value, $matches) === false) {
-                    throw new InvalidQueryString($path, $value, $constraint);
+                $violation = $constraint->validate($value, $query);
+                if ($violation instanceof ConstraintViolationInterface) {
+                    throw new InvalidQueryString($path, $violation);
                 }
 
                 $matched[$path] = $value;
-            } elseif (array_key_exists($path, $this->parameters) === false) {
+            } elseif (array_key_exists($path, $this->defaults) === false) {
                 throw new QueryParameterMissing($path);
             }
         }
@@ -68,7 +71,12 @@ class QueryRoute implements RouteInterface, StaticFactoryInterface
      */
     public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): RouteInterface
     {
-        return new static($extra['constraints'], $extra['parameters'] ?? []);
+        $constraints = [];
+        foreach ($extra['constraints'] ?? [] as $parameter => $constraint) {
+            $constraints[$parameter] = $serviceLocator->getService($constraint['name'], $constraints['options'] ?? []);
+        }
+
+        return new static($extra['constraints'] ?? [], $extra['defaults'] ?? []);
     }
 
     /**
@@ -79,17 +87,6 @@ class QueryRoute implements RouteInterface, StaticFactoryInterface
      */
     protected function getParameters(array $matches): array
     {
-        return array_replace_recursive($this->parameters, $matches);
-    }
-
-    /**
-     * Get pattern to match query parameter.
-     *
-     * @param string $constraint
-     * @return string
-     */
-    protected function getPattern(string $constraint): string
-    {
-        return sprintf('~^%s$~', $constraint);
+        return array_replace_recursive($this->defaults, $matches);
     }
 }

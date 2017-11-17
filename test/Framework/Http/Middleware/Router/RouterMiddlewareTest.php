@@ -12,6 +12,7 @@ use ExtendsFramework\Http\Router\Route\Query\Exception\InvalidQueryString;
 use ExtendsFramework\Http\Router\Route\Query\Exception\QueryParameterMissing;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use ExtendsFramework\Http\Router\RouterInterface;
+use ExtendsFramework\Validator\Constraint\ConstraintViolationInterface;
 use PHPUnit\Framework\TestCase;
 
 class RouterMiddlewareTest extends TestCase
@@ -68,6 +69,7 @@ class RouterMiddlewareTest extends TestCase
      *
      * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::__construct()
      * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::process()
+     * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::getNotFoundResponse()
      */
     public function testNotFound(): void
     {
@@ -101,6 +103,7 @@ class RouterMiddlewareTest extends TestCase
      *
      * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::__construct()
      * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::process()
+     * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::getMethodNotAllowedResponse()
      */
     public function testMethodNotAllowed(): void
     {
@@ -126,6 +129,12 @@ class RouterMiddlewareTest extends TestCase
         $this->assertInstanceOf(ResponseInterface::class, $response);
         $this->assertSame(405, $response->getStatusCode());
         $this->assertSame([
+            'type' => '',
+            'title' => 'Method not allowed.',
+            'method' => 'GET',
+            'allowed_methods' => ['PUT', 'POST'],
+        ], $response->getBody());
+        $this->assertSame([
             'Allow' => 'PUT, POST',
         ], $response->getHeaders());
     }
@@ -137,6 +146,7 @@ class RouterMiddlewareTest extends TestCase
      *
      * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::__construct()
      * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::process()
+     * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::getInvalidQueryStringResponse()
      */
     public function testInvalidQueryString(): void
     {
@@ -144,12 +154,25 @@ class RouterMiddlewareTest extends TestCase
 
         $request = $this->createMock(RequestInterface::class);
 
+        $violation = $this->createMock(ConstraintViolationInterface::class);
+
+        $exception = $this->createMock(InvalidQueryString::class);
+        $exception
+            ->expects($this->once())
+            ->method('getParameter')
+            ->willReturn('foo');
+
+        $exception
+            ->expects($this->once())
+            ->method('getViolation')
+            ->willReturn($violation);
+
         $router = $this->createMock(RouterInterface::class);
         $router
             ->expects($this->once())
             ->method('route')
             ->with($request)
-            ->willThrowException(new InvalidQueryString('limit', 'foo', '\d+'));
+            ->willThrowException($exception);
 
         /**
          * @var RouterInterface          $router
@@ -162,7 +185,10 @@ class RouterMiddlewareTest extends TestCase
         $this->assertInstanceOf(ResponseInterface::class, $response);
         $this->assertSame(400, $response->getStatusCode());
         $this->assertSame([
-            'message' => 'Query string parameter "limit" value "foo" does not match constraint "\d+".',
+            'type' => '',
+            'title' => 'Invalid query string.',
+            'parameter' => 'foo',
+            'reason' => $violation,
         ], $response->getBody());
     }
 
@@ -173,6 +199,7 @@ class RouterMiddlewareTest extends TestCase
      *
      * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::__construct()
      * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::process()
+     * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::getQueryParameterMissingResponse()
      */
     public function testQueryParameterMissing(): void
     {
@@ -180,12 +207,18 @@ class RouterMiddlewareTest extends TestCase
 
         $request = $this->createMock(RequestInterface::class);
 
+        $exception = $this->createMock(QueryParameterMissing::class);
+        $exception
+            ->expects($this->once())
+            ->method('getParameter')
+            ->willReturn('phrase');
+
         $router = $this->createMock(RouterInterface::class);
         $router
             ->expects($this->once())
             ->method('route')
             ->with($request)
-            ->willThrowException(new QueryParameterMissing('phrase'));
+            ->willThrowException($exception);
 
         /**
          * @var RouterInterface          $router
@@ -198,7 +231,9 @@ class RouterMiddlewareTest extends TestCase
         $this->assertInstanceOf(ResponseInterface::class, $response);
         $this->assertSame(400, $response->getStatusCode());
         $this->assertSame([
-            'message' => 'Query string parameter "phrase" value is required.',
+            'type' => '',
+            'title' => 'Query parameter missing.',
+            'parameter' => 'phrase',
         ], $response->getBody());
     }
 }

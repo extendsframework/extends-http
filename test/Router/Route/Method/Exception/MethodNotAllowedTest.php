@@ -13,12 +13,14 @@ class MethodNotAllowedTest extends TestCase
      * Test that correct allowed methods will be returned.
      *
      * @covers \ExtendsFramework\Http\Router\Route\Method\Exception\MethodNotAllowed::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Method\Exception\MethodNotAllowed::getMethod()
      * @covers \ExtendsFramework\Http\Router\Route\Method\Exception\MethodNotAllowed::getAllowedMethods()
      */
     public function testGetAllowedMethods(): void
     {
         $exception = new MethodNotAllowed('GET', ['POST', 'PUT']);
 
+        $this->assertSame('GET', $exception->getMethod());
         $this->assertSame([
             'POST',
             'PUT',

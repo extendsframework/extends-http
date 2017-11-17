@@ -9,6 +9,13 @@ use LogicException;
 class MethodNotAllowed extends LogicException implements MethodRouteException
 {
     /**
+     * Not allowed method.
+     *
+     * @var string
+     */
+    protected $method;
+
+    /**
      * Allowed HTTP methods.
      *
      * @var array
@@ -28,7 +35,18 @@ class MethodNotAllowed extends LogicException implements MethodRouteException
             $method
         ));
 
+        $this->method = $method;
         $this->allowedMethods = $allowedMethods;
+    }
+
+    /**
+     * Get not allowed method.
+     *
+     * @return string
+     */
+    public function getMethod(): string
+    {
+        return $this->method;
     }
 
     /**

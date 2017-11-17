@@ -69,7 +69,9 @@ class ExceptionMiddlewareTest extends TestCase
         if ($response instanceof ResponseInterface) {
             $this->assertSame(500, $response->getStatusCode());
             $this->assertSame([
-                'message' => 'Failed to execute request, caught exception with code "136". Please try again.',
+                'type' => '',
+                'title' => 'Internal server error.',
+                'error' => 'Failed to execute request, caught exception with code "136". Please try again.',
             ], $response->getBody());
         }
     }

@@ -5,9 +5,13 @@ namespace ExtendsFramework\Http\Router\Route\Query;
 
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Request\Uri\UriInterface;
+use ExtendsFramework\Http\Router\Route\Query\Exception\InvalidQueryString;
+use ExtendsFramework\Http\Router\Route\Query\Exception\QueryParameterMissing;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
+use ExtendsFramework\Validator\Constraint\ConstraintInterface;
+use ExtendsFramework\Validator\Constraint\ConstraintViolationInterface;
 use PHPUnit\Framework\TestCase;
 
 class QueryRouteTest extends TestCase
@@ -19,7 +23,6 @@ class QueryRouteTest extends TestCase
      *
      * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::match()
-     * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::getPattern()
      * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::getParameters()
      */
     public function testMatch(): void
@@ -39,12 +42,22 @@ class QueryRouteTest extends TestCase
             ->method('getUri')
             ->willReturn($uri);
 
+        $constraint = $this->createMock(ConstraintInterface::class);
+        $constraint
+            ->expects($this->exactly(2))
+            ->method('validate')
+            ->withConsecutive(
+                ['20'],
+                ['0']
+            )
+            ->willReturn(null);
+
         /**
          * @var RequestInterface $request
          */
         $path = new QueryRoute([
-            'limit' => '\d+',
-            'offset' => '\d+',
+            'limit' => $constraint,
+            'offset' => $constraint,
         ], [
             'offset' => '0',
         ]);
@@ -65,12 +78,11 @@ class QueryRouteTest extends TestCase
      *
      * Test that route will not match empty query and return null.
      *
-     * @covers                   \ExtendsFramework\Http\Router\Route\Query\QueryRoute::__construct()
-     * @covers                   \ExtendsFramework\Http\Router\Route\Query\QueryRoute::match()
-     * @covers                   \ExtendsFramework\Http\Router\Route\Query\QueryRoute::getPattern()
-     * @covers                   \ExtendsFramework\Http\Router\Route\Query\Exception\InvalidQueryString::__construct()
-     * @expectedException        \ExtendsFramework\Http\Router\Route\Query\Exception\InvalidQueryString
-     * @expectedExceptionMessage Query string parameter "limit" value "foo" does not match constraint "\d+".
+     * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::match()
+     * @covers \ExtendsFramework\Http\Router\Route\Query\Exception\InvalidQueryString::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Query\Exception\InvalidQueryString::getParameter()
+     * @covers \ExtendsFramework\Http\Router\Route\Query\Exception\InvalidQueryString::getViolation()
      */
     public function testNoMatch(): void
     {
@@ -80,6 +92,7 @@ class QueryRouteTest extends TestCase
             ->method('getQuery')
             ->willReturn([
                 'limit' => 'foo',
+                'offset' => 'bar',
             ]);
 
         $request = $this->createMock(RequestInterface::class);
@@ -88,13 +101,37 @@ class QueryRouteTest extends TestCase
             ->method('getUri')
             ->willReturn($uri);
 
+        $violation = $this->createMock(ConstraintViolationInterface::class);
+        $violation
+            ->expects($this->once())
+            ->method('__toString')
+            ->willReturn('Some fancy reason!');
+
+        $constraint = $this->createMock(ConstraintInterface::class);
+        $constraint
+            ->expects($this->once())
+            ->method('validate')
+            ->with('foo')
+            ->willReturn($violation);
+
         /**
          * @var RequestInterface $request
          */
         $path = new QueryRoute([
-            'limit' => '\d+',
+            'limit' => $constraint,
+            'offset' => $constraint,
         ]);
-        $path->match($request, 4);
+
+        try {
+            $path->match($request, 4);
+        } catch (InvalidQueryString $exception) {
+            $this->assertSame(
+                'Query string parameter "limit" failed due to violation "Some fancy reason!".',
+                $exception->getMessage()
+            );
+            $this->assertSame('limit', $exception->getParameter());
+            $this->assertSame($violation, $exception->getViolation());
+        }
     }
 
     /**
@@ -102,12 +139,10 @@ class QueryRouteTest extends TestCase
      *
      * Test that a missing query parameter, without default value, will thrown an exception.
      *
-     * @covers                   \ExtendsFramework\Http\Router\Route\Query\QueryRoute::__construct()
-     * @covers                   \ExtendsFramework\Http\Router\Route\Query\QueryRoute::match()
-     * @covers                   \ExtendsFramework\Http\Router\Route\Query\QueryRoute::getPattern()
-     * @covers                   \ExtendsFramework\Http\Router\Route\Query\Exception\QueryParameterMissing::__construct()
-     * @expectedException        \ExtendsFramework\Http\Router\Route\Query\Exception\QueryParameterMissing
-     * @expectedExceptionMessage Query string parameter "offset" value is required
+     * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::match()
+     * @covers \ExtendsFramework\Http\Router\Route\Query\Exception\QueryParameterMissing::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Query\Exception\QueryParameterMissing::getParameter()
      */
     public function testConstraintWithoutDefault(): void
     {
@@ -125,14 +160,21 @@ class QueryRouteTest extends TestCase
             ->method('getUri')
             ->willReturn($uri);
 
+        $constraint = $this->createMock(ConstraintInterface::class);
+
         /**
          * @var RequestInterface $request
          */
         $path = new QueryRoute([
-            'limit' => '\d+',
-            'offset' => '\d+',
+            'limit' => $constraint,
+            'offset' => $constraint,
         ]);
-        $path->match($request, 4);
+
+        try {
+            $path->match($request, 4);
+        } catch (QueryParameterMissing $exception) {
+            $this->assertSame('offset', $exception->getParameter());
+        }
     }
 
     /**
@@ -145,7 +187,17 @@ class QueryRouteTest extends TestCase
      */
     public function testFactory(): void
     {
+        $constraint = $this->createMock(ConstraintInterface::class);
+
         $serviceLocator = $this->createMock(ServiceLocatorInterface::class);
+        $serviceLocator
+            ->expects($this->exactly(2))
+            ->method('getService')
+            ->withConsecutive(
+                [ConstraintInterface::class, []],
+                [ConstraintInterface::class, []]
+            )
+            ->willReturn($constraint);
 
         /**
          * @var ServiceLocatorInterface $serviceLocator
@@ -153,10 +205,14 @@ class QueryRouteTest extends TestCase
         $route = QueryRoute::factory(QueryRoute::class, $serviceLocator, [
             'path' => '/:id/bar',
             'constraints' => [
-                'limit' => '\d+',
-                'offset' => '\d+',
+                'limit' => [
+                    'name' => ConstraintInterface::class,
+                ],
+                'offset' => [
+                    'name' => ConstraintInterface::class,
+                ],
             ],
-            'parameters' => [
+            'defaults' => [
                 'offset' => '0',
             ],
         ]);
