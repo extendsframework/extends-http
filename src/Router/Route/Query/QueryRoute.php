@@ -73,7 +73,7 @@ class QueryRoute implements RouteInterface, StaticFactoryInterface
     {
         $constraints = [];
         foreach ($extra['constraints'] ?? [] as $parameter => $constraint) {
-            $constraints[$parameter] = $serviceLocator->getService($constraint['name'], $constraints['options'] ?? []);
+            $constraints[$parameter] = $serviceLocator->getService($constraint['name'], $constraint['options'] ?? []);
         }
 
         return new static($constraints, $extra['defaults'] ?? []);

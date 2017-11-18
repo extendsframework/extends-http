@@ -194,7 +194,7 @@ class QueryRouteTest extends TestCase
             ->expects($this->exactly(2))
             ->method('getService')
             ->withConsecutive(
-                [ConstraintInterface::class, []],
+                [ConstraintInterface::class, ['foo' => 'bar',]],
                 [ConstraintInterface::class, []]
             )
             ->willReturn($constraint);
@@ -207,6 +207,9 @@ class QueryRouteTest extends TestCase
             'constraints' => [
                 'limit' => [
                     'name' => ConstraintInterface::class,
+                    'options' => [
+                        'foo' => 'bar',
+                    ],
                 ],
                 'offset' => [
                     'name' => ConstraintInterface::class,
