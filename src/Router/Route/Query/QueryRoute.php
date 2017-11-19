@@ -28,16 +28,16 @@ class QueryRoute implements RouteInterface, StaticFactoryInterface
      *
      * @var array
      */
-    protected $defaults;
+    protected $parameters;
 
     /**
      * @param array $constraints
-     * @param array $defaults
+     * @param array $parameters
      */
-    public function __construct(array $constraints, array $defaults = null)
+    public function __construct(array $constraints, array $parameters = null)
     {
         $this->constraints = $constraints;
-        $this->defaults = $defaults ?? [];
+        $this->parameters = $parameters ?? [];
     }
 
     /**
@@ -58,7 +58,7 @@ class QueryRoute implements RouteInterface, StaticFactoryInterface
                 }
 
                 $matched[$path] = $value;
-            } elseif (array_key_exists($path, $this->defaults) === false) {
+            } elseif (array_key_exists($path, $this->parameters) === false) {
                 throw new QueryParameterMissing($path);
             }
         }
@@ -76,7 +76,7 @@ class QueryRoute implements RouteInterface, StaticFactoryInterface
             $constraints[$parameter] = $serviceLocator->getService($constraint['name'], $constraint['options'] ?? []);
         }
 
-        return new static($constraints, $extra['defaults'] ?? []);
+        return new static($constraints, $extra['parameters'] ?? []);
     }
 
     /**
@@ -87,6 +87,6 @@ class QueryRoute implements RouteInterface, StaticFactoryInterface
      */
     protected function getParameters(array $matches): array
     {
-        return array_replace_recursive($this->defaults, $matches);
+        return array_replace_recursive($this->parameters, $matches);
     }
 }

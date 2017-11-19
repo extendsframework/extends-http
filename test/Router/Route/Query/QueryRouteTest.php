@@ -215,7 +215,7 @@ class QueryRouteTest extends TestCase
                     'name' => ConstraintInterface::class,
                 ],
             ],
-            'defaults' => [
+            'parameters' => [
                 'offset' => '0',
             ],
         ]);

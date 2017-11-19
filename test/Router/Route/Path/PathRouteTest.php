@@ -179,7 +179,7 @@ class PathRouteTest extends TestCase
                     ],
                 ],
             ],
-            'defaults' => [
+            'parameters' => [
                 'foo' => 'bar',
             ],
         ]);

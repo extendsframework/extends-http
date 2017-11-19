@@ -26,7 +26,7 @@ class PathRoute implements RouteInterface, StaticFactoryInterface
      *
      * @var array
      */
-    protected $defaults;
+    protected $parameters;
 
     /**
      * Path to match.
@@ -49,13 +49,13 @@ class PathRoute implements RouteInterface, StaticFactoryInterface
      *
      * @param string $path
      * @param array  $constraints
-     * @param array  $defaults
+     * @param array  $parameters
      */
-    public function __construct(string $path, array $constraints = null, array $defaults = null)
+    public function __construct(string $path, array $constraints = null, array $parameters = null)
     {
         $this->path = $path;
         $this->constraints = $constraints ?? [];
-        $this->defaults = $defaults ?? [];
+        $this->parameters = $parameters ?? [];
     }
 
     /**
@@ -87,7 +87,7 @@ class PathRoute implements RouteInterface, StaticFactoryInterface
             $constraints[] = $serviceLocator->getService($constraint['name'], $constraint['options'] ?? []);
         }
 
-        return new static($extra['path'], $constraints, $extra['defaults'] ?? []);
+        return new static($extra['path'], $constraints, $extra['parameters'] ?? []);
     }
 
     /**
@@ -107,7 +107,7 @@ class PathRoute implements RouteInterface, StaticFactoryInterface
             }
         }
 
-        return array_replace_recursive($this->defaults, $parameters);
+        return array_replace_recursive($this->parameters, $parameters);
     }
 
     /**
