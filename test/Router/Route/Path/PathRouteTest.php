@@ -8,6 +8,8 @@ use ExtendsFramework\Http\Request\Uri\UriInterface;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
+use ExtendsFramework\Validator\Constraint\ConstraintInterface;
+use ExtendsFramework\Validator\Constraint\ConstraintViolationInterface;
 use PHPUnit\Framework\TestCase;
 
 class PathRouteTest extends TestCase
@@ -37,11 +39,18 @@ class PathRouteTest extends TestCase
             ->method('getUri')
             ->willReturn($uri);
 
+        $constraint = $this->createMock(ConstraintInterface::class);
+        $constraint
+            ->expects($this->once())
+            ->method('validate')
+            ->with('John')
+            ->willReturn(null);
+
         /**
          * @var RequestInterface $request
          */
         $path = new PathRoute('/:first_name/bar', [
-            'first_name' => '\w+',
+            'first_name' => $constraint,
         ], [
             'foo' => 'bar',
         ]);
@@ -60,13 +69,13 @@ class PathRouteTest extends TestCase
     /**
      * No match.
      *
-     * Test that '/foo/bar/baz' will not match '/:id/bar' and return null.
+     * Test that path will not match.
      *
      * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::match()
      * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::getPattern()
      */
-    public function testNoMatch(): void
+    public function testNotMatch(): void
     {
         $uri = $this->createMock(UriInterface::class);
         $uri
@@ -80,13 +89,59 @@ class PathRouteTest extends TestCase
             ->method('getUri')
             ->willReturn($uri);
 
+        $constraint = $this->createMock(ConstraintInterface::class);
+        $constraint
+            ->expects($this->never())
+            ->method('validate');
+
+        /**
+         * @var RequestInterface $request
+         */
+        $path = new PathRoute('/bar/:id', [
+            'id' => $constraint,
+        ]);
+        $match = $path->match($request, 0);
+
+        $this->assertNull($match);
+    }
+
+    /**
+     * Invalid constraint.
+     *
+     * Test that constraint for 'id' is invalid and route won't match.
+     *
+     * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::match()
+     * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::getPattern()
+     */
+    public function testInvalidConstraint(): void
+    {
+        $uri = $this->createMock(UriInterface::class);
+        $uri
+            ->expects($this->once())
+            ->method('getPath')
+            ->willReturn('/foo/bar/baz');
+
+        $request = $this->createMock(RequestInterface::class);
+        $request
+            ->expects($this->once())
+            ->method('getUri')
+            ->willReturn($uri);
+
+        $constraint = $this->createMock(ConstraintInterface::class);
+        $constraint
+            ->expects($this->once())
+            ->method('validate')
+            ->with('foo')
+            ->willReturn($this->createMock(ConstraintViolationInterface::class));
+
         /**
          * @var RequestInterface $request
          */
         $path = new PathRoute('/:id/bar', [
-            'id' => '\d+',
+            'id' => $constraint,
         ]);
-        $match = $path->match($request, 4);
+        $match = $path->match($request, 0);
 
         $this->assertNull($match);
     }
@@ -102,6 +157,14 @@ class PathRouteTest extends TestCase
     public function testFactory(): void
     {
         $serviceLocator = $this->createMock(ServiceLocatorInterface::class);
+        $serviceLocator
+            ->expects($this->once())
+            ->method('getService')
+            ->with(
+                ConstraintInterface::class,
+                ['foo' => 'bar']
+            )
+            ->willReturn($this->createMock(ConstraintInterface::class));
 
         /**
          * @var ServiceLocatorInterface $serviceLocator
@@ -109,9 +172,14 @@ class PathRouteTest extends TestCase
         $route = PathRoute::factory(PathRoute::class, $serviceLocator, [
             'path' => '/:id/bar',
             'constraints' => [
-                'id' => '\d+',
+                'id' => [
+                    'name' => ConstraintInterface::class,
+                    'options' => [
+                        'foo' => 'bar',
+                    ],
+                ],
             ],
-            'parameters' => [
+            'defaults' => [
                 'foo' => 'bar',
             ],
         ]);

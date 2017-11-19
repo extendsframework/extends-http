@@ -9,13 +9,15 @@ use ExtendsFramework\Http\Router\Route\RouteMatch;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryInterface;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
+use ExtendsFramework\Validator\Constraint\ConstraintInterface;
+use ExtendsFramework\Validator\Constraint\ConstraintViolationInterface;
 
 class PathRoute implements RouteInterface, StaticFactoryInterface
 {
     /**
      * Constraints for matching the URI variables.
      *
-     * @var array
+     * @var ConstraintInterface[]
      */
     protected $constraints;
 
@@ -24,7 +26,7 @@ class PathRoute implements RouteInterface, StaticFactoryInterface
      *
      * @var array
      */
-    protected $parameters;
+    protected $defaults;
 
     /**
      * Path to match.
@@ -47,13 +49,13 @@ class PathRoute implements RouteInterface, StaticFactoryInterface
      *
      * @param string $path
      * @param array  $constraints
-     * @param array  $parameters
+     * @param array  $defaults
      */
-    public function __construct(string $path, array $constraints = null, array $parameters = null)
+    public function __construct(string $path, array $constraints = null, array $defaults = null)
     {
         $this->path = $path;
         $this->constraints = $constraints ?? [];
-        $this->parameters = $parameters ?? [];
+        $this->defaults = $defaults ?? [];
     }
 
     /**
@@ -62,6 +64,13 @@ class PathRoute implements RouteInterface, StaticFactoryInterface
     public function match(RequestInterface $request, int $pathOffset): ?RouteMatchInterface
     {
         if ((bool)preg_match($this->getPattern(), $request->getUri()->getPath(), $matches, PREG_OFFSET_CAPTURE, $pathOffset) === true) {
+            foreach ($this->constraints as $parameter => $constraint) {
+                $violation = $constraint->validate($matches[$parameter][0]);
+                if ($violation instanceof ConstraintViolationInterface) {
+                    return null;
+                }
+            }
+
             return new RouteMatch($this->getParameters($matches), end($matches)[1]);
         }
 
@@ -73,7 +82,12 @@ class PathRoute implements RouteInterface, StaticFactoryInterface
      */
     public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): RouteInterface
     {
-        return new static($extra['path'], $extra['constraints'] ?? [], $extra['parameters'] ?? []);
+        $constraints = [];
+        foreach ($extra['constraints'] ?? [] as $parameter => $constraint) {
+            $constraints[] = $serviceLocator->getService($constraint['name'], $constraint['options'] ?? []);
+        }
+
+        return new static($extra['path'], $constraints, $extra['defaults'] ?? []);
     }
 
     /**
@@ -93,7 +107,7 @@ class PathRoute implements RouteInterface, StaticFactoryInterface
             }
         }
 
-        return array_replace_recursive($this->parameters, $parameters);
+        return array_replace_recursive($this->defaults, $parameters);
     }
 
     /**
@@ -104,7 +118,7 @@ class PathRoute implements RouteInterface, StaticFactoryInterface
     protected function getPattern(): string
     {
         $path = preg_replace_callback('~:([a-z][a-z0-9\_]+)~i', function ($match) {
-            return sprintf('(?<%s>%s)', $match[1], $this->constraints[$match[1]] ?? '\w+');
+            return sprintf('(?<%s>%s)', $match[1], '[^\/]*');
         }, $this->path);
 
         return sprintf('~\G(%s)(/|\z)~', $path);
