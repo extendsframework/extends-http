@@ -50,7 +50,7 @@ class QueryRoute implements RouteInterface, StaticFactoryInterface
         $matched = [];
         foreach ($this->constraints as $path => $constraint) {
             if (array_key_exists($path, $query) === true) {
-                $value = (string)$query[$path];
+                $value = $query[$path];
 
                 $violation = $constraint->validate($value, $query);
                 if ($violation instanceof ConstraintViolationInterface) {
