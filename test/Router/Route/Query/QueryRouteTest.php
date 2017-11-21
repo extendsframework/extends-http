@@ -211,9 +211,7 @@ class QueryRouteTest extends TestCase
                         'foo' => 'bar',
                     ],
                 ],
-                'offset' => [
-                    'name' => ConstraintInterface::class,
-                ],
+                'offset' => ConstraintInterface::class, // Short syntax will be converted to array with 'name' property.
             ],
             'parameters' => [
                 'offset' => '0',

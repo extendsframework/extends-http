@@ -84,6 +84,12 @@ class PathRoute implements RouteInterface, StaticFactoryInterface
     {
         $constraints = [];
         foreach ($extra['constraints'] ?? [] as $parameter => $constraint) {
+            if (is_string($constraint) === true) {
+                $constraint = [
+                    'name' => $constraint,
+                ];
+            }
+
             $constraints[] = $serviceLocator->getService($constraint['name'], $constraint['options'] ?? []);
         }
 

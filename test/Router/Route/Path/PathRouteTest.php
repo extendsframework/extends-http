@@ -158,11 +158,17 @@ class PathRouteTest extends TestCase
     {
         $serviceLocator = $this->createMock(ServiceLocatorInterface::class);
         $serviceLocator
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('getService')
-            ->with(
-                ConstraintInterface::class,
-                ['foo' => 'bar']
+            ->withConsecutive(
+                [
+                    ConstraintInterface::class,
+                    ['foo' => 'bar'],
+                ],
+                [
+                    ConstraintInterface::class,
+                    []
+                ]
             )
             ->willReturn($this->createMock(ConstraintInterface::class));
 
@@ -170,7 +176,7 @@ class PathRouteTest extends TestCase
          * @var ServiceLocatorInterface $serviceLocator
          */
         $route = PathRoute::factory(PathRoute::class, $serviceLocator, [
-            'path' => '/:id/bar',
+            'path' => '/:id/bar/:baz',
             'constraints' => [
                 'id' => [
                     'name' => ConstraintInterface::class,
@@ -178,6 +184,7 @@ class PathRouteTest extends TestCase
                         'foo' => 'bar',
                     ],
                 ],
+                'baz' => ConstraintInterface::class, // Short syntax will be converted to array with 'name' property.
             ],
             'parameters' => [
                 'foo' => 'bar',
