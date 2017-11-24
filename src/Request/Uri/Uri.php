@@ -64,26 +64,6 @@ class Uri implements UriInterface
     /**
      * @inheritDoc
      */
-    public function __toString(): string
-    {
-        $uri = $this->getScheme() . '://' . $this->getAuthority() . $this->getPath();
-
-        $query = $this->getQuery();
-        if (empty($query) === false) {
-            $uri .= '?' . http_build_query($query);
-        }
-
-        $fragment = $this->getFragment();
-        if (empty($fragment) === false) {
-            $uri .= '#' . http_build_query($fragment);
-        }
-
-        return $uri;
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function andFragment(string $name, string $value): UriInterface
     {
         $clone = clone $this;
@@ -355,5 +335,33 @@ class Uri implements UriInterface
         $uri->pass = $pass;
 
         return $uri;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function toRelative(): string
+    {
+        $uri = $this->getPath();
+
+        $query = $this->getQuery();
+        if (empty($query) === false) {
+            $uri .= '?' . http_build_query($query);
+        }
+
+        $fragment = $this->getFragment();
+        if (empty($fragment) === false) {
+            $uri .= '#' . http_build_query($fragment);
+        }
+
+        return $uri;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function toAbsolute(): string
+    {
+        return $this->getScheme() . '://' . $this->getAuthority() . $this->toRelative();
     }
 }

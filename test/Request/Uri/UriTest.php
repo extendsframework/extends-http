@@ -8,30 +8,6 @@ use PHPUnit\Framework\TestCase;
 class UriTest extends TestCase
 {
     /**
-     * To string.
-     *
-     * Test that URI can cast to string with the correct $_SERVER values.
-     *
-     * @covers \ExtendsFramework\Http\Request\Uri\Uri::__toString()
-     */
-    public function testToString(): void
-    {
-        $_SERVER['HTTPS'] = 'on';
-        $_SERVER['HTTP_HOST'] = 'www.extends.nl';
-        $_SERVER['PHP_AUTH_PW'] = 'framework';
-        $_SERVER['PHP_AUTH_USER'] = 'extends';
-        $_SERVER['REQUEST_URI'] = '/foo/bar?baz=qux+quux';
-        $_SERVER['QUERY_STRING'] = 'baz=qux+quux';
-        $_SERVER['SERVER_PORT'] = 443;
-
-        $uri = (new Uri())->withFragment([
-            'bar' => 'baz',
-        ]);
-
-        $this->assertSame('https://extends:framework@www.extends.nl:443/foo/bar?baz=qux+quux#bar=baz', (string)$uri);
-    }
-
-    /**
      * Get methods.
      *
      * Test that get methods will return the correct $_SERVER values.
@@ -211,5 +187,48 @@ class UriTest extends TestCase
             'foo' => 'bar',
             'qux' => 'quux',
         ], $uri->getQuery());
+    }
+
+    /**
+     * To relative.
+     *
+     * Test that method will return relative URI.
+     *
+     * @covers \ExtendsFramework\Http\Request\Uri\Uri::toRelative()
+     */
+    public function testToRelative(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/foo/bar?baz=qux+quux';
+        $_SERVER['QUERY_STRING'] = 'baz=qux+quux';
+
+        $uri = (new Uri())->withFragment([
+            'bar' => 'baz',
+        ]);
+
+        $this->assertSame('/foo/bar?baz=qux+quux#bar=baz', $uri->toRelative());
+    }
+
+    /**
+     * To absolute.
+     *
+     * Test that method will return absolute URI.
+     *
+     * @covers \ExtendsFramework\Http\Request\Uri\Uri::toAbsolute()
+     */
+    public function testToAbsolute(): void
+    {
+        $_SERVER['HTTPS'] = 'on';
+        $_SERVER['HTTP_HOST'] = 'www.extends.nl';
+        $_SERVER['PHP_AUTH_PW'] = 'framework';
+        $_SERVER['PHP_AUTH_USER'] = 'extends';
+        $_SERVER['REQUEST_URI'] = '/foo/bar?baz=qux+quux';
+        $_SERVER['QUERY_STRING'] = 'baz=qux+quux';
+        $_SERVER['SERVER_PORT'] = 443;
+
+        $uri = (new Uri())->withFragment([
+            'bar' => 'baz',
+        ]);
+
+        $this->assertSame('https://extends:framework@www.extends.nl:443/foo/bar?baz=qux+quux#bar=baz', $uri->toAbsolute());
     }
 }

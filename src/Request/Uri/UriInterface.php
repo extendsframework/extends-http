@@ -6,13 +6,6 @@ namespace ExtendsFramework\Http\Request\Uri;
 interface UriInterface
 {
     /**
-     * Get string representation from URI.
-     *
-     * @return string
-     */
-    public function __toString(): string;
-
-    /**
      * Merge $name and $value into existing fragment and return new instance.
      *
      * @param string $name
@@ -191,4 +184,18 @@ interface UriInterface
      * @return UriInterface
      */
     public function withUserInfo(string $user, string $pass): UriInterface;
+
+    /**
+     * Get relative URI.
+     *
+     * @return string
+     */
+    public function toRelative(): string;
+
+    /**
+     * Get absolute URI.
+     *
+     * @return string
+     */
+    public function toAbsolute(): string;
 }
