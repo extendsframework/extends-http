@@ -19,9 +19,9 @@ interface ResponseInterface
     /**
      * Return body.
      *
-     * @return array|null
+     * @return mixed
      */
-    public function getBody(): ?array;
+    public function getBody();
 
     /**
      * Return headers.

@@ -47,7 +47,7 @@ class Response implements ResponseInterface, StaticFactoryInterface
     /**
      * @inheritDoc
      */
-    public function getBody(): ?array
+    public function getBody()
     {
         return $this->body;
     }
