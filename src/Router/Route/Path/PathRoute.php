@@ -9,17 +9,16 @@ use ExtendsFramework\Http\Router\Route\RouteMatch;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryInterface;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
-use ExtendsFramework\Validator\Constraint\ConstraintInterface;
-use ExtendsFramework\Validator\Constraint\ConstraintViolationInterface;
+use ExtendsFramework\Validator\ValidatorInterface;
 
 class PathRoute implements RouteInterface, StaticFactoryInterface
 {
     /**
-     * Constraints for matching the URI variables.
+     * Validators for matching the URI variables.
      *
-     * @var ConstraintInterface[]
+     * @var ValidatorInterface[]
      */
-    protected $constraints;
+    protected $validators;
 
     /**
      * Default parameters to return when route is matched.
@@ -42,19 +41,19 @@ class PathRoute implements RouteInterface, StaticFactoryInterface
      * start with a semicolon followed by a name. The name must start with a letter and can only consist of
      * alphanumeric characters. When this condition is not matched, the variable will be skipped.
      *
-     * The variable name will be checked for the constraint given in the $constraints array. When the variable name is
-     * not found as array key, the default constraint \w+ will be used.
+     * The variable name will be checked for the validator given in the $validators array. When the variable name is
+     * not found as array key, the default validator \w+ will be used.
      *
      * For example: /foo/:bar/:baz/qux
      *
      * @param string $path
-     * @param array  $constraints
+     * @param array  $validators
      * @param array  $parameters
      */
-    public function __construct(string $path, array $constraints = null, array $parameters = null)
+    public function __construct(string $path, array $validators = null, array $parameters = null)
     {
         $this->path = $path;
-        $this->constraints = $constraints ?? [];
+        $this->validators = $validators ?? [];
         $this->parameters = $parameters ?? [];
     }
 
@@ -64,9 +63,9 @@ class PathRoute implements RouteInterface, StaticFactoryInterface
     public function match(RequestInterface $request, int $pathOffset): ?RouteMatchInterface
     {
         if ((bool)preg_match($this->getPattern(), $request->getUri()->getPath(), $matches, PREG_OFFSET_CAPTURE, $pathOffset) === true) {
-            foreach ($this->constraints as $parameter => $constraint) {
-                $violation = $constraint->validate($matches[$parameter][0]);
-                if ($violation instanceof ConstraintViolationInterface) {
+            foreach ($this->validators as $parameter => $validator) {
+                $result = $validator->validate($matches[$parameter][0]);
+                if ($result->isValid() === false) {
                     return null;
                 }
             }
@@ -82,18 +81,18 @@ class PathRoute implements RouteInterface, StaticFactoryInterface
      */
     public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): RouteInterface
     {
-        $constraints = [];
-        foreach ($extra['constraints'] ?? [] as $parameter => $constraint) {
-            if (is_string($constraint) === true) {
-                $constraint = [
-                    'name' => $constraint,
+        $validators = [];
+        foreach ($extra['validators'] ?? [] as $parameter => $validator) {
+            if (is_string($validator) === true) {
+                $validator = [
+                    'name' => $validator,
                 ];
             }
 
-            $constraints[] = $serviceLocator->getService($constraint['name'], $constraint['options'] ?? []);
+            $validators[] = $serviceLocator->getService($validator['name'], $validator['options'] ?? []);
         }
 
-        return new static($extra['path'], $constraints, $extra['parameters'] ?? []);
+        return new static($extra['path'], $validators, $extra['parameters'] ?? []);
     }
 
     /**

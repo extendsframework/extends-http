@@ -11,17 +11,16 @@ use ExtendsFramework\Http\Router\Route\RouteMatch;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryInterface;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
-use ExtendsFramework\Validator\Constraint\ConstraintInterface;
-use ExtendsFramework\Validator\Constraint\ConstraintViolationInterface;
+use ExtendsFramework\Validator\ValidatorInterface;
 
 class QueryRoute implements RouteInterface, StaticFactoryInterface
 {
     /**
-     * Constraints for matching the query parameters.
+     * Validators for matching the query parameters.
      *
-     * @var ConstraintInterface[]
+     * @var ValidatorInterface[]
      */
-    protected $constraints;
+    protected $validators;
 
     /**
      * Default parameters to return when route is matched.
@@ -31,12 +30,12 @@ class QueryRoute implements RouteInterface, StaticFactoryInterface
     protected $parameters;
 
     /**
-     * @param array $constraints
+     * @param array $validators
      * @param array $parameters
      */
-    public function __construct(array $constraints, array $parameters = null)
+    public function __construct(array $validators, array $parameters = null)
     {
-        $this->constraints = $constraints;
+        $this->validators = $validators;
         $this->parameters = $parameters ?? [];
     }
 
@@ -48,13 +47,13 @@ class QueryRoute implements RouteInterface, StaticFactoryInterface
         $query = $request->getUri()->getQuery();
 
         $matched = [];
-        foreach ($this->constraints as $path => $constraint) {
+        foreach ($this->validators as $path => $validator) {
             if (array_key_exists($path, $query) === true) {
                 $value = $query[$path];
 
-                $violation = $constraint->validate($value, $query);
-                if ($violation instanceof ConstraintViolationInterface) {
-                    throw new InvalidQueryString($path, $violation);
+                $result = $validator->validate($value, $query);
+                if ($result->isValid() === false) {
+                    throw new InvalidQueryString($path, $result);
                 }
 
                 $matched[$path] = $value;
@@ -71,18 +70,18 @@ class QueryRoute implements RouteInterface, StaticFactoryInterface
      */
     public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): RouteInterface
     {
-        $constraints = [];
-        foreach ($extra['constraints'] ?? [] as $parameter => $constraint) {
-            if (is_string($constraint) === true) {
-                $constraint = [
-                    'name' => $constraint,
+        $validators = [];
+        foreach ($extra['validators'] ?? [] as $parameter => $validator) {
+            if (is_string($validator) === true) {
+                $validator = [
+                    'name' => $validator,
                 ];
             }
 
-            $constraints[$parameter] = $serviceLocator->getService($constraint['name'], $constraint['options'] ?? []);
+            $validators[$parameter] = $serviceLocator->getService($validator['name'], $validator['options'] ?? []);
         }
 
-        return new static($constraints, $extra['parameters'] ?? []);
+        return new static($validators, $extra['parameters'] ?? []);
     }
 
     /**

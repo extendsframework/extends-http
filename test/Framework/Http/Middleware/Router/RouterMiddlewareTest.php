@@ -12,7 +12,7 @@ use ExtendsFramework\Http\Router\Route\Query\Exception\InvalidQueryString;
 use ExtendsFramework\Http\Router\Route\Query\Exception\QueryParameterMissing;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use ExtendsFramework\Http\Router\RouterInterface;
-use ExtendsFramework\Validator\Constraint\ConstraintViolationInterface;
+use ExtendsFramework\Validator\Result\ResultInterface;
 use PHPUnit\Framework\TestCase;
 
 class RouterMiddlewareTest extends TestCase
@@ -70,6 +70,7 @@ class RouterMiddlewareTest extends TestCase
      * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::__construct()
      * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::process()
      * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::getNotFoundResponse()
+     * @covers \ExtendsFramework\Http\Router\Exception\NotFound::getRequest()
      */
     public function testNotFound(): void
     {
@@ -154,7 +155,7 @@ class RouterMiddlewareTest extends TestCase
 
         $request = $this->createMock(RequestInterface::class);
 
-        $violation = $this->createMock(ConstraintViolationInterface::class);
+        $result = $this->createMock(ResultInterface::class);
 
         $exception = $this->createMock(InvalidQueryString::class);
         $exception
@@ -164,8 +165,8 @@ class RouterMiddlewareTest extends TestCase
 
         $exception
             ->expects($this->once())
-            ->method('getViolation')
-            ->willReturn($violation);
+            ->method('getResult')
+            ->willReturn($result);
 
         $router = $this->createMock(RouterInterface::class);
         $router
@@ -188,7 +189,7 @@ class RouterMiddlewareTest extends TestCase
             'type' => '',
             'title' => 'Invalid query string.',
             'parameter' => 'foo',
-            'reason' => $violation,
+            'reason' => $result,
         ], $response->getBody());
     }
 

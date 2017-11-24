@@ -105,7 +105,7 @@ class RouterMiddleware implements MiddlewareInterface
             ->withProblem(400, '', 'Invalid query string.')
             ->andBody([
                 'parameter' => $exception->getParameter(),
-                'reason' => $exception->getViolation(),
+                'reason' => $exception->getResult(),
             ]);
     }
 

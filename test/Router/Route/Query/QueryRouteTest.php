@@ -10,8 +10,8 @@ use ExtendsFramework\Http\Router\Route\Query\Exception\QueryParameterMissing;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
-use ExtendsFramework\Validator\Constraint\ConstraintInterface;
-use ExtendsFramework\Validator\Constraint\ConstraintViolationInterface;
+use ExtendsFramework\Validator\Result\ResultInterface;
+use ExtendsFramework\Validator\ValidatorInterface;
 use PHPUnit\Framework\TestCase;
 
 class QueryRouteTest extends TestCase
@@ -42,22 +42,28 @@ class QueryRouteTest extends TestCase
             ->method('getUri')
             ->willReturn($uri);
 
-        $constraint = $this->createMock(ConstraintInterface::class);
-        $constraint
+        $result = $this->createMock(ResultInterface::class);
+        $result
+            ->expects($this->exactly(2))
+            ->method('isValid')
+            ->willReturn(true);
+
+        $validator = $this->createMock(ValidatorInterface::class);
+        $validator
             ->expects($this->exactly(2))
             ->method('validate')
             ->withConsecutive(
                 ['20'],
                 ['0']
             )
-            ->willReturn(null);
+            ->willReturn($result);
 
         /**
          * @var RequestInterface $request
          */
         $path = new QueryRoute([
-            'limit' => $constraint,
-            'offset' => $constraint,
+            'limit' => $validator,
+            'offset' => $validator,
         ], [
             'offset' => '0',
         ]);
@@ -82,7 +88,7 @@ class QueryRouteTest extends TestCase
      * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::match()
      * @covers \ExtendsFramework\Http\Router\Route\Query\Exception\InvalidQueryString::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Query\Exception\InvalidQueryString::getParameter()
-     * @covers \ExtendsFramework\Http\Router\Route\Query\Exception\InvalidQueryString::getViolation()
+     * @covers \ExtendsFramework\Http\Router\Route\Query\Exception\InvalidQueryString::getResult()
      */
     public function testNoMatch(): void
     {
@@ -101,41 +107,41 @@ class QueryRouteTest extends TestCase
             ->method('getUri')
             ->willReturn($uri);
 
-        $violation = $this->createMock(ConstraintViolationInterface::class);
-        $violation
+        $result = $this->createMock(ResultInterface::class);
+        $result
             ->expects($this->once())
-            ->method('__toString')
-            ->willReturn('Some fancy reason!');
+            ->method('isValid')
+            ->willReturn(false);
 
-        $constraint = $this->createMock(ConstraintInterface::class);
-        $constraint
+        $validator = $this->createMock(ValidatorInterface::class);
+        $validator
             ->expects($this->once())
             ->method('validate')
             ->with('foo')
-            ->willReturn($violation);
+            ->willReturn($result);
 
         /**
          * @var RequestInterface $request
          */
         $path = new QueryRoute([
-            'limit' => $constraint,
-            'offset' => $constraint,
+            'limit' => $validator,
+            'offset' => $validator,
         ]);
 
         try {
             $path->match($request, 4);
         } catch (InvalidQueryString $exception) {
             $this->assertSame(
-                'Query string parameter "limit" failed due to violation "Some fancy reason!".',
+                'Query string parameter "limit" failed to validate.',
                 $exception->getMessage()
             );
             $this->assertSame('limit', $exception->getParameter());
-            $this->assertSame($violation, $exception->getViolation());
+            $this->assertSame($result, $exception->getResult());
         }
     }
 
     /**
-     * Constraint without default.
+     * Validator without default.
      *
      * Test that a missing query parameter, without default value, will thrown an exception.
      *
@@ -144,7 +150,7 @@ class QueryRouteTest extends TestCase
      * @covers \ExtendsFramework\Http\Router\Route\Query\Exception\QueryParameterMissing::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\Query\Exception\QueryParameterMissing::getParameter()
      */
-    public function testConstraintWithoutDefault(): void
+    public function testValidatorWithoutDefault(): void
     {
         $uri = $this->createMock(UriInterface::class);
         $uri
@@ -160,14 +166,25 @@ class QueryRouteTest extends TestCase
             ->method('getUri')
             ->willReturn($uri);
 
-        $constraint = $this->createMock(ConstraintInterface::class);
+        $result = $this->createMock(ResultInterface::class);
+        $result
+            ->expects($this->once())
+            ->method('isValid')
+            ->willReturn(true);
+
+        $validator = $this->createMock(ValidatorInterface::class);
+        $validator
+            ->expects($this->once())
+            ->method('validate')
+            ->with(20)
+            ->willReturn($result);
 
         /**
          * @var RequestInterface $request
          */
         $path = new QueryRoute([
-            'limit' => $constraint,
-            'offset' => $constraint,
+            'limit' => $validator,
+            'offset' => $validator,
         ]);
 
         try {
@@ -187,31 +204,31 @@ class QueryRouteTest extends TestCase
      */
     public function testFactory(): void
     {
-        $constraint = $this->createMock(ConstraintInterface::class);
+        $validator = $this->createMock(ValidatorInterface::class);
 
         $serviceLocator = $this->createMock(ServiceLocatorInterface::class);
         $serviceLocator
             ->expects($this->exactly(2))
             ->method('getService')
             ->withConsecutive(
-                [ConstraintInterface::class, ['foo' => 'bar',]],
-                [ConstraintInterface::class, []]
+                [ValidatorInterface::class, ['foo' => 'bar',]],
+                [ValidatorInterface::class, []]
             )
-            ->willReturn($constraint);
+            ->willReturn($validator);
 
         /**
          * @var ServiceLocatorInterface $serviceLocator
          */
         $route = QueryRoute::factory(QueryRoute::class, $serviceLocator, [
             'path' => '/:id/bar',
-            'constraints' => [
+            'validators' => [
                 'limit' => [
-                    'name' => ConstraintInterface::class,
+                    'name' => ValidatorInterface::class,
                     'options' => [
                         'foo' => 'bar',
                     ],
                 ],
-                'offset' => ConstraintInterface::class, // Short syntax will be converted to array with 'name' property.
+                'offset' => ValidatorInterface::class, // Short syntax will be converted to array with 'name' property.
             ],
             'parameters' => [
                 'offset' => '0',

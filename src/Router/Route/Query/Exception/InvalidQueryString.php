@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Router\Route\Query\Exception;
 
 use ExtendsFramework\Http\Router\Route\Query\QueryRouteException;
-use ExtendsFramework\Validator\Constraint\ConstraintViolationInterface;
+use ExtendsFramework\Validator\Result\ResultInterface;
 use InvalidArgumentException;
 
 class InvalidQueryString extends InvalidArgumentException implements QueryRouteException
@@ -17,28 +17,27 @@ class InvalidQueryString extends InvalidArgumentException implements QueryRouteE
     protected $parameter;
 
     /**
-     * Query string constraint violation.
+     * Validation result.
      *
-     * @var ConstraintViolationInterface
+     * @var ResultInterface
      */
-    protected $violation;
+    protected $result;
 
     /**
      * InvalidParameterValue constructor.
      *
-     * @param string                       $parameter
-     * @param ConstraintViolationInterface $violation
+     * @param string          $parameter
+     * @param ResultInterface $result
      */
-    public function __construct(string $parameter, ConstraintViolationInterface $violation)
+    public function __construct(string $parameter, ResultInterface $result)
     {
         parent::__construct(sprintf(
-            'Query string parameter "%s" failed due to violation "%s".',
-            $parameter,
-            (string)$violation
+            'Query string parameter "%s" failed to validate.',
+            $parameter
         ));
 
         $this->parameter = $parameter;
-        $this->violation = $violation;
+        $this->result = $result;
     }
 
     /**
@@ -52,12 +51,12 @@ class InvalidQueryString extends InvalidArgumentException implements QueryRouteE
     }
 
     /**
-     * Get query string violations.
+     * Get validation result.
      *
-     * @return ConstraintViolationInterface
+     * @return ResultInterface
      */
-    public function getViolation(): ConstraintViolationInterface
+    public function getResult(): ResultInterface
     {
-        return $this->violation;
+        return $this->result;
     }
 }
