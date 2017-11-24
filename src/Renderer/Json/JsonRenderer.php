@@ -84,7 +84,7 @@ class JsonRenderer implements RendererInterface
             return '';
         }
 
-        return json_encode($body, JSON_PARTIAL_OUTPUT_ON_ERROR);
+        return json_encode($body, JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_FORCE_OBJECT);
     }
 
     /**

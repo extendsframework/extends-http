@@ -67,9 +67,11 @@ class RouterMiddleware implements MiddlewareInterface
     protected function getMethodNotAllowedResponse(MethodNotAllowed $exception): ResponseInterface
     {
         return (new Response())
-            ->withProblem(405, '', 'Method not allowed.')
+            ->withStatusCode(405)
             ->withHeader('Allow', implode(', ', $exception->getAllowedMethods()))
-            ->andBody([
+            ->withBody([
+                'type' => '',
+                'title' => 'Method not allowed.',
                 'method' => $exception->getMethod(),
                 'allowed_methods' => $exception->getAllowedMethods(),
             ]);
@@ -84,8 +86,10 @@ class RouterMiddleware implements MiddlewareInterface
     protected function getNotFoundResponse(NotFound $exception): ResponseInterface
     {
         return (new Response())
-            ->withProblem(404, '', 'Not found.')
-            ->andBody([
+            ->withStatusCode(404)
+            ->withBody([
+                'type' => '',
+                'title' => 'Not found.',
                 'path' => $exception
                     ->getRequest()
                     ->getUri()
@@ -102,8 +106,10 @@ class RouterMiddleware implements MiddlewareInterface
     protected function getInvalidQueryStringResponse(InvalidQueryString $exception): ResponseInterface
     {
         return (new Response())
-            ->withProblem(400, '', 'Invalid query string.')
-            ->andBody([
+            ->withStatusCode(400)
+            ->withBody([
+                'type' => '',
+                'title' => 'Invalid query string.',
                 'parameter' => $exception->getParameter(),
                 'reason' => $exception->getResult(),
             ]);
@@ -118,8 +124,10 @@ class RouterMiddleware implements MiddlewareInterface
     protected function getQueryParameterMissingResponse(QueryParameterMissing $exception): ResponseInterface
     {
         return (new Response())
-            ->withProblem(400, '', 'Query parameter missing.')
-            ->andBody([
+            ->withStatusCode(400)
+            ->withBody([
+                'type' => '',
+                'title' => 'Query parameter missing.',
                 'parameter' => $exception->getParameter(),
             ]);
     }

@@ -48,10 +48,10 @@ interface RequestInterface
     /**
      * Return body.
      *
-     * @return array
+     * @return mixed
      * @throws RequestException
      */
-    public function getBody(): array;
+    public function getBody();
 
     /**
      * Return headers.
@@ -96,10 +96,10 @@ interface RequestInterface
     /**
      * Return new instance with $body.
      *
-     * @param array $body
+     * @param mixed $body
      * @return RequestInterface
      */
-    public function withBody(array $body): RequestInterface;
+    public function withBody($body): RequestInterface;
 
     /**
      * Set header with $name for $value.

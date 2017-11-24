@@ -195,7 +195,7 @@ class JsonRendererTest extends TestCase
         $renderer->render($response);
         $output = ob_get_clean();
 
-        $this->assertSame('[]', $output);
+        $this->assertSame('{}', $output);
         $this->assertSame([
             'Accept-Charset: utf-8',
             'Content-Type: application/problem+json',

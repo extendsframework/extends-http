@@ -32,7 +32,7 @@ class RequestTest extends TestCase
         $request = new Request();
 
         $this->assertSame([], $request->getAttributes());
-        $this->assertSame(['foo' => 'qux',], $request->getBody());
+        $this->assertEquals((object)['foo' => 'qux',], $request->getBody());
         $this->assertSame(['Content-Type' => 'application/json'], $request->getHeaders());
         $this->assertSame('POST', $request->getMethod());
         $this->assertInstanceOf(UriInterface::class, $request->getUri());
@@ -123,7 +123,7 @@ class RequestTest extends TestCase
         $this->assertSame([
             'foo' => [
                 'bar',
-                'baz'
+                'baz',
             ],
             'qux' => 'quux',
         ], $request->getHeaders());

@@ -17,14 +17,6 @@ interface ResponseInterface
     public function andHeader(string $name, string $value): ResponseInterface;
 
     /**
-     * Merge existing body with $body.
-     *
-     * @param array $body
-     * @return ResponseInterface
-     */
-    public function andBody(array $body): ResponseInterface;
-
-    /**
      * Return body.
      *
      * @return array|null
@@ -48,10 +40,10 @@ interface ResponseInterface
     /**
      * Return new instance with $body.
      *
-     * @param array $body
+     * @param mixed $body
      * @return ResponseInterface
      */
-    public function withBody(array $body): ResponseInterface;
+    public function withBody($body): ResponseInterface;
 
     /**
      * Set header with $name for $value.
@@ -79,17 +71,4 @@ interface ResponseInterface
      * @return ResponseInterface
      */
     public function withStatusCode(int $statusCode): ResponseInterface;
-
-    /**
-     * Problem details proxy method.
-     *
-     * Set status code and body with type and title for problem details. Use andBody() method to add additional data.
-     *
-     * @param int    $statusCode
-     * @param string $type
-     * @param string $title
-     * @return ResponseInterface
-     * @see https://tools.ietf.org/html/rfc7807
-     */
-    public function withProblem(int $statusCode, string $type, string $title): ResponseInterface;
 }

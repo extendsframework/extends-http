@@ -47,20 +47,6 @@ class Response implements ResponseInterface, StaticFactoryInterface
     /**
      * @inheritDoc
      */
-    public function andBody(array $body): ResponseInterface
-    {
-        $clone = clone $this;
-        $clone->body = array_merge(
-            $clone->body ?? [],
-            $body
-        );
-
-        return $clone;
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function getBody(): ?array
     {
         return $this->body;
@@ -85,7 +71,7 @@ class Response implements ResponseInterface, StaticFactoryInterface
     /**
      * @inheritDoc
      */
-    public function withBody(array $body): ResponseInterface
+    public function withBody($body): ResponseInterface
     {
         $clone = clone $this;
         $clone->body = $body;
@@ -124,19 +110,6 @@ class Response implements ResponseInterface, StaticFactoryInterface
         $clone->statusCode = $statusCode;
 
         return $clone;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function withProblem(int $statusCode, string $type, string $title): ResponseInterface
-    {
-        return (clone $this)
-            ->withStatusCode($statusCode)
-            ->withBody([
-                'type' => $type,
-                'title' => $title,
-            ]);
     }
 
     /**

@@ -74,7 +74,7 @@ class Request implements RequestInterface, StaticFactoryInterface
         if (array_key_exists($name, $clone->headers) === true) {
             if (is_array($clone->headers[$name]) === false) {
                 $clone->headers[$name] = [
-                    $clone->headers[$name]
+                    $clone->headers[$name],
                 ];
             }
 
@@ -105,10 +105,10 @@ class Request implements RequestInterface, StaticFactoryInterface
     /**
      * @inheritDoc
      */
-    public function getBody(): array
+    public function getBody()
     {
         if ($this->body === null) {
-            $this->body = json_decode(file_get_contents('php://input') ?: '[]', true);
+            $this->body = json_decode(file_get_contents('php://input') ?: null);
             if ($this->body === null) {
                 throw new InvalidRequestBody(json_last_error_msg());
             }
@@ -186,7 +186,7 @@ class Request implements RequestInterface, StaticFactoryInterface
     /**
      * @inheritDoc
      */
-    public function withBody(array $body): RequestInterface
+    public function withBody($body): RequestInterface
     {
         $clone = clone $this;
         $clone->body = $body;
