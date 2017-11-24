@@ -95,6 +95,17 @@ class Uri implements UriInterface
     /**
      * @inheritDoc
      */
+    public function andPath(string $path): UriInterface
+    {
+        $clone = clone $this;
+        $clone->path = rtrim($clone->path ?? '', '/') . '/' . ltrim($path, '/');
+
+        return $clone;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function andQuery(string $name, string $value): UriInterface
     {
         $clone = clone $this;

@@ -25,7 +25,7 @@ class UriTest extends TestCase
         $_SERVER['SERVER_PORT'] = 443;
 
         $uri = (new Uri())->withFragment([
-            'bar' => 'baz'
+            'bar' => 'baz',
         ]);
 
         $this->assertSame('https://extends:framework@www.extends.nl:443/foo/bar?baz=qux+quux#bar=baz', (string)$uri);
@@ -171,6 +171,25 @@ class UriTest extends TestCase
             'foo' => 'bar',
             'qux' => 'quux',
         ], $uri->getFragment());
+    }
+
+    /**
+     * And path.
+     *
+     * Test that a path will be added to the existing path.
+     *
+     * @covers \ExtendsFramework\Http\Request\Uri\Uri::withPath()
+     * @covers \ExtendsFramework\Http\Request\Uri\Uri::andPath()
+     * @covers \ExtendsFramework\Http\Request\Uri\Uri::getPath()
+     */
+    public function testAndPath(): void
+    {
+        $uri = (new Uri())
+            ->withPath('/foo')
+            ->andPath('/bar/')
+            ->andPath('/baz');
+
+        $this->assertSame('/foo/bar/baz', $uri->getPath());
     }
 
     /**
