@@ -14,6 +14,7 @@ class RequestTest extends TestCase
      *
      * Test that get methods will return the correct php://input abd $_SERVER values.
      *
+     * @covers \ExtendsFramework\Http\Request\Request::fromEnvironment()
      * @covers \ExtendsFramework\Http\Request\Request::getAttributes()
      * @covers \ExtendsFramework\Http\Request\Request::getBody()
      * @covers \ExtendsFramework\Http\Request\Request::getHeaders()
@@ -24,16 +25,21 @@ class RequestTest extends TestCase
     {
         Buffer::set('{"foo":"qux"}');
 
+        $_SERVER['HTTP_HOST'] = 'www.example.com';
+        $_SERVER['SERVER_PORT'] = 80;
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $_SERVER['QUERY_STRING'] = 'baz=qux';
         $_SERVER['REQUEST_URI'] = '/foo/bar';
         $_SERVER['HTTP_CONTENT_TYPE'] = 'application/json';
 
-        $request = new Request();
+        $request = Request::fromEnvironment();
 
         $this->assertSame([], $request->getAttributes());
         $this->assertEquals((object)['foo' => 'qux',], $request->getBody());
-        $this->assertSame(['Content-Type' => 'application/json'], $request->getHeaders());
+        $this->assertSame([
+            'Host' => 'www.example.com',
+            'Content-Type' => 'application/json',
+        ], $request->getHeaders());
         $this->assertSame('POST', $request->getMethod());
         $this->assertInstanceOf(UriInterface::class, $request->getUri());
 
@@ -154,11 +160,25 @@ class RequestTest extends TestCase
     }
 
     /**
+     * Get URI.
+     *
+     * Test that default URI object will be returned.
+     *
+     * @covers \ExtendsFramework\Http\Request\Request::getUri()
+     */
+    public function testGetUri(): void
+    {
+        $uri = (new Request())->getUri();
+
+        $this->assertInstanceOf(UriInterface::class, $uri);
+    }
+
+    /**
      * Invalid body.
      *
      * Test that invalid body can not be parsed and a exception will be thrown.
      *
-     * @covers                   \ExtendsFramework\Http\Request\Request::getBody()
+     * @covers                   \ExtendsFramework\Http\Request\Request::fromEnvironment()
      * @covers                   \ExtendsFramework\Http\Request\Exception\InvalidRequestBody::__construct()
      * @expectedException        \ExtendsFramework\Http\Request\Exception\InvalidRequestBody
      * @expectedExceptionMessage Invalid JSON for request body, got parse error "Syntax error".
@@ -167,8 +187,7 @@ class RequestTest extends TestCase
     {
         Buffer::set('{"foo":"qux"');
 
-        $request = new Request();
-        $request->getBody();
+        Request::fromEnvironment();
 
         Buffer::reset();
     }
@@ -179,9 +198,12 @@ class RequestTest extends TestCase
      * Test that factory will return an instance of RequestInterface.
      *
      * @covers \ExtendsFramework\Http\Request\Request::factory()
+     * @covers \ExtendsFramework\Http\Request\Request::fromEnvironment()
      */
     public function testFactory(): void
     {
+        Buffer::set('{}');
+
         $serviceLocator = $this->createMock(ServiceLocatorInterface::class);
 
         /**
@@ -190,6 +212,8 @@ class RequestTest extends TestCase
         $request = Request::factory(RequestInterface::class, $serviceLocator);
 
         $this->assertInstanceOf(RequestInterface::class, $request);
+
+        Buffer::reset();
     }
 }
 

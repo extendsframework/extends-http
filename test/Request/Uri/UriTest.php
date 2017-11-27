@@ -12,6 +12,7 @@ class UriTest extends TestCase
      *
      * Test that get methods will return the correct $_SERVER values.
      *
+     * @covers \ExtendsFramework\Http\Request\Uri\Uri::fromEnvironment()
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::getAuthority()
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::getFragment()
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::getHost()
@@ -33,7 +34,7 @@ class UriTest extends TestCase
         $_SERVER['QUERY_STRING'] = 'baz=qux+quux';
         $_SERVER['SERVER_PORT'] = 443;
 
-        $uri = new Uri();
+        $uri = Uri::fromEnvironment();
 
         $this->assertSame('extends:framework@www.extends.nl:443', $uri->getAuthority());
         $this->assertSame([], $uri->getFragment());
@@ -150,25 +151,6 @@ class UriTest extends TestCase
     }
 
     /**
-     * And path.
-     *
-     * Test that a path will be added to the existing path.
-     *
-     * @covers \ExtendsFramework\Http\Request\Uri\Uri::withPath()
-     * @covers \ExtendsFramework\Http\Request\Uri\Uri::andPath()
-     * @covers \ExtendsFramework\Http\Request\Uri\Uri::getPath()
-     */
-    public function testAndPath(): void
-    {
-        $uri = (new Uri())
-            ->withPath('/foo')
-            ->andPath('/bar/')
-            ->andPath('/baz');
-
-        $this->assertSame('/foo/bar/baz', $uri->getPath());
-    }
-
-    /**
      * And query.
      *
      * Test that a single query parameter can be set.
@@ -194,6 +176,7 @@ class UriTest extends TestCase
      *
      * Test that method will return relative URI.
      *
+     * @covers \ExtendsFramework\Http\Request\Uri\Uri::fromEnvironment()
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::toRelative()
      */
     public function testToRelative(): void
@@ -201,7 +184,7 @@ class UriTest extends TestCase
         $_SERVER['REQUEST_URI'] = '/foo/bar?baz=qux+quux';
         $_SERVER['QUERY_STRING'] = 'baz=qux+quux';
 
-        $uri = (new Uri())->withFragment([
+        $uri = Uri::fromEnvironment()->withFragment([
             'bar' => 'baz',
         ]);
 
@@ -213,6 +196,7 @@ class UriTest extends TestCase
      *
      * Test that method will return absolute URI.
      *
+     * @covers \ExtendsFramework\Http\Request\Uri\Uri::fromEnvironment()
      * @covers \ExtendsFramework\Http\Request\Uri\Uri::toAbsolute()
      */
     public function testToAbsolute(): void
@@ -225,7 +209,7 @@ class UriTest extends TestCase
         $_SERVER['QUERY_STRING'] = 'baz=qux+quux';
         $_SERVER['SERVER_PORT'] = 443;
 
-        $uri = (new Uri())->withFragment([
+        $uri = Uri::fromEnvironment()->withFragment([
             'bar' => 'baz',
         ]);
 

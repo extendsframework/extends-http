@@ -22,7 +22,7 @@ class Request implements RequestInterface, StaticFactoryInterface
     /**
      * Post data.
      *
-     * @var array
+     * @var mixed
      */
     protected $body;
 
@@ -107,13 +107,6 @@ class Request implements RequestInterface, StaticFactoryInterface
      */
     public function getBody()
     {
-        if ($this->body === null) {
-            $this->body = json_decode(file_get_contents('php://input') ?: null);
-            if ($this->body === null) {
-                throw new InvalidRequestBody(json_last_error_msg());
-            }
-        }
-
         return $this->body;
     }
 
@@ -122,20 +115,6 @@ class Request implements RequestInterface, StaticFactoryInterface
      */
     public function getHeaders(): array
     {
-        if ($this->headers === []) {
-            foreach ($_SERVER as $name => $value) {
-                if (strpos($name, 'HTTP_') === 0) {
-                    $name = substr($name, 5);
-                    $name = str_replace('_', ' ', $name);
-                    $name = strtolower($name);
-                    $name = ucwords($name);
-                    $name = str_replace(' ', '-', $name);
-
-                    $this->headers[$name] = $value;
-                }
-            }
-        }
-
         return $this->headers;
     }
 
@@ -152,10 +131,6 @@ class Request implements RequestInterface, StaticFactoryInterface
      */
     public function getMethod(): string
     {
-        if ($this->method === null) {
-            $this->method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-        }
-
         return $this->method;
     }
 
@@ -243,6 +218,39 @@ class Request implements RequestInterface, StaticFactoryInterface
      */
     public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): RequestInterface
     {
-        return new static();
+        return static::fromEnvironment();
+    }
+
+    /**
+     * Construct from environment variables.
+     *
+     * @return RequestInterface
+     * @throws InvalidRequestBody
+     */
+    public static function fromEnvironment(): RequestInterface
+    {
+        $headers = [];
+        foreach ($_SERVER as $name => $value) {
+            if (strpos($name, 'HTTP_') === 0) {
+                $name = substr($name, 5);
+                $name = str_replace('_', ' ', $name);
+                $name = strtolower($name);
+                $name = ucwords($name);
+                $name = str_replace(' ', '-', $name);
+
+                $headers[$name] = $value;
+            }
+        }
+
+        $body = json_decode(file_get_contents('php://input') ?: null);
+        if ($body === null) {
+            throw new InvalidRequestBody(json_last_error_msg());
+        }
+
+        return (new static())
+            ->withMethod($_SERVER['REQUEST_METHOD'])
+            ->withBody($body)
+            ->withHeaders($headers)
+            ->withUri(Uri::fromEnvironment());
     }
 }

@@ -15,14 +15,6 @@ interface UriInterface
     public function andFragment(string $name, string $value): UriInterface;
 
     /**
-     * Append $path to existing path.
-     *
-     * @param string $path
-     * @return UriInterface
-     */
-    public function andPath(string $path): UriInterface;
-
-    /**
      * Merge $name and $value into existing query and return new instance.
      *
      * @param string $name

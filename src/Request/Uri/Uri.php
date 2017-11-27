@@ -31,7 +31,7 @@ class Uri implements UriInterface
      *
      * @var string
      */
-    protected $host;
+    protected $host = 'GET';
 
     /**
      * Port of the URI.
@@ -45,14 +45,14 @@ class Uri implements UriInterface
      *
      * @var string
      */
-    protected $path;
+    protected $path = '/';
 
     /**
      * Query or the URI.
      *
      * @var array
      */
-    protected $query;
+    protected $query = [];
 
     /**
      * Fragment of the URI.
@@ -68,17 +68,6 @@ class Uri implements UriInterface
     {
         $clone = clone $this;
         $clone->fragment[$name] = $value;
-
-        return $clone;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function andPath(string $path): UriInterface
-    {
-        $clone = clone $this;
-        $clone->path = rtrim($clone->path ?? '', '/') . '/' . ltrim($path, '/');
 
         return $clone;
     }
@@ -127,10 +116,6 @@ class Uri implements UriInterface
      */
     public function getHost(): string
     {
-        if ($this->host === null) {
-            $this->host = $_SERVER['HTTP_HOST'];
-        }
-
         return $this->host;
     }
 
@@ -139,10 +124,6 @@ class Uri implements UriInterface
      */
     public function getPass(): ?string
     {
-        if ($this->pass === null) {
-            $this->pass = $_SERVER['PHP_AUTH_PW'] ?? null;
-        }
-
         return $this->pass;
     }
 
@@ -151,10 +132,6 @@ class Uri implements UriInterface
      */
     public function getPath(): string
     {
-        if ($this->path === null) {
-            $this->path = strtok($_SERVER['REQUEST_URI'], '?');
-        }
-
         return $this->path;
     }
 
@@ -163,10 +140,6 @@ class Uri implements UriInterface
      */
     public function getPort(): ?int
     {
-        if ($this->port === null) {
-            $this->port = $_SERVER['SERVER_PORT'];
-        }
-
         return $this->port;
     }
 
@@ -175,10 +148,6 @@ class Uri implements UriInterface
      */
     public function getQuery(): array
     {
-        if ($this->query === null) {
-            parse_str($_SERVER['QUERY_STRING'], $this->query);
-        }
-
         return $this->query;
     }
 
@@ -187,10 +156,6 @@ class Uri implements UriInterface
      */
     public function getScheme(): string
     {
-        if ($this->scheme === null) {
-            $this->scheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-        }
-
         return $this->scheme;
     }
 
@@ -199,10 +164,6 @@ class Uri implements UriInterface
      */
     public function getUser(): ?string
     {
-        if ($this->user === null) {
-            $this->user = $_SERVER['PHP_AUTH_USER'] ?? null;
-        }
-
         return $this->user;
     }
 
@@ -363,5 +324,32 @@ class Uri implements UriInterface
     public function toAbsolute(): string
     {
         return $this->getScheme() . '://' . $this->getAuthority() . $this->toRelative();
+    }
+
+    /**
+     * Create URI from environment variables.
+     *
+     * @return UriInterface
+     */
+    public static function fromEnvironment(): UriInterface
+    {
+        parse_str($_SERVER['QUERY_STRING'], $query);
+
+        $uri = (new static())
+            ->withScheme((isset($_SERVER['HTTPS']) === true && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http')
+            ->withHost($_SERVER['HTTP_HOST'])
+            ->withPort($_SERVER['SERVER_PORT'])
+            ->withPath(strtok($_SERVER['REQUEST_URI'], '?'))
+            ->withQuery($query);
+
+        if (array_key_exists('PHP_AUTH_USER', $_SERVER) === true) {
+            $uri = $uri->withUser($_SERVER['PHP_AUTH_USER']);
+        }
+
+        if (array_key_exists('PHP_AUTH_PW', $_SERVER) === true) {
+            $uri = $uri->withPass($_SERVER['PHP_AUTH_PW']);
+        }
+
+        return $uri;
     }
 }

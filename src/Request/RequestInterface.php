@@ -76,7 +76,7 @@ interface RequestInterface
      *
      * @return string
      */
-    public function getMethod(): string;
+    public function getMethod(): ?string;
 
     /**
      * Return request URI.
