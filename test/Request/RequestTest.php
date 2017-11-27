@@ -193,6 +193,24 @@ class RequestTest extends TestCase
     }
 
     /**
+     * Empty body.
+     *
+     * Test that empty body is allowed for request.
+     *
+     * @covers \ExtendsFramework\Http\Request\Request::fromEnvironment()
+     */
+    public function testEmptyBody(): void
+    {
+        Buffer::set('');
+
+        $request = Request::fromEnvironment();
+
+        $this->assertNull($request->getBody());
+
+        Buffer::reset();
+    }
+
+    /**
      * Factory.
      *
      * Test that factory will return an instance of RequestInterface.
