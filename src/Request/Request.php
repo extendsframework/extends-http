@@ -242,7 +242,7 @@ class Request implements RequestInterface, StaticFactoryInterface
             }
         }
 
-        $body = json_decode(file_get_contents('php://input') ?: null);
+        $body = json_decode(file_get_contents('php://input') ?: '');
         if ($body === null) {
             throw new InvalidRequestBody(json_last_error_msg());
         }
