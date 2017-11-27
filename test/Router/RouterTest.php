@@ -5,6 +5,7 @@ namespace ExtendsFramework\Http\Router;
 
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Request\Uri\UriInterface;
+use ExtendsFramework\Http\Router\Route\Group\GroupRoute;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use PHPUnit\Framework\TestCase;
@@ -55,7 +56,7 @@ class RouterTest extends TestCase
          */
         $router = new Router();
         $matched = $router
-            ->addRoute($route)
+            ->addRoute($route, 'route')
             ->route($request);
 
         $this->assertSame($match, $matched);
@@ -129,9 +130,57 @@ class RouterTest extends TestCase
          */
         $router = new Router();
         $matched = $router
-            ->addRoute($route)
+            ->addRoute($route, 'route')
             ->route($request);
 
         $this->assertSame($match, $matched);
+    }
+
+    /**
+     * Assemble.
+     *
+     * Test that route will be assembled and request will be returned.
+     *
+     * @covers \ExtendsFramework\Http\Router\Router::assemble()
+     */
+    public function testAssemble(): void
+    {
+        $route = $this->createMock(GroupRoute::class);
+        $route
+            ->expects($this->once())
+            ->method('assemble')
+            ->with(
+                $this->isInstanceOf(RequestInterface::class),
+                ['bar', 'baz'],
+                ['foo' => 'bar']
+            )
+            ->willReturn($this->createMock(RequestInterface::class));
+
+        /**
+         * @var RouteInterface   $route
+         * @var RequestInterface $request
+         */
+        $router = new Router();
+        $request = $router
+            ->addRoute($route, 'foo')
+            ->assemble('foo/bar/baz', ['foo' => 'bar']);
+
+        $this->assertInstanceOf(RequestInterface::class, $request);
+    }
+
+    /**
+     * Invalid route path.
+     *
+     * Test that exception will be thrown when route path is invalid.
+     *
+     * @covers                   \ExtendsFramework\Http\Router\Router::assemble()
+     * @covers                   \ExtendsFramework\Http\Router\Exception\InvalidRoutePath::__construct()
+     * @expectedException        \ExtendsFramework\Http\Router\Exception\InvalidRoutePath
+     * @expectedExceptionMessage Invalid router assemble path, got "/foo/".
+     */
+    public function testInvalidRoutePath(): void
+    {
+        $router = new Router();
+        $router->assemble('/foo/');
     }
 }

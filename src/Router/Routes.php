@@ -1,10 +1,11 @@
 <?php
 declare(strict_types=1);
 
-
 namespace ExtendsFramework\Http\Router;
 
 use ExtendsFramework\Http\Request\RequestInterface;
+use ExtendsFramework\Http\Router\Exception\GroupRouteExpected;
+use ExtendsFramework\Http\Router\Exception\RouteNotFound;
 use ExtendsFramework\Http\Router\Route\Group\GroupRoute;
 use ExtendsFramework\Http\Router\Route\Method\Exception\MethodNotAllowed;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
@@ -23,11 +24,12 @@ trait Routes
      * Add $route to routes.
      *
      * @param RouteInterface $route
+     * @param string         $name
      * @return $this
      */
-    public function addRoute(RouteInterface $route)
+    public function addRoute(RouteInterface $route, string $name)
     {
-        $this->routes[] = $route;
+        $this->routes[$name] = $route;
 
         return $this;
     }
@@ -86,5 +88,29 @@ trait Routes
         });
 
         return $this->routes;
+    }
+
+    /**
+     * Get route for $name.
+     *
+     * @param string    $name       Name of the route.
+     * @param bool|null $groupRoute If route must be a GroupRoute (when assembling and a route path is left).
+     * @return RouteInterface
+     * @throws GroupRouteExpected   When route is not GroupRoute, but was expected to be.
+     * @throws RouteNotFound        When route for $name can not be found.
+     */
+    protected function getRoute(string $name, bool $groupRoute = null): RouteInterface
+    {
+        if (array_key_exists($name, $this->routes) === false) {
+            throw new RouteNotFound($name);
+        }
+
+        $route = $this->routes[$name];
+        if ($route instanceof GroupRoute || $groupRoute === false) {
+            return $route;
+        }
+
+        throw new GroupRouteExpected($route);
+
     }
 }

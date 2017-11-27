@@ -28,9 +28,10 @@ class RouterFactory implements ServiceFactoryInterface
         $config = $config[RouterInterface::class] ?? [];
 
         $router = new Router();
-        foreach ($config['routes'] ?? [] as $config) {
+        foreach ($config['routes'] ?? [] as $name => $config) {
             $router->addRoute(
-                $this->createRoute($serviceLocator, $config)
+                $this->createRoute($serviceLocator, $config),
+                $name
             );
         }
 
@@ -73,9 +74,10 @@ class RouterFactory implements ServiceFactoryInterface
             'abstract' => $abstract,
         ]);
 
-        foreach ($children as $child) {
+        foreach ($children as $name => $child) {
             $group->addRoute(
-                $this->createRoute($serviceLocator, $child)
+                $this->createRoute($serviceLocator, $child),
+                $name
             );
         }
 

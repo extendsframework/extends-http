@@ -141,6 +141,141 @@ class QueryRouteTest extends TestCase
     }
 
     /**
+     * Assemble.
+     *
+     * Test that query string will be set on request URI.
+     *
+     * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Query\QueryRoute::assemble()
+     */
+    public function testAssemble(): void
+    {
+        $result = $this->createMock(ResultInterface::class);
+        $result
+            ->expects($this->exactly(3))
+            ->method('isValid')
+            ->willReturn(true);
+
+        $validator = $this->createMock(ValidatorInterface::class);
+        $validator
+            ->expects($this->exactly(3))
+            ->method('validate')
+            ->withConsecutive(
+                ['foo'],
+                [20],
+                [10]
+            )
+            ->willReturn($result);
+
+        $uri = $this->createMock(UriInterface::class);
+        $uri
+            ->expects($this->exactly(2))
+            ->method('getQuery')
+            ->willReturn([
+                'offset' => 5,
+            ]);
+
+        $uri
+            ->expects($this->once())
+            ->method('withQuery')
+            ->with([
+                'phrase' => 'foo',
+                'offset' => 10,
+            ])
+            ->willReturnSelf();
+
+        $request = $this->createMock(RequestInterface::class);
+        $request
+            ->expects($this->once())
+            ->method('getUri')
+            ->willReturn($uri);
+
+        $request
+            ->expects($this->once())
+            ->method('withUri')
+            ->with($uri)
+            ->willReturnSelf();
+
+        /**
+         * @var RequestInterface $request
+         */
+        $host = new QueryRoute([
+            'phrase' => $validator,
+            'limit' => $validator,
+            'offset' => $validator,
+        ], [
+            'limit' => 20,
+            'offset' => 0,
+        ]);
+        $host->assemble($request, [], [
+            'phrase' => 'foo',
+            'limit' => 20,
+            'offset' => 10,
+        ]);
+    }
+
+    /**
+     * Query parameter missing.
+     *
+     * Test that exception will be thrown when required query parameter is missing.
+     *
+     * @covers            \ExtendsFramework\Http\Router\Route\Query\QueryRoute::__construct()
+     * @covers            \ExtendsFramework\Http\Router\Route\Query\QueryRoute::assemble()
+     * @expectedException \ExtendsFramework\Http\Router\Route\Query\Exception\QueryParameterMissing
+     */
+    public function testQueryParameterMissing(): void
+    {
+        $validator = $this->createMock(ValidatorInterface::class);
+
+        $request = $this->createMock(RequestInterface::class);
+
+        /**
+         * @var RequestInterface $request
+         */
+        $host = new QueryRoute([
+            'phrase' => $validator,
+        ]);
+        $host->assemble($request, [], []);
+    }
+
+    /**
+     * Invalid query string.
+     *
+     * Test that exception will be thrown when query string parameter is invalid.
+     *
+     * @covers            \ExtendsFramework\Http\Router\Route\Query\QueryRoute::__construct()
+     * @covers            \ExtendsFramework\Http\Router\Route\Query\QueryRoute::assemble()
+     * @expectedException \ExtendsFramework\Http\Router\Route\Query\Exception\InvalidQueryString
+     */
+    public function testInvalidQueryString(): void
+    {
+        $result = $this->createMock(ResultInterface::class);
+        $result
+            ->expects($this->once())
+            ->method('isValid')
+            ->willReturn(false);
+
+        $validator = $this->createMock(ValidatorInterface::class);
+        $validator
+            ->expects($this->once())
+            ->method('validate')
+            ->with('foo')
+            ->willReturn($result);
+
+        $request = $this->createMock(RequestInterface::class);
+
+        /**
+         * @var RequestInterface $request
+         */
+        $host = new QueryRoute([
+            'phrase' => $validator,
+        ]);
+        $host->assemble($request, [], [
+            'phrase' => 'foo',
+        ]);
+    }
+
+    /**
      * Validator without default.
      *
      * Test that a missing query parameter, without default value, will thrown an exception.

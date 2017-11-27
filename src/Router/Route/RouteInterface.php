@@ -18,4 +18,16 @@ interface RouteInterface
      * @throws RouteException
      */
     public function match(RequestInterface $request, int $pathOffset): ?RouteMatchInterface;
+
+    /**
+     * Assemble $path into $request.
+     *
+     * An exception will be thrown when routes for $path can not be found.
+     *
+     * @param RequestInterface $uri
+     * @param array            $path
+     * @param array            $parameters
+     * @return RequestInterface
+     */
+    public function assemble(RequestInterface $uri, array $path, array $parameters): RequestInterface;
 }

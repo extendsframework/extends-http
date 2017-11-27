@@ -68,6 +68,35 @@ class QueryRoute implements RouteInterface, StaticFactoryInterface
     /**
      * @inheritDoc
      */
+    public function assemble(RequestInterface $request, array $path, array $parameters): RequestInterface
+    {
+        $query = [];
+        $uri = $request->getUri();
+
+        $parameters = array_replace($this->parameters, $uri->getQuery(), $parameters);
+        foreach ($this->validators as $parameter => $validator) {
+            if (array_key_exists($parameter, $parameters) === false) {
+                throw new QueryParameterMissing($parameter);
+            }
+
+            $result = $validator->validate($parameters[$parameter]);
+            if ($result->isValid() === false) {
+                throw new InvalidQueryString($parameter, $result);
+            }
+
+            if (($this->parameters[$parameter] ?? null) !== ($parameters[$parameter] ?? null)) {
+                $query[$parameter] = $parameters[$parameter];
+            }
+        }
+
+        return $request->withUri(
+            $uri->withQuery(array_replace($uri->getQuery(), $query))
+        );
+    }
+
+    /**
+     * @inheritDoc
+     */
     public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): RouteInterface
     {
         $validators = [];
@@ -92,6 +121,6 @@ class QueryRoute implements RouteInterface, StaticFactoryInterface
      */
     protected function getParameters(array $matches): array
     {
-        return array_replace_recursive($this->parameters, $matches);
+        return array_replace($this->parameters, $matches);
     }
 }

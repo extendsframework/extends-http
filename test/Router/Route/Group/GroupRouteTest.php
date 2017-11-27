@@ -63,7 +63,7 @@ class GroupRouteTest extends TestCase
          */
         $group = new GroupRoute($route1);
         $matched = $group
-            ->addRoute($route2)
+            ->addRoute($route2, 'route2')
             ->match($request, 5);
 
         $this->assertInstanceOf(RouteMatchInterface::class, $matched);
@@ -167,6 +167,104 @@ class GroupRouteTest extends TestCase
         $matched = $group->match($request, 0);
 
         $this->assertNull($matched);
+    }
+
+    /**
+     * Assemble.
+     *
+     * Test that group route will pass assemble to child route.
+     *
+     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::assemble()
+     */
+    public function testAssemble(): void
+    {
+        $request = $this->createMock(RequestInterface::class);
+
+        $route = $this->createMock(RouteInterface::class);
+        $route
+            ->expects($this->once())
+            ->method('assemble')
+            ->with($request, [], ['qux' => 'quux'])
+            ->willReturn($request);
+
+        /**
+         * @var RouteInterface   $route
+         * @var RequestInterface $request
+         */
+        $group = new GroupRoute($route, false);
+        $group->assemble($request, [], [
+            'qux' => 'quux',
+        ]);
+    }
+
+    /**
+     * Assemble.
+     *
+     * Test that group route will pass assemble to child route and sub route.
+     *
+     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Group\GroupRoute::assemble()
+     */
+    public function testAssembleChildRoute(): void
+    {
+        $request = $this->createMock(RequestInterface::class);
+
+        $route = $this->createMock(GroupRoute::class);
+        $route
+            ->expects($this->exactly(2))
+            ->method('assemble')
+            ->withConsecutive(
+                [$request, ['bar', 'qux'], ['qux' => 'quux']],
+                [$request, ['qux'], ['qux' => 'quux']]
+            )
+            ->willReturn($request);
+
+        /**
+         * @var RouteInterface   $route
+         * @var RequestInterface $request
+         */
+        $group = new GroupRoute($route, false);
+        $group
+            ->addRoute($route, 'bar')
+            ->assemble($request, [
+                'bar',
+                'qux',
+            ], [
+                'qux' => 'quux',
+            ]);
+    }
+
+    /**
+     * Assemble.
+     *
+     * Test that abstract group route can not be assembled and an exception will be thrown.
+     *
+     * @covers                   \ExtendsFramework\Http\Router\Route\Group\GroupRoute::__construct()
+     * @covers                   \ExtendsFramework\Http\Router\Route\Group\GroupRoute::assemble()
+     * @covers                   \ExtendsFramework\Http\Router\Route\Group\Exception\AssembleAbstractGroupRoute::__construct()
+     * @expectedException        \ExtendsFramework\Http\Router\Route\Group\Exception\AssembleAbstractGroupRoute
+     * @expectedExceptionMessage Can not assemble a abstract route.
+     */
+    public function testAssembleAbstractRoute(): void
+    {
+        $request = $this->createMock(RequestInterface::class);
+
+        $route = $this->createMock(RouteInterface::class);
+        $route
+            ->expects($this->once())
+            ->method('assemble')
+            ->with($request, [], ['qux' => 'quux'])
+            ->willReturn($request);
+
+        /**
+         * @var RouteInterface   $route
+         * @var RequestInterface $request
+         */
+        $group = new GroupRoute($route);
+        $group->assemble($request, [], [
+            'qux' => 'quux',
+        ]);
     }
 
     /**

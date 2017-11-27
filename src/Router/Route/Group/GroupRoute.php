@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Router\Route\Group;
 
 use ExtendsFramework\Http\Request\RequestInterface;
+use ExtendsFramework\Http\Request\Uri\UriInterface;
+use ExtendsFramework\Http\Router\Route\Group\Exception\AssembleAbstractGroupRoute;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
 use ExtendsFramework\Http\Router\Routes;
@@ -60,6 +62,25 @@ class GroupRoute implements RouteInterface, StaticFactoryInterface
         }
 
         return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function assemble(RequestInterface $request, array $path, array $parameters): RequestInterface
+    {
+        $request = $this->route->assemble($request, $path, $parameters);
+        if (empty($path) === true) {
+            if ($this->abstract === true) {
+                throw new AssembleAbstractGroupRoute();
+            }
+
+            return $request;
+        }
+
+        return $this
+            ->getRoute(array_shift($path), empty($path) === false)
+            ->assemble($request, $path, $parameters);
     }
 
     /**

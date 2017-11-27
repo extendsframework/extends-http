@@ -83,6 +83,44 @@ class HostRouteTest extends TestCase
     }
 
     /**
+     * Assemble.
+     *
+     * Test that host will be set on request URI.
+     *
+     * @covers \ExtendsFramework\Http\Router\Route\Host\HostRoute::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Host\HostRoute::assemble()
+     */
+    public function testAssemble(): void
+    {
+        $uri = $this->createMock(UriInterface::class);
+        $uri
+            ->expects($this->once())
+            ->method('withHost')
+            ->with('www.example.com')
+            ->willReturnSelf();
+
+        $request = $this->createMock(RequestInterface::class);
+        $request
+            ->expects($this->once())
+            ->method('getUri')
+            ->willReturn($uri);
+
+        $request
+            ->expects($this->once())
+            ->method('withUri')
+            ->with($uri)
+            ->willReturnSelf();
+
+        /**
+         * @var RequestInterface $request
+         */
+        $host = new HostRoute('www.example.com', [
+            'foo' => 'bar',
+        ]);
+        $host->assemble($request, [], []);
+    }
+
+    /**
      * Factory.
      *
      * Test that factory will return an instance of RouteInterface.

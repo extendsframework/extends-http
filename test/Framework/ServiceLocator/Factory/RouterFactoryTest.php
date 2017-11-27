@@ -31,7 +31,7 @@ class RouterFactoryTest extends TestCase
             ->willReturn([
                 RouterInterface::class => [
                     'routes' => [
-                        [
+                        'scheme' => [
                             'name' => SchemeRoute::class,
                             'options' => [
                                 'scheme' => 'https',
@@ -41,7 +41,7 @@ class RouterFactoryTest extends TestCase
                             ],
                             'abstract' => false,
                             'children' => [
-                                [
+                                'post' => [
                                     'name' => MethodRoute::class,
                                     'options' => [
                                         'method' => MethodRoute::METHOD_POST,
@@ -71,7 +71,7 @@ class RouterFactoryTest extends TestCase
                 'scheme' => 'https',
                 'parameters' => [
                     'foo' => 'bar',
-                ]
+                ],
             ])
             ->willReturn($route1);
 

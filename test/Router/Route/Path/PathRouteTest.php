@@ -112,6 +112,81 @@ class PathRouteTest extends TestCase
     }
 
     /**
+     * Assemble.
+     *
+     * Test that path will be set on request URI.
+     *
+     * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::__construct()
+     * @covers \ExtendsFramework\Http\Router\Route\Path\PathRoute::assemble()
+     */
+    public function testAssemble(): void
+    {
+        $uri = $this->createMock(UriInterface::class);
+        $uri
+            ->expects($this->once())
+            ->method('getPath')
+            ->willReturn('/foo');
+
+        $uri
+            ->expects($this->once())
+            ->method('withPath')
+            ->with('/foo/bar/33')
+            ->willReturnSelf();
+
+        $request = $this->createMock(RequestInterface::class);
+        $request
+            ->expects($this->once())
+            ->method('getUri')
+            ->willReturn($uri);
+
+        $request
+            ->expects($this->once())
+            ->method('withUri')
+            ->with($uri)
+            ->willReturnSelf();
+
+        /**
+         * @var RequestInterface $request
+         */
+        $host = new PathRoute('/bar/:id');
+        $host->assemble($request, [], [
+            'id' => '33',
+        ]);
+    }
+
+    /**
+     * Parameter missing.
+     *
+     * Test that exception will be thrown when parameter is missing.
+     *
+     * @covers                   \ExtendsFramework\Http\Router\Route\Path\PathRoute::__construct()
+     * @covers                   \ExtendsFramework\Http\Router\Route\Path\PathRoute::assemble()
+     * @covers                   \ExtendsFramework\Http\Router\Route\Path\Exception\PathParameterMissing::__construct()
+     * @expectedException        \ExtendsFramework\Http\Router\Route\Path\Exception\PathParameterMissing
+     * @expectedExceptionMessage Failed to assemble route, path parameter "id" is missing.
+     */
+    public function testParameterMissing(): void
+    {
+        $uri = $this->createMock(UriInterface::class);
+        $uri
+            ->expects($this->once())
+            ->method('getPath')
+            ->willReturn('/foo');
+
+        $request = $this->createMock(RequestInterface::class);
+        $request
+            ->expects($this->once())
+            ->method('getUri')
+            ->willReturn($uri);
+
+        /**
+         * @var RequestInterface $request
+         */
+        $host = new PathRoute('/bar/:id');
+        $host->assemble($request, [], []);
+    }
+
+    /**
      * Invalid validator.
      *
      * Test that validator for 'id' is invalid and route won't match.

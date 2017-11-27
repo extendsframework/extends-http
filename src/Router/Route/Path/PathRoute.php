@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Router\Route\Path;
 
 use ExtendsFramework\Http\Request\RequestInterface;
+use ExtendsFramework\Http\Router\Route\Path\Exception\PathParameterMissing;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatch;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
@@ -74,6 +75,29 @@ class PathRoute implements RouteInterface, StaticFactoryInterface
         }
 
         return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function assemble(RequestInterface $request, array $path, array $parameters): RequestInterface
+    {
+        $parameters = array_replace_recursive($this->parameters, $parameters);
+
+        $uri = $request->getUri();
+        $current = $uri->getPath();
+        $addition = preg_replace_callback('~:([a-z][a-z0-9\_]+)~i', function ($match) use ($parameters) {
+            $parameter = $match[1];
+            if (array_key_exists($parameter, $parameters) === false) {
+                throw new PathParameterMissing($parameter);
+            }
+
+            return $parameters[$parameter];
+        }, $this->path);
+
+        return $request->withUri(
+            $uri->withPath(rtrim($current, '/') . '/' . ltrim($addition, '/'))
+        );
     }
 
     /**

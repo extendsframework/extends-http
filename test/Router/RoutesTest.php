@@ -49,8 +49,8 @@ class RoutesTest extends TestCase
          */
         $routes = new RoutesStub();
         $matched = $routes
-            ->addRoute($route1)
-            ->addRoute($route2)
+            ->addRoute($route1, 'route1')
+            ->addRoute($route2, 'route2')
             ->match($request);
 
         $this->assertSame($match, $matched);
@@ -111,8 +111,8 @@ class RoutesTest extends TestCase
          */
         $routes = new RoutesStub();
         $routes
-            ->addRoute($route1)
-            ->addRoute($route2);
+            ->addRoute($route1, 'route1')
+            ->addRoute($route2, 'route2');
 
         try {
             $routes->match($request);
@@ -157,8 +157,8 @@ class RoutesTest extends TestCase
          */
         $routes = new RoutesStub();
         $matched = $routes
-            ->addRoute($route1)
-            ->addRoute($route2)
+            ->addRoute($route1, 'route1')
+            ->addRoute($route2, 'route2')
             ->match($request);
 
         $this->assertSame($match, $matched);
@@ -206,12 +206,74 @@ class RoutesTest extends TestCase
          */
         $routes = new RoutesStub();
         $matched = $routes
-            ->addRoute($route1)
-            ->addRoute($route2)
-            ->addRoute($route3)
+            ->addRoute($route1, 'route1')
+            ->addRoute($route2, 'route2')
+            ->addRoute($route3, 'route3')
             ->match($request);
 
         $this->assertSame($match, $matched);
+    }
+
+    /**
+     * Get route.
+     *
+     * Test that route with name will be returned.
+     *
+     * @covers \ExtendsFramework\Http\Router\Routes::getRoute()
+     */
+    public function testGetRoute(): void
+    {
+        $route = $this->createMock(RouteInterface::class);
+
+        /**
+         * @var RouteInterface $route
+         */
+        $router = new RoutesStub();
+        $found = $router
+            ->addRoute($route, 'foo')
+            ->route('foo', false);
+
+        $this->assertSame($route, $found);
+    }
+
+    /**
+     * Route not found.
+     *
+     * Test that route can not be found and an exception will be thrown.
+     *
+     * @covers                   \ExtendsFramework\Http\Router\Routes::getRoute()
+     * @covers                   \ExtendsFramework\Http\Router\Exception\RouteNotFound::__construct()
+     * @expectedException        \ExtendsFramework\Http\Router\Exception\RouteNotFound
+     * @expectedExceptionMessage Route for name "foo" can not be found.
+     *
+     */
+    public function testRouteNotFound(): void
+    {
+        $router = new RoutesStub();
+        $router->route('foo');
+    }
+
+    /**
+     * Group route expected.
+     *
+     * Test that and exception will be thrown when group route is expected but not returned.
+     *
+     * @covers                          \ExtendsFramework\Http\Router\Routes::getRoute()
+     * @covers                          \ExtendsFramework\Http\Router\Exception\GroupRouteExpected::__construct()
+     * @expectedException               \ExtendsFramework\Http\Router\Exception\GroupRouteExpected
+     * @expectedExceptionMessageRegExp  /^A group route was expected, but an instance of "([^"]+)" was returned.$/
+     */
+    public function testGroupRouteExpected(): void
+    {
+        $route = $this->createMock(RouteInterface::class);
+
+        /**
+         * @var RouteInterface $route
+         */
+        $router = new RoutesStub();
+        $router
+            ->addRoute($route, 'foo')
+            ->route('foo', true);
     }
 }
 
@@ -227,5 +289,15 @@ class RoutesStub
     public function match(RequestInterface $request): ?RouteMatchInterface
     {
         return $this->matchRoutes($request, 0);
+    }
+
+    /**
+     * @param string    $name
+     * @param bool|null $groupRoute
+     * @return RouteInterface
+     */
+    public function route(string $name, bool $groupRoute = null): RouteInterface
+    {
+        return $this->getRoute($name, $groupRoute);
     }
 }

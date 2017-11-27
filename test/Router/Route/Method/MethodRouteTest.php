@@ -75,6 +75,24 @@ class MethodRouteTest extends TestCase
     }
 
     /**
+     * Assemble.
+     *
+     * Test that assemble method will return request.
+     *
+     * @covers \ExtendsFramework\Http\Router\Route\Method\MethodRoute::assemble()
+     */
+    public function testAssemble(): void
+    {
+        $request = $this->createMock(RequestInterface::class);
+
+        /**
+         * @var RequestInterface $request
+         */
+        $method = new MethodRoute(['POST']);
+        $this->assertSame($request, $method->assemble($request, [], []));
+    }
+
+    /**
      * Factory.
      *
      * Test that factory will return an instance of RouteInterface.

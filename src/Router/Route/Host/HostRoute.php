@@ -53,6 +53,18 @@ class HostRoute implements RouteInterface, StaticFactoryInterface
     /**
      * @inheritDoc
      */
+    public function assemble(RequestInterface $request, array $path, array $parameters): RequestInterface
+    {
+        return $request->withUri(
+            $request
+                ->getUri()
+                ->withHost($this->host)
+        );
+    }
+
+    /**
+     * @inheritDoc
+     */
     public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): RouteInterface
     {
         return new static($extra['host'], $extra['parameters'] ?? []);
