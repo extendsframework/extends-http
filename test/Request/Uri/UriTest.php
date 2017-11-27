@@ -32,7 +32,7 @@ class UriTest extends TestCase
         $_SERVER['PHP_AUTH_USER'] = 'extends';
         $_SERVER['REQUEST_URI'] = '/foo/bar?baz=qux+quux';
         $_SERVER['QUERY_STRING'] = 'baz=qux+quux';
-        $_SERVER['SERVER_PORT'] = 443;
+        $_SERVER['SERVER_PORT'] = '443';
 
         $uri = Uri::fromEnvironment();
 
@@ -207,7 +207,7 @@ class UriTest extends TestCase
         $_SERVER['PHP_AUTH_USER'] = 'extends';
         $_SERVER['REQUEST_URI'] = '/foo/bar?baz=qux+quux';
         $_SERVER['QUERY_STRING'] = 'baz=qux+quux';
-        $_SERVER['SERVER_PORT'] = 443;
+        $_SERVER['SERVER_PORT'] = '443';
 
         $uri = Uri::fromEnvironment()->withFragment([
             'bar' => 'baz',

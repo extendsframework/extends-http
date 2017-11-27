@@ -338,7 +338,7 @@ class Uri implements UriInterface
         $uri = (new static())
             ->withScheme((isset($_SERVER['HTTPS']) === true && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http')
             ->withHost($_SERVER['HTTP_HOST'])
-            ->withPort($_SERVER['SERVER_PORT'])
+            ->withPort((int)$_SERVER['SERVER_PORT'])
             ->withPath(strtok($_SERVER['REQUEST_URI'], '?'))
             ->withQuery($query);
 
