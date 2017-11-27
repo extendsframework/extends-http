@@ -84,7 +84,7 @@ class JsonRenderer implements RendererInterface
             return '';
         }
 
-        return json_encode($body, JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_FORCE_OBJECT);
+        return json_encode($body, JSON_PARTIAL_OUTPUT_ON_ERROR);
     }
 
     /**
@@ -93,17 +93,11 @@ class JsonRenderer implements RendererInterface
      * @param ResponseInterface $response
      * @param string            $body
      * @return ResponseInterface
-     * @see https://tools.ietf.org/html/rfc7807
      */
     protected function addHeaders(ResponseInterface $response, string $body): ResponseInterface
     {
-        $contentType = 'application/json';
-        if (preg_match('/^[4|5]/', (string)$response->getStatusCode()) === 1) {
-            $contentType = 'application/problem+json';
-        }
-
         return $response
-            ->andHeader('Content-Type', $contentType)
+            ->andHeader('Content-Type', 'application/json')
             ->andHeader('Content-Length', (string)strlen($body));
     }
 }
