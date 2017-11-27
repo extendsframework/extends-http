@@ -79,7 +79,7 @@ trait Routes
      */
     protected function getRoutes(): array
     {
-        usort($this->routes, function (RouteInterface $left, RouteInterface $right) {
+        uasort($this->routes, function (RouteInterface $left, RouteInterface $right) {
             if ($left instanceof GroupRoute || $right instanceof GroupRoute) {
                 return 1;
             }
