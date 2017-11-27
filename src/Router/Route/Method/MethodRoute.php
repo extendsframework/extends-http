@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Router\Route\Method;
 
 use ExtendsFramework\Http\Request\RequestInterface;
-use ExtendsFramework\Http\Request\Uri\UriInterface;
 use ExtendsFramework\Http\Router\Route\Method\Exception\MethodNotAllowed;
 use ExtendsFramework\Http\Router\Route\RouteInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatch;
@@ -30,9 +29,9 @@ class MethodRoute implements RouteInterface, StaticFactoryInterface
     /**
      * Methods to match.
      *
-     * @var array
+     * @var string
      */
-    protected $methods;
+    protected $method;
 
     /**
      * Default parameters to return.
@@ -44,16 +43,13 @@ class MethodRoute implements RouteInterface, StaticFactoryInterface
     /**
      * Create a method route.
      *
-     * @param array $methods
-     * @param array $parameters
+     * @param string $method
+     * @param array  $parameters
      */
-    public function __construct(array $methods, array $parameters = null)
+    public function __construct(string $method, array $parameters = null)
     {
+        $this->method = $method;
         $this->parameters = $parameters ?? [];
-
-        foreach ($methods as $method) {
-            $this->addMethod($method);
-        }
     }
 
     /**
@@ -62,11 +58,11 @@ class MethodRoute implements RouteInterface, StaticFactoryInterface
     public function match(RequestInterface $request, int $pathOffset): ?RouteMatchInterface
     {
         $method = $request->getMethod();
-        if (in_array(strtoupper($method), $this->methods, true) === true) {
+        if (strtoupper($method) === $this->method) {
             return new RouteMatch($this->parameters, $pathOffset);
         }
 
-        throw new MethodNotAllowed($method, $this->methods);
+        throw new MethodNotAllowed($method, [$this->method]);
     }
 
     /**
@@ -74,20 +70,7 @@ class MethodRoute implements RouteInterface, StaticFactoryInterface
      */
     public function assemble(RequestInterface $request, array $path, array $parameters): RequestInterface
     {
-        return $request;
-    }
-
-    /**
-     * Add $method to route.
-     *
-     * @param string $method
-     * @return MethodRoute
-     */
-    public function addMethod(string $method): MethodRoute
-    {
-        $this->methods[] = strtoupper(trim($method));
-
-        return $this;
+        return $request->withMethod($this->method);
     }
 
     /**
@@ -95,6 +78,6 @@ class MethodRoute implements RouteInterface, StaticFactoryInterface
      */
     public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): RouteInterface
     {
-        return new static((array)$extra['method'], $extra['parameters'] ?? []);
+        return new static($extra['method'], $extra['parameters'] ?? []);
     }
 }
