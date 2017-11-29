@@ -20,6 +20,7 @@ class AbstractControllerTest extends TestCase
      * @covers \ExtendsFramework\Http\Controller\AbstractController::getMethod()
      * @covers \ExtendsFramework\Http\Controller\AbstractController::getAction()
      * @covers \ExtendsFramework\Http\Controller\AbstractController::normalizeAction()
+     * @covers \ExtendsFramework\Http\Controller\AbstractController::getParameters()
      * @covers \ExtendsFramework\Http\Controller\AbstractController::getRequest()
      * @covers \ExtendsFramework\Http\Controller\AbstractController::getRouteMatch()
      */
@@ -29,11 +30,25 @@ class AbstractControllerTest extends TestCase
 
         $match = $this->createMock(RouteMatchInterface::class);
         $match
-            ->expects($this->once())
+            ->expects($this->exactly(1))
             ->method('getParameters')
             ->willReturn([
-                'action' => 'foo.not-found',
+                'action' => 'foo.fancy-action',
+                'someId' => 33,
+                'slug' => 'foo-bar-baz',
             ]);
+
+        $match
+            ->expects($this->exactly(2))
+            ->method('getParameter')
+            ->withConsecutive(
+                ['someId'],
+                ['slug']
+            )
+            ->willReturnOnConsecutiveCalls(
+                33,
+                'foo-bar-baz'
+            );
 
         /**
          * @var RequestInterface    $request
@@ -47,6 +62,8 @@ class AbstractControllerTest extends TestCase
             $this->assertSame([
                 'request' => $request,
                 'routeMatch' => $match,
+                'someId' => 33,
+                'slug' => 'foo-bar-baz',
             ], $response->getBody());
         }
     }
@@ -80,51 +97,23 @@ class AbstractControllerTest extends TestCase
         $controller = new ControllerStub();
         $controller->dispatch($request, $match);
     }
-
-    /**
-     * Method not found.
-     *
-     * Test that controller method for action can not be found and an exception will be thrown.
-     *
-     * @covers                   \ExtendsFramework\Http\Controller\AbstractController::dispatch()
-     * @covers                   \ExtendsFramework\Http\Controller\AbstractController::getMethod()
-     * @covers                   \ExtendsFramework\Http\Controller\AbstractController::getAction()
-     * @covers                   \ExtendsFramework\Http\Controller\Exception\MethodNotFound::__construct()
-     * @expectedException        \ExtendsFramework\Http\Controller\Exception\MethodNotFound
-     * @expectedExceptionMessage No controller method can be found for action "bar".
-     */
-    public function testMethodNotFound(): void
-    {
-        $request = $this->createMock(RequestInterface::class);
-
-        $match = $this->createMock(RouteMatchInterface::class);
-        $match
-            ->expects($this->once())
-            ->method('getParameters')
-            ->willReturn([
-                'action' => 'bar',
-            ]);
-
-        /**
-         * @var RequestInterface    $request
-         * @var RouteMatchInterface $match
-         */
-        $controller = new ControllerStub();
-        $controller->dispatch($request, $match);
-    }
 }
 
 class ControllerStub extends AbstractController
 {
     /**
+     * @param int    $someId
+     * @param string $slug
      * @return ResponseInterface
      */
-    protected function fooNotFoundAction(): ResponseInterface
+    public function fooFancyActionAction(int $someId, string $slug): ResponseInterface
     {
         return (new Response())
             ->withBody([
                 'request' => $this->getRequest(),
                 'routeMatch' => $this->getRouteMatch(),
+                'someId' => $someId,
+                'slug' => $slug,
             ]);
     }
 }

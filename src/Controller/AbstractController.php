@@ -4,10 +4,10 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Controller;
 
 use ExtendsFramework\Http\Controller\Exception\ActionNotFound;
-use ExtendsFramework\Http\Controller\Exception\MethodNotFound;
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Response\ResponseInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
+use ReflectionMethod;
 
 abstract class AbstractController implements ControllerInterface
 {
@@ -40,28 +40,26 @@ abstract class AbstractController implements ControllerInterface
         $this->request = $request;
         $this->routeMatch = $routeMatch;
 
-        return $this->getMethod($routeMatch)();
+        $method = $this->getMethod($routeMatch);
+        $parameters = $this->getParameters($method, $routeMatch);
+
+        return $method->invokeArgs($this, $parameters);
     }
 
     /**
      * Get callable method for $action.
      *
-     * The object property $postfix will be append to $action. When no method can be found for $action, an exception
-     * will be thrown.
+     * The object property $postfix will be append to $action.
      *
      * @param RouteMatchInterface $routeMatch
-     * @return callable
+     * @return ReflectionMethod
      * @throws ControllerException
      */
-    protected function getMethod(RouteMatchInterface $routeMatch): callable
+    protected function getMethod(RouteMatchInterface $routeMatch): ReflectionMethod
     {
         $action = $this->getAction($routeMatch);
-        $method = $action . $this->postfix;
-        if (method_exists($this, $method) === false) {
-            throw new MethodNotFound($action);
-        }
 
-        return [$this, $method];
+        return new ReflectionMethod($this, $action . $this->postfix);
     }
 
     /**
@@ -79,6 +77,23 @@ abstract class AbstractController implements ControllerInterface
         }
 
         return $this->normalizeAction($parameters['action']);
+    }
+
+    /**
+     * Get route match parameter for $method.
+     *
+     * @param ReflectionMethod    $method
+     * @param RouteMatchInterface $routeMatch
+     * @return array
+     */
+    protected function getParameters(ReflectionMethod $method, RouteMatchInterface $routeMatch): array
+    {
+        $parameters = [];
+        foreach ($method->getParameters() as $parameter) {
+            $parameters[] = $routeMatch->getParameter($parameter->getName());
+        }
+
+        return $parameters;
     }
 
     /**
