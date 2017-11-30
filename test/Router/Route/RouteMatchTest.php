@@ -14,7 +14,6 @@ class RouteMatchTest extends TestCase
      *
      * @covers \ExtendsFramework\Http\Router\Route\RouteMatch::__construct()
      * @covers \ExtendsFramework\Http\Router\Route\RouteMatch::getParameters()
-     * @covers \ExtendsFramework\Http\Router\Route\RouteMatch::getParameter()
      * @covers \ExtendsFramework\Http\Router\Route\RouteMatch::getPathOffset()
      */
     public function testGetMethods(): void
@@ -22,8 +21,6 @@ class RouteMatchTest extends TestCase
         $match = new RouteMatch(['foo' => 'bar'], 15);
 
         $this->assertSame(['foo' => 'bar'], $match->getParameters());
-        $this->assertSame('bar', $match->getParameter('foo'));
-        $this->assertSame('baz', $match->getParameter('bar', 'baz'));
         $this->assertSame(15, $match->getPathOffset());
     }
 
