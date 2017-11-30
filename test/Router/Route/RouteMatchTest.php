@@ -38,24 +38,15 @@ class RouteMatchTest extends TestCase
     {
         $match1 = new RouteMatch([
             'foo' => 'bar',
-            'baz' => [
-                'qux',
-            ],
         ], 10);
         $match2 = new RouteMatch([
-            'foo' => 'qux',
-            'baz' => [
-                'quux',
-            ],
+            'baz' => 'qux',
         ], 15);
         $match3 = $match1->merge($match2);
 
         $this->assertSame([
-            'foo' => 'qux',
-            'baz' => [
-                'qux',
-                'quux',
-            ],
+            'foo' => 'bar',
+            'baz' => 'qux',
         ], $match3->getParameters());
         $this->assertSame(15, $match3->getPathOffset());
     }

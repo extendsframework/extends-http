@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Router\Route;
 
-use ExtendsFramework\Basic\Merger\Recursive\RecursiveMerger;
-
 class RouteMatch implements RouteMatchInterface
 {
     /**
@@ -55,7 +53,7 @@ class RouteMatch implements RouteMatchInterface
     public function merge(RouteMatchInterface $routeMatch): RouteMatchInterface
     {
         $merged = clone $this;
-        $merged->parameters = (new RecursiveMerger())->merge($this->getParameters(), $routeMatch->getParameters());
+        $merged->parameters = array_replace_recursive($this->getParameters(), $routeMatch->getParameters());
         $merged->pathOffset = $routeMatch->getPathOffset();
 
         return $merged;
