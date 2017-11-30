@@ -5,6 +5,7 @@ namespace ExtendsFramework\Http\Framework\Http\Middleware\Router;
 
 use ExtendsFramework\Http\Middleware\Chain\MiddlewareChainInterface;
 use ExtendsFramework\Http\Request\RequestInterface;
+use ExtendsFramework\Http\Request\Uri\UriInterface;
 use ExtendsFramework\Http\Response\ResponseInterface;
 use ExtendsFramework\Http\Router\Exception\NotFound;
 use ExtendsFramework\Http\Router\Route\Method\Exception\MethodNotAllowed;
@@ -76,7 +77,15 @@ class RouterMiddlewareTest extends TestCase
     {
         $chain = $this->createMock(MiddlewareChainInterface::class);
 
+        $uri = $this->createMock(UriInterface::class);
+        $uri
+            ->method('toRelative')
+            ->willReturn('/foo/bar');
+
         $request = $this->createMock(RequestInterface::class);
+        $request
+            ->method('getUri')
+            ->willReturn($uri);
 
         $router = $this->createMock(RouterInterface::class);
         $router
@@ -95,6 +104,11 @@ class RouterMiddlewareTest extends TestCase
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
         $this->assertSame(404, $response->getStatusCode());
+        $this->assertSame([
+            'type' => '',
+            'title' => 'Not found.',
+            'path' => '/foo/bar',
+        ], $response->getBody());
     }
 
     /**

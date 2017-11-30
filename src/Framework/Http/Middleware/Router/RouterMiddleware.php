@@ -93,7 +93,7 @@ class RouterMiddleware implements MiddlewareInterface
                 'path' => $exception
                     ->getRequest()
                     ->getUri()
-                    ->getPath(),
+                    ->toRelative(),
             ]);
     }
 
