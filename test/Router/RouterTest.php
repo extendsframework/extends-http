@@ -31,9 +31,16 @@ class RouterTest extends TestCase
             ->method('getPath')
             ->willReturn('/foo');
 
+        $uri
+            ->expects($this->once())
+            ->method('getQuery')
+            ->willReturn([
+                'foo' => 'bar',
+            ]);
+
         $request = $this->createMock(RequestInterface::class);
         $request
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('getUri')
             ->willReturn($uri);
 
@@ -42,6 +49,13 @@ class RouterTest extends TestCase
             ->expects($this->once())
             ->method('getPathOffset')
             ->willReturn(4);
+
+        $match
+            ->expects($this->once())
+            ->method('getParameters')
+            ->willReturn([
+                'foo' => 'bar',
+            ]);
 
         $route = $this->createMock(RouteInterface::class);
         $route
@@ -134,6 +148,70 @@ class RouterTest extends TestCase
             ->route($request);
 
         $this->assertSame($match, $matched);
+    }
+
+    /**
+     * Too much query parameters.
+     *
+     * Test that more then the allowed query string parameters will return in an exception.
+     *
+     * @covers                   \ExtendsFramework\Http\Router\Router::route()
+     * @covers                   \ExtendsFramework\Http\Router\Routes::matchRoutes()
+     * @covers                   \ExtendsFramework\Http\Router\Routes::getRoutes()
+     * @covers                   \ExtendsFramework\Http\Router\Exception\NotFound::__construct()
+     * @expectedException        \ExtendsFramework\Http\Router\Exception\NotFound
+     * @expectedExceptionMessage Request could not be matched by a route.
+     */
+    public function testTooMuchQueryParameters(): void
+    {
+        $uri = $this->createMock(UriInterface::class);
+        $uri
+            ->expects($this->once())
+            ->method('getPath')
+            ->willReturn('/foo');
+
+        $uri
+            ->expects($this->once())
+            ->method('getQuery')
+            ->willReturn([
+                'foo' => 'bar',
+                'qux' => 'quux',
+            ]);
+
+        $request = $this->createMock(RequestInterface::class);
+        $request
+            ->expects($this->exactly(2))
+            ->method('getUri')
+            ->willReturn($uri);
+
+        $match = $this->createMock(RouteMatchInterface::class);
+        $match
+            ->expects($this->once())
+            ->method('getPathOffset')
+            ->willReturn(4);
+
+        $match
+            ->expects($this->once())
+            ->method('getParameters')
+            ->willReturn([
+                'foo' => 'bar',
+            ]);
+
+        $route = $this->createMock(RouteInterface::class);
+        $route
+            ->expects($this->once())
+            ->method('match')
+            ->with($request)
+            ->willReturn($match);
+
+        /**
+         * @var RouteInterface   $route
+         * @var RequestInterface $request
+         */
+        $router = new Router();
+        $router
+            ->addRoute($route, 'route')
+            ->route($request);
     }
 
     /**

@@ -28,7 +28,12 @@ class Router implements RouterInterface
         $match = $this->matchRoutes($request, 0);
         if ($match instanceof RouteMatchInterface) {
             if ($match->getPathOffset() === strlen($request->getUri()->getPath())) {
-                return $match;
+                $parameters = $match->getParameters();
+                $query = $request->getUri()->getQuery();
+
+                if (empty(array_diff_key($query, $parameters)) === true) {
+                    return $match;
+                }
             }
         }
 
