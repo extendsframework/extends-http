@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Controller;
 
 use ExtendsFramework\Http\Controller\Exception\ActionNotFound;
+use ExtendsFramework\Http\Controller\Exception\ParameterNotFound;
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Response\ResponseInterface;
 use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
@@ -41,9 +42,9 @@ abstract class AbstractController implements ControllerInterface
         $this->routeMatch = $routeMatch;
 
         $method = $this->getMethod($routeMatch);
-        $parameters = $this->getParameters($method, $routeMatch);
+        $arguments = $this->getArguments($method, $routeMatch);
 
-        return $method->invokeArgs($this, $parameters);
+        return $method->invokeArgs($this, $arguments);
     }
 
     /**
@@ -80,20 +81,34 @@ abstract class AbstractController implements ControllerInterface
     }
 
     /**
-     * Get route match parameter for $method.
+     * Get $method argument values from $routeMatch.
      *
      * @param ReflectionMethod    $method
      * @param RouteMatchInterface $routeMatch
      * @return array
      */
-    protected function getParameters(ReflectionMethod $method, RouteMatchInterface $routeMatch): array
+    protected function getArguments(ReflectionMethod $method, RouteMatchInterface $routeMatch): array
     {
-        $parameters = [];
+        $parameters = $routeMatch->getParameters();
+
+        $arguments = [];
         foreach ($method->getParameters() as $parameter) {
-            $parameters[] = $routeMatch->getParameter($parameter->getName());
+            $name = $parameter->getName();
+
+            if (array_key_exists($name, $parameters) === false) {
+                if ($parameter->isDefaultValueAvailable() === true) {
+                    $arguments[] = $parameter->getDefaultValue();
+                } elseif ($parameter->allowsNull()) {
+                    $arguments[] = null;
+                } else {
+                    throw new ParameterNotFound($name);
+                }
+            } else {
+                $arguments[] = $parameters[$name];
+            }
         }
 
-        return $parameters;
+        return $arguments;
     }
 
     /**

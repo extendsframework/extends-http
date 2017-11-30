@@ -20,7 +20,7 @@ class AbstractControllerTest extends TestCase
      * @covers \ExtendsFramework\Http\Controller\AbstractController::getMethod()
      * @covers \ExtendsFramework\Http\Controller\AbstractController::getAction()
      * @covers \ExtendsFramework\Http\Controller\AbstractController::normalizeAction()
-     * @covers \ExtendsFramework\Http\Controller\AbstractController::getParameters()
+     * @covers \ExtendsFramework\Http\Controller\AbstractController::getArguments()
      * @covers \ExtendsFramework\Http\Controller\AbstractController::getRequest()
      * @covers \ExtendsFramework\Http\Controller\AbstractController::getRouteMatch()
      */
@@ -30,25 +30,11 @@ class AbstractControllerTest extends TestCase
 
         $match = $this->createMock(RouteMatchInterface::class);
         $match
-            ->expects($this->exactly(1))
             ->method('getParameters')
             ->willReturn([
                 'action' => 'foo.fancy-action',
                 'someId' => 33,
-                'slug' => 'foo-bar-baz',
             ]);
-
-        $match
-            ->expects($this->exactly(2))
-            ->method('getParameter')
-            ->withConsecutive(
-                ['someId'],
-                ['slug']
-            )
-            ->willReturnOnConsecutiveCalls(
-                33,
-                'foo-bar-baz'
-            );
 
         /**
          * @var RequestInterface    $request
@@ -63,7 +49,8 @@ class AbstractControllerTest extends TestCase
                 'request' => $request,
                 'routeMatch' => $match,
                 'someId' => 33,
-                'slug' => 'foo-bar-baz',
+                'allowsNull' => null,
+                'defaultValue' => 'string',
             ], $response->getBody());
         }
     }
@@ -74,8 +61,8 @@ class AbstractControllerTest extends TestCase
      * Test that action attribute can not be found in $request and an exception will be thrown.
      *
      * @covers                   \ExtendsFramework\Http\Controller\AbstractController::dispatch()
-     * @covers                   \ExtendsFramework\Http\Controller\AbstractController::getMethod()
      * @covers                   \ExtendsFramework\Http\Controller\AbstractController::getAction()
+     * @covers                   \ExtendsFramework\Http\Controller\AbstractController::getMethod()
      * @covers                   \ExtendsFramework\Http\Controller\Exception\ActionNotFound::__construct()
      * @expectedException        \ExtendsFramework\Http\Controller\Exception\ActionNotFound
      * @expectedExceptionMessage No controller action was found in request.
@@ -86,9 +73,40 @@ class AbstractControllerTest extends TestCase
 
         $match = $this->createMock(RouteMatchInterface::class);
         $match
-            ->expects($this->once())
             ->method('getParameters')
             ->willReturn([]);
+
+        /**
+         * @var RequestInterface    $request
+         * @var RouteMatchInterface $match
+         */
+        $controller = new ControllerStub();
+        $controller->dispatch($request, $match);
+    }
+
+    /**
+     * Parameter not found.
+     *
+     * Test that parameter value can not be determined and an exception will be thrown.
+     *
+     * @covers                   \ExtendsFramework\Http\Controller\AbstractController::dispatch()
+     * @covers                   \ExtendsFramework\Http\Controller\AbstractController::getAction()
+     * @covers                   \ExtendsFramework\Http\Controller\AbstractController::getMethod()
+     * @covers                   \ExtendsFramework\Http\Controller\Exception\ParameterNotFound::__construct()
+     * @expectedException        \ExtendsFramework\Http\Controller\Exception\ParameterNotFound
+     * @expectedExceptionMessage Parameter with name "someId" can not be found in route match parameters and has no
+     *                           default value or allows null.
+     */
+    public function testParameterNotFound(): void
+    {
+        $request = $this->createMock(RequestInterface::class);
+
+        $match = $this->createMock(RouteMatchInterface::class);
+        $match
+            ->method('getParameters')
+            ->willReturn([
+                'action' => 'fooFancyAction',
+            ]);
 
         /**
          * @var RequestInterface    $request
@@ -102,18 +120,20 @@ class AbstractControllerTest extends TestCase
 class ControllerStub extends AbstractController
 {
     /**
-     * @param int    $someId
-     * @param string $slug
+     * @param int       $someId
+     * @param bool|null $allowsNull
+     * @param string    $defaultValue
      * @return ResponseInterface
      */
-    public function fooFancyActionAction(int $someId, string $slug): ResponseInterface
+    public function fooFancyActionAction(int $someId, ?bool $allowsNull, string $defaultValue = 'string'): ResponseInterface
     {
         return (new Response())
             ->withBody([
                 'request' => $this->getRequest(),
                 'routeMatch' => $this->getRouteMatch(),
                 'someId' => $someId,
-                'slug' => $slug,
+                'allowsNull' => $allowsNull,
+                'defaultValue' => $defaultValue,
             ]);
     }
 }
