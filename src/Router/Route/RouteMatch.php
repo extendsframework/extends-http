@@ -50,14 +50,6 @@ class RouteMatch implements RouteMatchInterface
     /**
      * @inheritDoc
      */
-    public function getParameter(string $key, $default = null)
-    {
-        return $this->parameters[$key] ?? $default;
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function merge(RouteMatchInterface $routeMatch): RouteMatchInterface
     {
         $merged = clone $this;

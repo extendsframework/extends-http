@@ -13,17 +13,6 @@ interface RouteMatchInterface
     public function getParameters(): array;
 
     /**
-     * Get parameter for $key.
-     *
-     * Default value $default will be returned when parameter for $key does not exists.
-     *
-     * @param string $key
-     * @param mixed  $default
-     * @return mixed
-     */
-    public function getParameter(string $key, $default = null);
-
-    /**
      * Get request URI path offset.
      *
      * @return int
