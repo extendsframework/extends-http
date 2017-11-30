@@ -36,13 +36,26 @@ class RouteMatchTest extends TestCase
      */
     public function testMerge(): void
     {
-        $match1 = new RouteMatch(['foo' => 'bar'], 10);
-        $match2 = new RouteMatch(['baz' => 'qux'], 15);
+        $match1 = new RouteMatch([
+            'foo' => 'bar',
+            'baz' => [
+                'qux',
+            ],
+        ], 10);
+        $match2 = new RouteMatch([
+            'foo' => 'qux',
+            'baz' => [
+                'quux',
+            ],
+        ], 15);
         $match3 = $match1->merge($match2);
 
         $this->assertSame([
-            'foo' => 'bar',
-            'baz' => 'qux',
+            'foo' => 'qux',
+            'baz' => [
+                'qux',
+                'quux',
+            ],
         ], $match3->getParameters());
         $this->assertSame(15, $match3->getPathOffset());
     }
