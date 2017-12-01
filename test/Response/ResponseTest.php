@@ -61,6 +61,7 @@ class ResponseTest extends TestCase
      * @covers \ExtendsFramework\Http\Response\Response::withStatusCode()
      * @covers \ExtendsFramework\Http\Response\Response::getBody()
      * @covers \ExtendsFramework\Http\Response\Response::getHeaders()
+     * @covers \ExtendsFramework\Http\Response\Response::getHeader()
      * @covers \ExtendsFramework\Http\Response\Response::getStatusCode()
      */
     public function testWithMethods(): void
@@ -72,6 +73,7 @@ class ResponseTest extends TestCase
 
         $this->assertSame(['foo' => 'bar'], $response->getBody());
         $this->assertSame(['baz' => 'qux'], $response->getHeaders());
+        $this->assertSame('qux', $response->getHeader('baz', 'quux'));
         $this->assertSame(201, $response->getStatusCode());
     }
 

@@ -63,6 +63,14 @@ class Response implements ResponseInterface, StaticFactoryInterface
     /**
      * @inheritDoc
      */
+    public function getHeader(string $name, $default = null)
+    {
+        return $this->headers[$name] ?? $default;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function getStatusCode(): int
     {
         return $this->statusCode;

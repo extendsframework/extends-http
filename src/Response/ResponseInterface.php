@@ -31,6 +31,17 @@ interface ResponseInterface
     public function getHeaders(): array;
 
     /**
+     * Get header value for $name.
+     *
+     * Default value $default will be returned when header with $name does not exists.
+     *
+     * @param string $name
+     * @param mixed  $default
+     * @return mixed
+     */
+    public function getHeader(string $name, $default = null);
+
+    /**
      * Return status code.
      *
      * @return int
