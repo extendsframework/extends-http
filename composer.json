@@ -11,14 +11,14 @@
         }
     ],
     "require": {
-        "php": ">=7.1"
-    },
-    "require-dev": {
         "php": ">=7.1",
-        "phpunit/phpunit": "6.4.*",
         "extendsframework/extends-logger": "dev-master",
         "extendsframework/extends-validator": "dev-master",
         "extendsframework/extends-servicelocator": "dev-master"
+    },
+    "require-dev": {
+        "php": ">=7.1",
+        "phpunit/phpunit": "6.4.*"
     },
     "autoload": {
         "psr-4": {
