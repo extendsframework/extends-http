@@ -86,6 +86,7 @@ abstract class AbstractController implements ControllerInterface
      * @param ReflectionMethod    $method
      * @param RouteMatchInterface $routeMatch
      * @return array
+     * @throws ParameterNotFound
      */
     protected function getArguments(ReflectionMethod $method, RouteMatchInterface $routeMatch): array
     {
