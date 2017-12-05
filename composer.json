@@ -13,7 +13,6 @@
     "minimum-stability": "dev",
     "require": {
         "php": ">=7.1",
-        "extendsframework/extends-logger": "dev-master",
         "extendsframework/extends-servicelocator": "dev-master"
     },
     "require-dev": {
