@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace ExtendsFramework\Http\Framework\Http\Middleware\Controller\Exception;
 
 use Exception;
-use ExtendsFramework\Http\Controller\ControllerException;
+use ExtendsFramework\Router\Controller\ControllerException;
 use ExtendsFramework\Http\Framework\Http\Middleware\Controller\ControllerMiddlewareException;
 
 class ControllerDispatchFailed extends Exception implements ControllerMiddlewareException

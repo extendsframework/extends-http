@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Framework\Http\Middleware\Controller;
 
-use ExtendsFramework\Http\Controller\ControllerException;
-use ExtendsFramework\Http\Controller\ControllerInterface;
+use ExtendsFramework\Router\Controller\ControllerException;
+use ExtendsFramework\Router\Controller\ControllerInterface;
 use ExtendsFramework\Http\Framework\Http\Middleware\Controller\Exception\ControllerDispatchFailed;
 use ExtendsFramework\Http\Framework\Http\Middleware\Controller\Exception\ControllerNotFound;
 use ExtendsFramework\Http\Middleware\Chain\MiddlewareChainInterface;

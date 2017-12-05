@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Framework\Http\Middleware\Controller;
 
-use ExtendsFramework\Http\Controller\ControllerInterface;
-use ExtendsFramework\Http\Controller\Exception\ActionNotFound;
+use ExtendsFramework\Router\Controller\ControllerInterface;
+use ExtendsFramework\Router\Controller\Exception\ActionNotFound;
 use ExtendsFramework\Http\Middleware\Chain\MiddlewareChainInterface;
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Response\ResponseInterface;
