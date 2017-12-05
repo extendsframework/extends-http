@@ -5,7 +5,7 @@ namespace ExtendsFramework\Http\Controller;
 
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Response\ResponseInterface;
-use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
+use ExtendsFramework\Router\Route\RouteMatchInterface;
 
 interface ControllerInterface
 {

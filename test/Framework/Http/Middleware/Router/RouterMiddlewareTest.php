@@ -7,12 +7,12 @@ use ExtendsFramework\Http\Middleware\Chain\MiddlewareChainInterface;
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Request\Uri\UriInterface;
 use ExtendsFramework\Http\Response\ResponseInterface;
-use ExtendsFramework\Http\Router\Exception\NotFound;
-use ExtendsFramework\Http\Router\Route\Method\Exception\MethodNotAllowed;
-use ExtendsFramework\Http\Router\Route\Query\Exception\InvalidQueryString;
-use ExtendsFramework\Http\Router\Route\Query\Exception\QueryParameterMissing;
-use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
-use ExtendsFramework\Http\Router\RouterInterface;
+use ExtendsFramework\Router\Exception\NotFound;
+use ExtendsFramework\Router\Route\Method\Exception\MethodNotAllowed;
+use ExtendsFramework\Router\Route\Query\Exception\InvalidQueryString;
+use ExtendsFramework\Router\Route\Query\Exception\QueryParameterMissing;
+use ExtendsFramework\Router\Route\RouteMatchInterface;
+use ExtendsFramework\Router\RouterInterface;
 use ExtendsFramework\Validator\Result\ResultInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -71,7 +71,7 @@ class RouterMiddlewareTest extends TestCase
      * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::__construct()
      * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::process()
      * @covers \ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware::getNotFoundResponse()
-     * @covers \ExtendsFramework\Http\Router\Exception\NotFound::getRequest()
+     * @covers \ExtendsFramework\Router\Exception\NotFound::getRequest()
      */
     public function testNotFound(): void
     {

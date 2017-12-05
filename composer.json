@@ -10,8 +10,10 @@
             "homepage": "https://www.extends.nl/"
         }
     ],
+    "minimum-stability": "dev",
     "require": {
         "php": ">=7.1",
+        "extendsframework/extends-router": "dev-master",
         "extendsframework/extends-logger": "dev-master",
         "extendsframework/extends-validator": "dev-master",
         "extendsframework/extends-servicelocator": "dev-master"

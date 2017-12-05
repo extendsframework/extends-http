@@ -7,7 +7,7 @@ use ExtendsFramework\Http\Controller\Exception\ActionNotFound;
 use ExtendsFramework\Http\Controller\Exception\ParameterNotFound;
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Response\ResponseInterface;
-use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
+use ExtendsFramework\Router\Route\RouteMatchInterface;
 use ReflectionMethod;
 
 abstract class AbstractController implements ControllerInterface

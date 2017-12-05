@@ -8,12 +8,12 @@ use ExtendsFramework\Http\Middleware\MiddlewareInterface;
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Response\Response;
 use ExtendsFramework\Http\Response\ResponseInterface;
-use ExtendsFramework\Http\Router\Exception\NotFound;
-use ExtendsFramework\Http\Router\Route\Method\Exception\MethodNotAllowed;
-use ExtendsFramework\Http\Router\Route\Query\Exception\InvalidQueryString;
-use ExtendsFramework\Http\Router\Route\Query\Exception\QueryParameterMissing;
-use ExtendsFramework\Http\Router\Route\RouteMatchInterface;
-use ExtendsFramework\Http\Router\RouterInterface;
+use ExtendsFramework\Router\Exception\NotFound;
+use ExtendsFramework\Router\Route\Method\Exception\MethodNotAllowed;
+use ExtendsFramework\Router\Route\Query\Exception\InvalidQueryString;
+use ExtendsFramework\Router\Route\Query\Exception\QueryParameterMissing;
+use ExtendsFramework\Router\Route\RouteMatchInterface;
+use ExtendsFramework\Router\RouterInterface;
 
 class RouterMiddleware implements MiddlewareInterface
 {

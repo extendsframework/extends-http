@@ -3,11 +3,11 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Framework\ServiceLocator\Factory;
 
-use ExtendsFramework\Http\Router\Route\Group\GroupRoute;
-use ExtendsFramework\Http\Router\Route\Method\MethodRoute;
-use ExtendsFramework\Http\Router\Route\RouteInterface;
-use ExtendsFramework\Http\Router\Route\Scheme\SchemeRoute;
-use ExtendsFramework\Http\Router\RouterInterface;
+use ExtendsFramework\Router\Route\Group\GroupRoute;
+use ExtendsFramework\Router\Route\Method\MethodRoute;
+use ExtendsFramework\Router\Route\RouteInterface;
+use ExtendsFramework\Router\Route\Scheme\SchemeRoute;
+use ExtendsFramework\Router\RouterInterface;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 use PHPUnit\Framework\TestCase;
 
