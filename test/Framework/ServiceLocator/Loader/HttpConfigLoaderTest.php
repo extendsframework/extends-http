@@ -3,13 +3,9 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Framework\ServiceLocator\Loader;
 
-use ExtendsFramework\Http\Framework\Http\Middleware\Controller\ControllerMiddleware;
 use ExtendsFramework\Http\Framework\Http\Middleware\Exception\ExceptionMiddleware;
-use ExtendsFramework\Http\Framework\Http\Middleware\NotFound\NotFoundMiddleware;
 use ExtendsFramework\Http\Framework\Http\Middleware\Renderer\RendererMiddleware;
-use ExtendsFramework\Http\Framework\Http\Middleware\Router\RouterMiddleware;
 use ExtendsFramework\Http\Framework\ServiceLocator\Factory\MiddlewareChainFactory;
-use ExtendsFramework\Http\Framework\ServiceLocator\Factory\RouterFactory;
 use ExtendsFramework\Http\Middleware\Chain\MiddlewareChainInterface;
 use ExtendsFramework\Http\Renderer\Json\JsonRenderer;
 use ExtendsFramework\Http\Renderer\RendererInterface;
@@ -49,7 +45,6 @@ class HttpConfigLoaderTest extends TestCase
         $this->assertSame([
             ServiceLocatorInterface::class => [
                 FactoryResolver::class => [
-                    RouterInterface::class => RouterFactory::class,
                     MiddlewareChainInterface::class => MiddlewareChainFactory::class,
                 ],
                 StaticFactoryResolver::class => [
@@ -68,16 +63,12 @@ class HttpConfigLoaderTest extends TestCase
                 ReflectionResolver::class => [
                     ServerInterface::class => Server::class,
                     RendererMiddleware::class => RendererMiddleware::class,
-                    RouterMiddleware::class => RouterMiddleware::class,
-                    ControllerMiddleware::class => ControllerMiddleware::class,
                     ExceptionMiddleware::class => ExceptionMiddleware::class,
                 ],
             ],
             MiddlewareChainInterface::class => [
                 RendererMiddleware::class => 200,
                 ExceptionMiddleware::class => 190,
-                RouterMiddleware::class => 150,
-                ControllerMiddleware::class => 100,
             ],
             RouterInterface::class => [
                 'routes' => [],
