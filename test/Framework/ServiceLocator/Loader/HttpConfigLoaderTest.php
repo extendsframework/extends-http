@@ -50,10 +50,6 @@ class HttpConfigLoaderTest extends TestCase
                     ExceptionMiddleware::class => ExceptionMiddleware::class,
                 ],
             ],
-            MiddlewareChainInterface::class => [
-                RendererMiddleware::class => 200,
-                ExceptionMiddleware::class => 190,
-            ],
         ], $loader->load());
     }
 }

@@ -44,10 +44,6 @@ class HttpConfigLoader implements LoaderInterface
                     ExceptionMiddleware::class => ExceptionMiddleware::class,
                 ],
             ],
-            MiddlewareChainInterface::class => [
-                RendererMiddleware::class => 200,
-                ExceptionMiddleware::class => 190,
-            ],
         ];
     }
 }
