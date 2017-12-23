@@ -49,7 +49,6 @@ interface RequestInterface
      * Return body.
      *
      * @return mixed
-     * @throws RequestException
      */
     public function getBody();
 
