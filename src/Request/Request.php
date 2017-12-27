@@ -6,7 +6,6 @@ namespace ExtendsFramework\Http\Request;
 use ExtendsFramework\Http\Request\Exception\InvalidRequestBody;
 use ExtendsFramework\Http\Request\Uri\Uri;
 use ExtendsFramework\Http\Request\Uri\UriInterface;
-use ExtendsFramework\Router\Route\RouteMatchInterface;
 use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryInterface;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 
@@ -46,13 +45,6 @@ class Request implements RequestInterface, StaticFactoryInterface
      * @var UriInterface
      */
     protected $uri;
-
-    /**
-     * Matched route.
-     *
-     * @var RouteMatchInterface|null
-     */
-    protected $routeMatch;
 
     /**
      * @inheritDoc
@@ -146,7 +138,6 @@ class Request implements RequestInterface, StaticFactoryInterface
         return $this->uri;
     }
 
-
     /**
      * @inheritDoc
      */
@@ -216,7 +207,7 @@ class Request implements RequestInterface, StaticFactoryInterface
     /**
      * @inheritDoc
      */
-    public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): RequestInterface
+    public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): object
     {
         return static::fromEnvironment();
     }

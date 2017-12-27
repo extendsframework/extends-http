@@ -187,8 +187,12 @@ class Uri implements UriInterface
     /**
      * @inheritDoc
      */
-    public function withAuthority(string $host, string $user = null, string $pass = null, int $port = null): UriInterface
-    {
+    public function withAuthority(
+        string $host,
+        string $user = null,
+        string $pass = null,
+        int $port = null
+    ): UriInterface {
         $uri = clone $this;
         $uri->host = $host;
         $uri->user = $user;
