@@ -10,6 +10,33 @@ use PHPUnit\Framework\TestCase;
 class RequestTest extends TestCase
 {
     /**
+     * Default $_SERVER global.
+     *
+     * @var array
+     */
+    protected static $defaultServer;
+
+    /**
+     * Save default $_SERVER global.
+     *
+     * @return void
+     */
+    public static function setUpBeforeClass(): void
+    {
+        static::$defaultServer = $_SERVER;
+    }
+
+    /**
+     * Reset $_SERVER global.
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        $_SERVER = static::$defaultServer;
+    }
+
+    /**
      * Get methods.
      *
      * Test that get methods will return the correct php://input abd $_SERVER values.
@@ -203,6 +230,11 @@ class RequestTest extends TestCase
     {
         Buffer::set('');
 
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['HTTP_HOST'] = 'www.extends.nl';
+        $_SERVER['SERVER_PORT'] = 80;
+        $_SERVER['REQUEST_URI'] = '/';
+
         $request = Request::fromEnvironment();
 
         $this->assertNull($request->getBody());
@@ -221,6 +253,11 @@ class RequestTest extends TestCase
     public function testFactory(): void
     {
         Buffer::set('{}');
+
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['HTTP_HOST'] = 'www.extends.nl';
+        $_SERVER['SERVER_PORT'] = 80;
+        $_SERVER['REQUEST_URI'] = '/';
 
         $serviceLocator = $this->createMock(ServiceLocatorInterface::class);
 

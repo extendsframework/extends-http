@@ -8,6 +8,33 @@ use PHPUnit\Framework\TestCase;
 class UriTest extends TestCase
 {
     /**
+     * Default $_SERVER global.
+     *
+     * @var array
+     */
+    protected static $defaultServer;
+
+    /**
+     * Save default $_SERVER global.
+     *
+     * @return void
+     */
+    public static function setUpBeforeClass(): void
+    {
+        static::$defaultServer = $_SERVER;
+    }
+
+    /**
+     * Reset $_SERVER global.
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        $_SERVER = static::$defaultServer;
+    }
+
+    /**
      * Get methods.
      *
      * Test that get methods will return the correct $_SERVER values.
@@ -181,6 +208,9 @@ class UriTest extends TestCase
      */
     public function testToRelative(): void
     {
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['HTTP_HOST'] = 'www.extends.nl';
+        $_SERVER['SERVER_PORT'] = 80;
         $_SERVER['REQUEST_URI'] = '/foo/bar?baz=qux+quux';
         $_SERVER['QUERY_STRING'] = 'baz=qux+quux';
 
