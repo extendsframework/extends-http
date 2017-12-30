@@ -337,7 +337,7 @@ class Uri implements UriInterface
      */
     public static function fromEnvironment(): UriInterface
     {
-        parse_str($_SERVER['QUERY_STRING'], $query);
+        parse_str($_SERVER['QUERY_STRING'] ?? '', $query);
 
         $uri = (new static())
             ->withScheme((isset($_SERVER['HTTPS']) === true && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http')
