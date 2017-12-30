@@ -245,4 +245,26 @@ class UriTest extends TestCase
 
         $this->assertSame('https://extends:framework@www.extends.nl:443/foo/bar?baz=qux+quux#bar=baz', $uri->toAbsolute());
     }
+
+    /**
+     * No query string.
+     *
+     * Test that a empty query string will be used when non is set, like in the Development Server.
+     *
+     * @covers \ExtendsFramework\Http\Request\Uri\Uri::fromEnvironment()
+     * @covers \ExtendsFramework\Http\Request\Uri\Uri::toAbsolute()
+     */
+    public function testNoQueryString(): void
+    {
+        $_SERVER['HTTPS'] = 'on';
+        $_SERVER['HTTP_HOST'] = 'www.extends.nl';
+        $_SERVER['PHP_AUTH_PW'] = 'framework';
+        $_SERVER['PHP_AUTH_USER'] = 'extends';
+        $_SERVER['REQUEST_URI'] = '/foo/bar';
+        $_SERVER['SERVER_PORT'] = '443';
+
+        $uri = Uri::fromEnvironment();
+
+        $this->assertSame('https://extends:framework@www.extends.nl:443/foo/bar', $uri->toAbsolute());
+    }
 }
