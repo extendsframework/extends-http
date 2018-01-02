@@ -16,6 +16,7 @@ class MiddlewareChainFactoryTest extends TestCase
      * Test that factory will return an instance of RouterMiddleware.
      *
      * @covers \ExtendsFramework\Http\Framework\ServiceLocator\Factory\MiddlewareChainFactory::createService()
+     * @covers \ExtendsFramework\Http\Framework\ServiceLocator\Factory\MiddlewareChainFactory::getMiddleware()
      */
     public function testCreateService(): void
     {
