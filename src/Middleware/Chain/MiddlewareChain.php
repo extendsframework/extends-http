@@ -33,7 +33,9 @@ class MiddlewareChain implements MiddlewareChainInterface
     public function proceed(RequestInterface $request): ResponseInterface
     {
         $response = null;
-        $middleware = $this->queue->current();
+        $middleware = $this
+            ->getQueue()
+            ->current();
         if ($middleware instanceof MiddlewareInterface) {
             $this->queue->next();
             $response = $middleware->process($request, $this);
@@ -56,5 +58,15 @@ class MiddlewareChain implements MiddlewareChainInterface
         $this->queue->insert($middleware, $priority ?: 1);
 
         return $this;
+    }
+
+    /**
+     * Get queue.
+     *
+     * @return SplPriorityQueue
+     */
+    protected function getQueue(): SplPriorityQueue
+    {
+        return $this->queue;
     }
 }
