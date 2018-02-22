@@ -28,6 +28,19 @@ class MiddlewareChain implements MiddlewareChainInterface
     }
 
     /**
+     * Clone middleware chain.
+     *
+     * Make sure the same queue is not referenced from the cloned middleware chain. Middlewares inside the queue are not
+     * cloned. Be sure they are stateless because they can be called more than once.
+     *
+     * @return void
+     */
+    public function __clone()
+    {
+        $this->queue = clone $this->queue;
+    }
+
+    /**
      * @inheritDoc
      */
     public function proceed(RequestInterface $request): ResponseInterface
