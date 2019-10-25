@@ -63,8 +63,8 @@ class Request implements RequestInterface, StaticFactoryInterface
     public function andHeader(string $name, $value, bool $replace = null): RequestInterface
     {
         $clone = clone $this;
-        if (array_key_exists($name, $clone->headers) === true) {
-            if (is_array($clone->headers[$name]) === false) {
+        if (array_key_exists($name, $clone->headers)) {
+            if (!is_array($clone->headers[$name])) {
                 $clone->headers[$name] = [
                     $clone->headers[$name],
                 ];
@@ -206,6 +206,7 @@ class Request implements RequestInterface, StaticFactoryInterface
 
     /**
      * @inheritDoc
+     * @throws InvalidRequestBody
      */
     public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): object
     {
@@ -234,8 +235,8 @@ class Request implements RequestInterface, StaticFactoryInterface
         }
 
         $input = file_get_contents('php://input') ?: '';
-        if (empty($input) === false) {
-            $body = json_decode(file_get_contents('php://input') ?: '');
+        if (!empty($input)) {
+            $body = json_decode(file_get_contents('php://input') ?: '', false);
             if (json_last_error() !== JSON_ERROR_NONE) {
                 throw new InvalidRequestBody(json_last_error_msg());
             }
