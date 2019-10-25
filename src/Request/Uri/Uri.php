@@ -172,7 +172,6 @@ class Uri implements UriInterface
      */
     public function getUserInfo(): ?string
     {
-        $userInfo = null;
         if ($this->getUser()) {
             $userInfo = $this->getUser();
 
@@ -181,7 +180,7 @@ class Uri implements UriInterface
             }
         }
 
-        return $userInfo;
+        return $userInfo ?? null;
     }
 
     /**
@@ -310,12 +309,12 @@ class Uri implements UriInterface
         $uri = $this->getPath();
 
         $query = $this->getQuery();
-        if (empty($query) === false) {
+        if (!empty($query)) {
             $uri .= '?' . http_build_query($query);
         }
 
         $fragment = $this->getFragment();
-        if (empty($fragment) === false) {
+        if (!empty($fragment)) {
             $uri .= '#' . http_build_query($fragment);
         }
 
@@ -340,17 +339,17 @@ class Uri implements UriInterface
         parse_str($_SERVER['QUERY_STRING'] ?? '', $query);
 
         $uri = (new static())
-            ->withScheme((isset($_SERVER['HTTPS']) === true && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http')
+            ->withScheme((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http')
             ->withHost($_SERVER['HTTP_HOST'])
             ->withPort((int)$_SERVER['SERVER_PORT'])
             ->withPath(strtok($_SERVER['REQUEST_URI'], '?'))
             ->withQuery($query);
 
-        if (array_key_exists('PHP_AUTH_USER', $_SERVER) === true) {
+        if (array_key_exists('PHP_AUTH_USER', $_SERVER)) {
             $uri = $uri->withUser($_SERVER['PHP_AUTH_USER']);
         }
 
-        if (array_key_exists('PHP_AUTH_PW', $_SERVER) === true) {
+        if (array_key_exists('PHP_AUTH_PW', $_SERVER)) {
             $uri = $uri->withPass($_SERVER['PHP_AUTH_PW']);
         }
 
