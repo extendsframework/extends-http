@@ -9,16 +9,22 @@ use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 class Response implements ResponseInterface, StaticFactoryInterface
 {
     /**
+     * Response body.
+     *
      * @var array
      */
     protected $body;
 
     /**
+     * Response headers.
+     *
      * @var array
      */
     protected $headers = [];
 
     /**
+     * Response status code.
+     *
      * @var int
      */
     protected $statusCode = 200;
@@ -29,8 +35,8 @@ class Response implements ResponseInterface, StaticFactoryInterface
     public function andHeader(string $name, string $value): ResponseInterface
     {
         $clone = clone $this;
-        if (array_key_exists($name, $clone->headers) === true) {
-            if (is_array($clone->headers[$name]) === false) {
+        if (array_key_exists($name, $clone->headers)) {
+            if (!is_array($clone->headers[$name])) {
                 $clone->headers[$name] = [
                     $clone->headers[$name],
                 ];
