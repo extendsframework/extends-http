@@ -56,7 +56,7 @@ class MiddlewareChainTest extends TestCase
             ->addMiddleware($middleware2)
             ->proceed($request);
 
-        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertIsObject($response);
     }
 
     /**

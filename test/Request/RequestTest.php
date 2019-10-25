@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Http\Request;
 
+use ExtendsFramework\Http\Request\Exception\InvalidRequestBody;
 use ExtendsFramework\Http\Request\Uri\UriInterface;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 use PHPUnit\Framework\TestCase;
@@ -68,7 +69,7 @@ class RequestTest extends TestCase
             'Content-Type' => 'application/json',
         ], $request->getHeaders());
         $this->assertSame('POST', $request->getMethod());
-        $this->assertInstanceOf(UriInterface::class, $request->getUri());
+        $this->assertIsObject($request->getUri());
 
         Buffer::reset();
     }
@@ -78,18 +79,18 @@ class RequestTest extends TestCase
      *
      * Test that with methods will set the correct value.
      *
-     * @covers  \ExtendsFramework\Http\Request\Request::withAttributes()
-     * @covers  \ExtendsFramework\Http\Request\Request::withBody()
-     * @covers  \ExtendsFramework\Http\Request\Request::withHeaders()
-     * @covers  \ExtendsFramework\Http\Request\Request::withMethod()
-     * @covers  \ExtendsFramework\Http\Request\Request::withUri()
-     * @covers  \ExtendsFramework\Http\Request\Request::getAttributes()
-     * @covers  \ExtendsFramework\Http\Request\Request::getAttribute()
-     * @covers  \ExtendsFramework\Http\Request\Request::getBody()
-     * @covers  \ExtendsFramework\Http\Request\Request::getHeaders()
-     * @covers  \ExtendsFramework\Http\Request\Request::getHeader()
-     * @covers  \ExtendsFramework\Http\Request\Request::getMethod()
-     * @covers  \ExtendsFramework\Http\Request\Request::getUri()
+     * @covers \ExtendsFramework\Http\Request\Request::withAttributes()
+     * @covers \ExtendsFramework\Http\Request\Request::withBody()
+     * @covers \ExtendsFramework\Http\Request\Request::withHeaders()
+     * @covers \ExtendsFramework\Http\Request\Request::withMethod()
+     * @covers \ExtendsFramework\Http\Request\Request::withUri()
+     * @covers \ExtendsFramework\Http\Request\Request::getAttributes()
+     * @covers \ExtendsFramework\Http\Request\Request::getAttribute()
+     * @covers \ExtendsFramework\Http\Request\Request::getBody()
+     * @covers \ExtendsFramework\Http\Request\Request::getHeaders()
+     * @covers \ExtendsFramework\Http\Request\Request::getHeader()
+     * @covers \ExtendsFramework\Http\Request\Request::getMethod()
+     * @covers \ExtendsFramework\Http\Request\Request::getUri()
      */
     public function testWithMethods(): void
     {
@@ -197,7 +198,7 @@ class RequestTest extends TestCase
     {
         $uri = (new Request())->getUri();
 
-        $this->assertInstanceOf(UriInterface::class, $uri);
+        $this->assertIsObject($uri);
     }
 
     /**
@@ -205,13 +206,14 @@ class RequestTest extends TestCase
      *
      * Test that invalid body can not be parsed and a exception will be thrown.
      *
-     * @covers                   \ExtendsFramework\Http\Request\Request::fromEnvironment()
-     * @covers                   \ExtendsFramework\Http\Request\Exception\InvalidRequestBody::__construct()
-     * @expectedException        \ExtendsFramework\Http\Request\Exception\InvalidRequestBody
-     * @expectedExceptionMessage Invalid JSON for request body, got parse error "Syntax error".
+     * @covers \ExtendsFramework\Http\Request\Request::fromEnvironment()
+     * @covers \ExtendsFramework\Http\Request\Exception\InvalidRequestBody::__construct()
      */
     public function testInvalidBody(): void
     {
+        $this->expectException(InvalidRequestBody::class);
+        $this->expectExceptionMessage('Invalid JSON for request body, got parse error "Syntax error".');
+
         Buffer::set('{"foo":"qux"');
 
         Request::fromEnvironment();
@@ -272,27 +274,12 @@ class RequestTest extends TestCase
     }
 }
 
-class Buffer
-{
-    protected static $value;
-
-    public static function get(): string
-    {
-        return static::$value;
-    }
-
-    public static function set(string $value): void
-    {
-        static::$value = $value;
-    }
-
-    public static function reset(): void
-    {
-        static::$value = null;
-    }
-}
-
-function file_get_contents()
+/**
+ * Override native PHP method.
+ *
+ * @return string
+ */
+function file_get_contents(): string
 {
     return Buffer::get();
 }

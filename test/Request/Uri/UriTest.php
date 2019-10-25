@@ -214,9 +214,10 @@ class UriTest extends TestCase
         $_SERVER['REQUEST_URI'] = '/foo/bar?baz=qux+quux';
         $_SERVER['QUERY_STRING'] = 'baz=qux+quux';
 
-        $uri = Uri::fromEnvironment()->withFragment([
-            'bar' => 'baz',
-        ]);
+        $uri = Uri::fromEnvironment()
+            ->withFragment([
+                'bar' => 'baz',
+            ]);
 
         $this->assertSame('/foo/bar?baz=qux+quux#bar=baz', $uri->toRelative());
     }
@@ -239,11 +240,15 @@ class UriTest extends TestCase
         $_SERVER['QUERY_STRING'] = 'baz=qux+quux';
         $_SERVER['SERVER_PORT'] = '443';
 
-        $uri = Uri::fromEnvironment()->withFragment([
-            'bar' => 'baz',
-        ]);
+        $uri = Uri::fromEnvironment()
+            ->withFragment([
+                'bar' => 'baz',
+            ]);
 
-        $this->assertSame('https://extends:framework@www.extends.nl:443/foo/bar?baz=qux+quux#bar=baz', $uri->toAbsolute());
+        $this->assertSame(
+            'https://extends:framework@www.extends.nl:443/foo/bar?baz=qux+quux#bar=baz',
+            $uri->toAbsolute()
+        );
     }
 
     /**
