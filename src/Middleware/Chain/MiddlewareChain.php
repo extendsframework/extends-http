@@ -45,7 +45,6 @@ class MiddlewareChain implements MiddlewareChainInterface
      */
     public function proceed(RequestInterface $request): ResponseInterface
     {
-        $response = null;
         $middleware = $this
             ->getQueue()
             ->current();
@@ -54,7 +53,7 @@ class MiddlewareChain implements MiddlewareChainInterface
             $response = $middleware->process($request, $this);
         }
 
-        return $response;
+        return $response ?? null;
     }
 
     /**
