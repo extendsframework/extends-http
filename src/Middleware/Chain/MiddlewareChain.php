@@ -49,7 +49,9 @@ class MiddlewareChain implements MiddlewareChainInterface
             ->getQueue()
             ->current();
         if ($middleware instanceof MiddlewareInterface) {
-            $this->queue->next();
+            $this
+                ->getQueue()
+                ->next();
             $response = $middleware->process($request, $this);
         }
 
