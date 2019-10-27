@@ -13,7 +13,7 @@ class MiddlewareChain implements MiddlewareChainInterface
     /**
      * Middleware queue.
      *
-     * @var SplPriorityQueue
+     * @var SplPriorityQueue|null
      */
     private $queue;
 
@@ -24,7 +24,7 @@ class MiddlewareChain implements MiddlewareChainInterface
      */
     public function __construct(SplPriorityQueue $queue = null)
     {
-        $this->queue = $queue ?: new SplPriorityQueue();
+        $this->queue = $queue;
     }
 
     /**
@@ -67,7 +67,9 @@ class MiddlewareChain implements MiddlewareChainInterface
      */
     public function addMiddleware(MiddlewareInterface $middleware, int $priority = null): MiddlewareChain
     {
-        $this->queue->insert($middleware, $priority ?: 1);
+        $this
+            ->getQueue()
+            ->insert($middleware, $priority ?: 1);
 
         return $this;
     }
@@ -79,6 +81,10 @@ class MiddlewareChain implements MiddlewareChainInterface
      */
     private function getQueue(): SplPriorityQueue
     {
+        if ($this->queue === null) {
+            $this->queue = new SplPriorityQueue();
+        }
+
         return $this->queue;
     }
 }
