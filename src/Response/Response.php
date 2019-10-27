@@ -13,21 +13,21 @@ class Response implements ResponseInterface, StaticFactoryInterface
      *
      * @var array
      */
-    protected $body;
+    private $body;
 
     /**
      * Response headers.
      *
      * @var array
      */
-    protected $headers = [];
+    private $headers = [];
 
     /**
      * Response status code.
      *
      * @var int
      */
-    protected $statusCode = 200;
+    private $statusCode = 200;
 
     /**
      * @inheritDoc

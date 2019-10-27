@@ -39,7 +39,7 @@ class MiddlewareChainFactory implements ServiceFactoryInterface
      * @return MiddlewareInterface
      * @throws ServiceLocatorException
      */
-    protected function getMiddleware(ServiceLocatorInterface $serviceLocator, string $key): object
+    private function getMiddleware(ServiceLocatorInterface $serviceLocator, string $key): object
     {
         return $serviceLocator->getService($key);
     }

@@ -16,35 +16,35 @@ class Request implements RequestInterface, StaticFactoryInterface
      *
      * @var array
      */
-    protected $attributes = [];
+    private $attributes = [];
 
     /**
      * Post data.
      *
      * @var mixed
      */
-    protected $body;
+    private $body;
 
     /**
      * Request headers.
      *
      * @var array
      */
-    protected $headers = [];
+    private $headers = [];
 
     /**
      * Request method.
      *
      * @var string
      */
-    protected $method;
+    private $method;
 
     /**
      * Request URI.
      *
      * @var UriInterface
      */
-    protected $uri;
+    private $uri;
 
     /**
      * @inheritDoc

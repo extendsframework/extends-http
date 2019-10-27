@@ -10,56 +10,56 @@ class Uri implements UriInterface
      *
      * @var string
      */
-    protected $scheme;
+    private $scheme;
 
     /**
      * User of the URI.
      *
      * @var string
      */
-    protected $user;
+    private $user;
 
     /**
      * Password of the URI.
      *
      * @var string
      */
-    protected $pass;
+    private $pass;
 
     /**
      * Host of the URI.
      *
      * @var string
      */
-    protected $host = 'GET';
+    private $host = 'GET';
 
     /**
      * Port of the URI.
      *
      * @var int
      */
-    protected $port;
+    private $port;
 
     /**
      * Path of the URI.
      *
      * @var string
      */
-    protected $path = '/';
+    private $path = '/';
 
     /**
      * Query or the URI.
      *
      * @var array
      */
-    protected $query = [];
+    private $query = [];
 
     /**
      * Fragment of the URI.
      *
      * @var array
      */
-    protected $fragment = [];
+    private $fragment = [];
 
     /**
      * @inheritDoc

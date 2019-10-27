@@ -15,7 +15,7 @@ class MiddlewareChain implements MiddlewareChainInterface
      *
      * @var SplPriorityQueue
      */
-    protected $queue;
+    private $queue;
 
     /**
      * Set priority queue.
@@ -77,7 +77,7 @@ class MiddlewareChain implements MiddlewareChainInterface
      *
      * @return SplPriorityQueue
      */
-    protected function getQueue(): SplPriorityQueue
+    private function getQueue(): SplPriorityQueue
     {
         return $this->queue;
     }
