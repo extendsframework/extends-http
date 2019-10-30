@@ -19,7 +19,6 @@ class MiddlewareChainTest extends TestCase
      * @covers \ExtendsFramework\Http\Middleware\Chain\MiddlewareChain::__construct()
      * @covers \ExtendsFramework\Http\Middleware\Chain\MiddlewareChain::addMiddleware()
      * @covers \ExtendsFramework\Http\Middleware\Chain\MiddlewareChain::proceed()
-     * @covers \ExtendsFramework\Http\Middleware\Chain\MiddlewareChain::getQueue()
      */
     public function testProceed(): void
     {
@@ -68,7 +67,6 @@ class MiddlewareChainTest extends TestCase
      * @covers \ExtendsFramework\Http\Middleware\Chain\MiddlewareChain::__clone()
      * @covers \ExtendsFramework\Http\Middleware\Chain\MiddlewareChain::addMiddleware()
      * @covers \ExtendsFramework\Http\Middleware\Chain\MiddlewareChain::proceed()
-     * @covers \ExtendsFramework\Http\Middleware\Chain\MiddlewareChain::getQueue()
      */
     public function testClone(): void
     {
