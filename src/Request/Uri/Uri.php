@@ -172,10 +172,12 @@ class Uri implements UriInterface
      */
     public function getUserInfo(): ?string
     {
-        if ($this->getUser()) {
+        $user = $this->getUser();
+        if ($user) {
             $userInfo = $this->getUser();
 
-            if ($this->getPass()) {
+            $pass = $this->getPass();
+            if ($pass) {
                 $userInfo .= ':' . $this->getPass();
             }
         }
