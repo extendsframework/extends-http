@@ -35,9 +35,6 @@ class MiddlewareChainFactoryTest extends TestCase
             ->with(MiddlewareInterface::class)
             ->willReturn($this->createMock(MiddlewareInterface::class));
 
-        /**
-         * @var ServiceLocatorInterface $serviceLocator
-         */
         $factory = new MiddlewareChainFactory();
         $router = $factory->createService(MiddlewareChainInterface::class, $serviceLocator, []);
 

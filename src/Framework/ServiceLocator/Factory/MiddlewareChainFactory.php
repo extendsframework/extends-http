@@ -5,7 +5,6 @@ namespace ExtendsFramework\Http\Framework\ServiceLocator\Factory;
 
 use ExtendsFramework\Http\Middleware\Chain\MiddlewareChain;
 use ExtendsFramework\Http\Middleware\Chain\MiddlewareChainInterface;
-use ExtendsFramework\Http\Middleware\MiddlewareInterface;
 use ExtendsFramework\ServiceLocator\Resolver\Factory\ServiceFactoryInterface;
 use ExtendsFramework\ServiceLocator\ServiceLocatorException;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
@@ -22,11 +21,12 @@ class MiddlewareChainFactory implements ServiceFactoryInterface
         $config = $config[MiddlewareChainInterface::class] ?? [];
 
         $chain = new MiddlewareChain();
-        foreach ($config as $middlewareKey => $priority) {
-            /** @var MiddlewareInterface $middleware */
-            $middleware = $serviceLocator->getService($middlewareKey);
-
-            $chain->addMiddleware($middleware, $priority);
+        foreach ($config as $middleware => $priority) {
+            /** @noinspection PhpParamsInspection */
+            $chain->addMiddleware(
+                $serviceLocator->getService($middleware),
+                $priority
+            );
         }
 
         return $chain;
