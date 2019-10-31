@@ -21,10 +21,10 @@ class MiddlewareChainFactory implements ServiceFactoryInterface
         $config = $config[MiddlewareChainInterface::class] ?? [];
 
         $chain = new MiddlewareChain();
-        foreach ($config as $middleware => $priority) {
+        foreach ($config as $middlewareKey => $priority) {
             /** @noinspection PhpParamsInspection */
             $chain->addMiddleware(
-                $serviceLocator->getService($middleware),
+                $serviceLocator->getService($middlewareKey),
                 $priority
             );
         }
