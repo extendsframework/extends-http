@@ -46,6 +46,9 @@ class MiddlewareChainTest extends TestCase
             }
         };
 
+        /**
+         * @var RequestInterface $request
+         */
         $chain = new MiddlewareChain();
         $response = $chain
             ->addMiddleware($middleware1)
@@ -107,6 +110,11 @@ class MiddlewareChainTest extends TestCase
             ->with($request, $this->isInstanceOf(MiddlewareChainInterface::class))
             ->willReturn($response);
 
+        /**
+         * @var RequestInterface    $request
+         * @var MiddlewareInterface $middleware1
+         * @var MiddlewareInterface $middleware3
+         */
         $chain = new MiddlewareChain();
 
         $this->assertSame(
